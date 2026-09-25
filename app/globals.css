@@ -123,8 +123,24 @@
   }
   body {
     @apply bg-background text-foreground;
+    color-scheme: dark;
   }
   html {
     @apply font-sans;
+  }
+
+  /* Scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Remove default button styling */
+  button {
+    @apply cursor-pointer;
+  }
+
+  /* Remove default link underline */
+  a {
+    @apply transition-colors;
   }
 }
