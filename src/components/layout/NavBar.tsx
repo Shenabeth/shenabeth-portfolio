@@ -17,7 +17,7 @@ interface NavBarProps {
  *
  * @param currentPage - Optional current page for active link highlighting
  */
-export function NavBar({ currentPage }: NavBarProps): JSX.Element {
+export function NavBar({ currentPage }: NavBarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (page: string): boolean => currentPage === page;

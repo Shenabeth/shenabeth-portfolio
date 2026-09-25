@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: MoreProjectsSection.tsx
  * Purpose: Placeholder section for additional projects (Phase 2)
@@ -14,7 +15,7 @@ interface MoreProjectsSectionProps {
  *
  * @param projects - Optional array of additional projects (Phase 2)
  */
-export function MoreProjectsSection({ projects }: MoreProjectsSectionProps): JSX.Element {
+export function MoreProjectsSection({ projects }: MoreProjectsSectionProps) {
   // Phase 1: Show placeholder only
   if (!projects || projects.length === 0) {
     return (

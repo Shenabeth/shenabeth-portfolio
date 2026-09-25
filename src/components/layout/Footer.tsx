@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: Footer.tsx
  * Purpose: Footer with social links and admin link
@@ -9,7 +10,7 @@ import { SocialLinks } from '@/components/shared/SocialLinks';
 /**
  * Footer with name, social links, contact link, and admin link
  */
-export function Footer(): JSX.Element {
+export function Footer() {
   return (
     <footer className="bg-slate-900 border-t border-slate-700">
       <div className="px-4 md:px-6 py-6">

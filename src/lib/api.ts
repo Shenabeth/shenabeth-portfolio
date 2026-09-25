@@ -20,18 +20,22 @@ async function apiCall<T>(
   token?: string,
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
   };
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (options.headers) {
+    const optionHeaders = options.headers as Record<string, string>;
+    Object.assign(headers, optionHeaders);
   }
 
   const response = await fetch(url, {
     ...options,
-    headers,
+    headers: headers as HeadersInit,
   });
 
   if (!response.ok) {

@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: ProjectCard.tsx
  * Purpose: Display a single project in card format for featured projects section
@@ -32,7 +33,7 @@ export function ProjectCard({
   githubLink,
   caseStudyLink,
   status,
-}: ProjectCardProps): JSX.Element {
+}: ProjectCardProps) {
   return (
     <div className="flex-shrink-0 w-80 p-6 rounded border border-slate-600 bg-slate-800 hover:border-slate-500 transition-colors">
       {/* Status Badge */}

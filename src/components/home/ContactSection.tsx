@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: ContactSection.tsx
  * Purpose: Contact section wrapper with heading and contact form
@@ -8,7 +9,7 @@ import { ContactForm } from './ContactForm';
 /**
  * Display contact section with heading and contact form
  */
-export function ContactSection(): JSX.Element {
+export function ContactSection() {
   return (
     <section id="contact" className="px-4 py-16 bg-slate-800">
       <div className="max-w-2xl mx-auto">

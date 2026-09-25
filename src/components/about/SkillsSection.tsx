@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: SkillsSection.tsx
  * Purpose: Display skills organized by category
@@ -9,7 +10,7 @@ import { SkillBadge } from '@/components/shared/SkillBadge';
 /**
  * Display skills organized by category in a responsive layout
  */
-export function SkillsSection(): JSX.Element {
+export function SkillsSection() {
   return (
     <section className="mb-12">
       <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">Skills</h2>

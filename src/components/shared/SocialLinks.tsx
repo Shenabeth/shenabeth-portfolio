@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: SocialLinks.tsx
  * Purpose: Display social media links (GitHub, LinkedIn, Credly)
@@ -14,7 +15,7 @@ interface SocialLinksProps {
  *
  * @param className - Optional CSS class for custom styling
  */
-export function SocialLinks({ className = '' }: SocialLinksProps): JSX.Element {
+export function SocialLinks({ className = '' }: SocialLinksProps) {
   return (
     <div className={`flex gap-4 ${className}`}>
       <a

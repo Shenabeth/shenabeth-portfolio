@@ -12,7 +12,7 @@ import { validateEmail } from '@/lib/utils';
 /**
  * Contact form with email validation and submission to API
  */
-export function ContactForm(): JSX.Element {
+export function ContactForm() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);

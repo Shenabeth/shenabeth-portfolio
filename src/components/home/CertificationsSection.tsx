@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: CertificationsSection.tsx
  * Purpose: Display certifications in a responsive grid layout
@@ -9,7 +10,7 @@ import { CertificationBadge } from '@/components/shared/CertificationBadge';
 /**
  * Display certifications in a responsive grid
  */
-export function CertificationsSection(): JSX.Element {
+export function CertificationsSection() {
   return (
     <section className="px-4 py-16 bg-slate-900">
       <div className="max-w-4xl mx-auto">

@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: FeaturedProjectsGrid.tsx
  * Purpose: Display featured projects in a stacked grid layout
@@ -15,7 +16,7 @@ interface FeaturedProjectsGridProps {
  *
  * @param projects - Array of featured projects
  */
-export function FeaturedProjectsGrid({ projects }: FeaturedProjectsGridProps): JSX.Element {
+export function FeaturedProjectsGrid({ projects }: FeaturedProjectsGridProps) {
   return (
     <div className="space-y-8">
       {projects.map((project) => (

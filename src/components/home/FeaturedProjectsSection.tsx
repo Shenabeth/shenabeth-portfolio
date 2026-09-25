@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: FeaturedProjectsSection.tsx
  * Purpose: Display featured projects in a horizontal scrollable container
@@ -15,7 +16,7 @@ interface FeaturedProjectsSectionProps {
  *
  * @param projects - Array of featured projects to display
  */
-export function FeaturedProjectsSection({ projects }: FeaturedProjectsSectionProps): JSX.Element {
+export function FeaturedProjectsSection({ projects }: FeaturedProjectsSectionProps) {
   return (
     <section className="px-4 py-16">
       <div className="max-w-7xl mx-auto">

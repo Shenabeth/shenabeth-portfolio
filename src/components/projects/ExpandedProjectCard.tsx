@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: ExpandedProjectCard.tsx
  * Purpose: Display a single project in expanded detail format
@@ -38,7 +39,7 @@ export function ExpandedProjectCard({
   caseStudyLink,
   status,
   whyBuilt,
-}: ExpandedProjectCardProps): JSX.Element {
+}: ExpandedProjectCardProps) {
   const displayDescription = longDescription || description;
 
   return (

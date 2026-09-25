@@ -1,3 +1,4 @@
+import React from 'react';
 /*
  * File: CertificationBadge.tsx
  * Purpose: Display individual certification badge
@@ -23,7 +24,7 @@ export function CertificationBadge({
   issuer,
   dateEarned,
   credlyUrl,
-}: CertificationBadgeProps): JSX.Element {
+}: CertificationBadgeProps) {
   return (
     <a
       href={credlyUrl}

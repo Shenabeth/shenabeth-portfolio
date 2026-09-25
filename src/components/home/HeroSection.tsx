@@ -11,7 +11,7 @@ import { SocialLinks } from '@/components/shared/SocialLinks';
 /**
  * Display hero section with introduction, social links, and action buttons
  */
-export function HeroSection(): JSX.Element {
+export function HeroSection() {
   const handleContactScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const element = document.getElementById('contact');
