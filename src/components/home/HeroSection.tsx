@@ -7,23 +7,19 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { SocialLinks } from '@/components/shared/SocialLinks';
 
-interface MagneticParticle {
-  id: number;
+interface CircuitNode {
   x: number;
   y: number;
-  targetX: number;
-  targetY: number;
-  vx: number;
-  vy: number;
+  active: boolean;
+  brightness: number;
 }
 
-function MagneticFilingsBackground() {
+function CircuitBoardBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const particlesRef = useRef<MagneticParticle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationRef = useRef<number | undefined>(undefined);
+  const nodesRef = useRef<CircuitNode[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -35,22 +31,21 @@ function MagneticFilingsBackground() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const particleCount = 120;
-    const particles: MagneticParticle[] = [];
+    const gridSize = 60;
+    const nodes: CircuitNode[] = [];
 
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        id: i,
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        targetX: Math.random() * canvas.width,
-        targetY: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-      });
+    for (let x = 0; x < canvas.width; x += gridSize) {
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        nodes.push({
+          x,
+          y,
+          active: false,
+          brightness: 0,
+        });
+      }
     }
 
-    particlesRef.current = particles;
+    nodesRef.current = nodes;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -63,46 +58,59 @@ function MagneticFilingsBackground() {
     window.addEventListener('mousemove', handleMouseMove);
 
     const animate = () => {
-      ctx.fillStyle = 'transparent';
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0a0e27';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((particle) => {
-        const mouse = mouseRef.current;
-        const dx = mouse.x - particle.x;
-        const dy = mouse.y - particle.y;
+      const mouse = mouseRef.current;
+      const activationRadius = 200;
+
+      nodes.forEach((node) => {
+        const dx = mouse.x - node.x;
+        const dy = mouse.y - node.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 150) {
-          const angle = Math.atan2(dy, dx);
-          particle.vx += Math.cos(angle) * 0.3;
-          particle.vy += Math.sin(angle) * 0.3;
+        if (distance < activationRadius) {
+          node.active = true;
+          node.brightness = Math.max(node.brightness, 1 - distance / activationRadius);
         } else {
-          const driftX = particle.targetX - particle.x;
-          const driftY = particle.targetY - particle.y;
-          particle.vx += driftX * 0.001;
-          particle.vy += driftY * 0.001;
+          node.brightness = Math.max(0, node.brightness - 0.05);
+          if (node.brightness < 0.1) {
+            node.active = false;
+          }
         }
+      });
 
-        particle.vx *= 0.92;
-        particle.vy *= 0.92;
+      ctx.strokeStyle = 'rgba(100, 150, 200, 0.15)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const node1 = nodes[i];
+        const node2 = nodes[i + 1];
 
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+        const dx = node2.x - node1.x;
+        const dy = node2.y - node1.y;
 
-        if (particle.x < 0 || particle.x > canvas.width) {
-          particle.vx *= -1;
-          particle.x = Math.max(0, Math.min(canvas.width, particle.x));
+        if (Math.abs(dx) < gridSize * 1.5 && Math.abs(dy) < gridSize * 1.5) {
+          const avgBrightness = (node1.brightness + node2.brightness) / 2;
+          ctx.strokeStyle = `rgba(100, 200, 255, ${avgBrightness * 0.4})`;
+          ctx.beginPath();
+          ctx.moveTo(node1.x, node1.y);
+          ctx.lineTo(node2.x, node2.y);
+          ctx.stroke();
         }
-        if (particle.y < 0 || particle.y > canvas.height) {
-          particle.vy *= -1;
-          particle.y = Math.max(0, Math.min(canvas.height, particle.y));
-        }
+      }
 
-        const hue = (particle.id * (360 / particleCount) + Date.now() * 0.1) % 360;
-        ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.6)`;
+      nodes.forEach((node) => {
+        ctx.fillStyle = `rgba(100, 200, 255, ${node.brightness * 0.8})`;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, 2 + node.brightness * 2, 0, Math.PI * 2);
         ctx.fill();
+
+        if (node.brightness > 0.3) {
+          ctx.fillStyle = `rgba(150, 220, 255, ${node.brightness * 0.3})`;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 4 + node.brightness * 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
       });
 
       animationRef.current = requestAnimationFrame(animate);
@@ -205,19 +213,9 @@ export function HeroSection() {
   return (
     <section className="hero-section-wrapper">
       <section className="hero-section">
-        {/* Magnetic Filings Background */}
+        {/* Circuit Board Background */}
         <div className="hero-background-container">
-          <div
-            className="hero-gradient-bg"
-            style={{
-              background:
-                'linear-gradient(135deg, rgba(255, 0, 100, 0.15) 0%, rgba(0, 100, 255, 0.15) 25%, rgba(100, 0, 255, 0.15) 50%, rgba(0, 255, 100, 0.15) 75%, rgba(255, 100, 0, 0.15) 100%)',
-              backgroundSize: '400% 400%',
-              animation: 'gradient-shift 15s ease infinite',
-            }}
-            aria-hidden="true"
-          />
-          <MagneticFilingsBackground />
+          <CircuitBoardBackground />
         </div>
 
         {/* Background glow */}
@@ -266,11 +264,6 @@ export function HeroSection() {
                 <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </button>
-          </motion.div>
-
-          {/* Social Links */}
-          <motion.div variants={itemVariants}>
-            <SocialLinks className="social-links-hero" />
           </motion.div>
         </motion.div>
 
