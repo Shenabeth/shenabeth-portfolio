@@ -16,7 +16,7 @@ function ScrambleText({ text }: { text: string }) {
 
   useEffect(() => {
     let startTime: number;
-    const duration = 600;
+    const duration = 1400;
 
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime;
@@ -62,7 +62,12 @@ export function HeroSection() {
       <div className="hero-glow" aria-hidden="true" />
 
       {/* Left side: Text content */}
-      <div className="hero-copy">
+      <motion.div
+        className="hero-copy"
+        initial={{ opacity: 0, x: -60 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
         <h1 className="hero-title">
           <ScrambleText text="Shenabeth" /> <span className="hero-title-stroke"><ScrambleText text="Jenkins" /></span>
         </h1>
@@ -70,11 +75,16 @@ export function HeroSection() {
         <p className="hero-role">Software Developer & Cloud Architect</p>
 
         <p className="hero-description">
-          I build scalable cloud systems and craft the interfaces that connect them to real users. From infrastructure to user experience, I design solutions that are <em>reliable and thoughtful.</em>
+          I build <em>scalable cloud systems</em> and craft the interfaces that connect them to real users, designing infrastructure and user experiences with care and precision.
         </p>
 
         {/* Action Buttons */}
-        <div className="hero-actions">
+        <motion.div
+          className="hero-actions"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+        >
           <a
             href="/resume.pdf"
             download="resume.pdf"
@@ -94,8 +104,8 @@ export function HeroSection() {
               <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Right side: Animated art */}
       <div className="hero-art hidden lg:block">
