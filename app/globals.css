@@ -229,6 +229,12 @@
     border-color: rgba(84, 213, 170, 0.35);
   }
 
+  /* Hero section wrapper */
+  .hero-section-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
   /* Hero section */
   .hero-section {
     position: relative;
@@ -239,6 +245,39 @@
     min-height: 100vh;
     margin: 0 auto;
     padding: 9rem 0 5rem;
+    z-index: 1;
+  }
+
+  .hero-background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    margin-left: calc(-50vw + 50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-gradient-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 
   @media (max-width: 1024px) {
