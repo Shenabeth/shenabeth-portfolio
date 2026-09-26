@@ -1,6 +1,6 @@
 /*
  * File: HeroSection.tsx
- * Purpose: Landing page hero section with animated art, name, and action buttons
+ * Purpose: Landing page hero section with animated ASCII grid background
  */
 
 'use client';
@@ -8,18 +8,39 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-interface CircuitNode {
-  x: number;
-  y: number;
-  active: boolean;
-  brightness: number;
+interface ASCIIGrid {
+  chars: string[][];
+  displayChars: string[][];
+  scrambling: boolean;
+  currentWord?: string;
+  wordRow: number;
+  wordCol: number;
 }
 
-function CircuitBoardBackground() {
+const TECH_WORDS = [
+  'CLOUD',
+  'ARCHITECT',
+  'DEVOPS',
+  'SERVERLESS',
+  'LAMBDA',
+  'DYNAMODB',
+  'INFRASTRUCTURE',
+  'SCALABLE',
+  'BACKEND',
+  'AWS',
+  'REACT',
+  'TYPESCRIPT',
+  'DEPLOY',
+  'BUILD',
+];
+
+const ASCII_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function ASCIIGridBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
+  const gridRef = useRef<ASCIIGrid | null>(null);
   const animationRef = useRef<number | undefined>(undefined);
-  const nodesRef = useRef<CircuitNode[]>([]);
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,21 +52,31 @@ function CircuitBoardBackground() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const gridSize = 80;
-    const nodes: CircuitNode[] = [];
+    const charWidth = 16;
+    const charHeight = 24;
+    const cols = Math.ceil(canvas.width / charWidth);
+    const rows = Math.ceil(canvas.height / charHeight);
 
-    for (let x = 0; x < canvas.width; x += gridSize) {
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        nodes.push({
-          x,
-          y,
-          active: false,
-          brightness: 0,
-        });
+    const chars: string[][] = [];
+    const displayChars: string[][] = [];
+
+    for (let r = 0; r < rows; r++) {
+      chars[r] = [];
+      displayChars[r] = [];
+      for (let c = 0; c < cols; c++) {
+        const randomChar = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
+        chars[r][c] = randomChar;
+        displayChars[r][c] = randomChar;
       }
     }
 
-    nodesRef.current = nodes;
+    gridRef.current = {
+      chars,
+      displayChars,
+      scrambling: false,
+      wordRow: Math.floor(rows / 2),
+      wordCol: Math.floor((cols - 15) / 2),
+    };
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -57,85 +88,117 @@ function CircuitBoardBackground() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
+    ctx.font = 'bold 20px "Courier New", monospace';
+    ctx.textBaseline = 'top';
+
+    let frameCount = 0;
+    let wordDisplayTime = 0;
+    const WORD_DISPLAY_DURATION = 180; // 3 seconds at 60fps
+    const SCRAMBLE_DURATION = 60; // 1 second
+
+    const selectNewWord = () => {
+      const grid = gridRef.current;
+      if (!grid) return;
+
+      const newWord = TECH_WORDS[Math.floor(Math.random() * TECH_WORDS.length)];
+      grid.currentWord = newWord;
+      grid.wordRow = Math.floor(Math.random() * Math.max(1, rows - 4));
+      grid.wordCol = Math.max(0, Math.floor(Math.random() * Math.max(1, cols - newWord.length - 5)));
+      wordDisplayTime = 0;
+      grid.scrambling = false;
+
+      // Reset the grid area where word will appear
+      if (grid.displayChars[grid.wordRow]) {
+        for (let i = 0; i < newWord.length; i++) {
+          const col = grid.wordCol + i;
+          if (col < grid.displayChars[grid.wordRow].length) {
+            grid.displayChars[grid.wordRow][col] = grid.chars[grid.wordRow][col];
+          }
+        }
+      }
+    };
+
+    selectNewWord();
+
     const animate = () => {
-      // Dark gray motherboard background
-      ctx.fillStyle = '#1a1f2e';
+      const grid = gridRef.current;
+      if (!grid) return;
+
+      // Clear canvas with slight fade
+      ctx.fillStyle = 'rgba(10, 14, 39, 0.02)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const mouse = mouseRef.current;
-      const activationRadius = 250;
+      const reactivityRadius = 180;
 
-      nodes.forEach((node) => {
-        const dx = mouse.x - node.x;
-        const dy = mouse.y - node.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < activationRadius) {
-          node.active = true;
-          node.brightness = Math.max(node.brightness, 1 - distance / activationRadius);
-        } else {
-          node.brightness = Math.max(0, node.brightness - 0.03);
-          if (node.brightness < 0.05) {
-            node.active = false;
+      // Handle word display, scrambling, and transition
+      if (wordDisplayTime < WORD_DISPLAY_DURATION) {
+        // Show the word clearly
+        if (grid.currentWord && grid.displayChars[grid.wordRow]) {
+          for (let i = 0; i < grid.currentWord.length; i++) {
+            const col = grid.wordCol + i;
+            if (col < grid.displayChars[grid.wordRow].length) {
+              grid.displayChars[grid.wordRow][col] = grid.currentWord[i];
+            }
           }
         }
-      });
+      } else if (wordDisplayTime < WORD_DISPLAY_DURATION + SCRAMBLE_DURATION) {
+        // Scramble animation
+        const scrambleProgress = (wordDisplayTime - WORD_DISPLAY_DURATION) / SCRAMBLE_DURATION;
 
-      // Draw circuit board traces (subtle gray lines)
-      ctx.strokeStyle = 'rgba(120, 130, 140, 0.08)';
-      ctx.lineWidth = 1.5;
-      for (let i = 0; i < nodes.length - 1; i++) {
-        const node1 = nodes[i];
-        const node2 = nodes[i + 1];
+        if (grid.currentWord && grid.displayChars[grid.wordRow]) {
+          for (let i = 0; i < grid.currentWord.length; i++) {
+            const col = grid.wordCol + i;
+            if (col < grid.displayChars[grid.wordRow].length) {
+              if (Math.random() < scrambleProgress) {
+                grid.displayChars[grid.wordRow][col] = ASCII_CHARS[Math.floor(Math.random() * ASCII_CHARS.length)];
+              }
+            }
+          }
+        }
+      } else {
+        // Select new word
+        selectNewWord();
+      }
 
-        const dx = node2.x - node1.x;
-        const dy = node2.y - node1.y;
+      wordDisplayTime++;
 
-        if (Math.abs(dx) < gridSize * 1.2 && Math.abs(dy) < gridSize * 1.2) {
-          const avgBrightness = (node1.brightness + node2.brightness) / 2;
+      // Render grid with mouse reactivity
+      for (let r = 0; r < displayChars.length; r++) {
+        for (let c = 0; c < displayChars[r].length; c++) {
+          const x = c * charWidth;
+          const y = r * charHeight;
 
-          if (avgBrightness > 0.1) {
-            // Green for main accent
-            ctx.strokeStyle = `rgba(51, 175, 135, ${avgBrightness * 0.3})`;
-          } else {
-            // Subtle gray for inactive traces
-            ctx.strokeStyle = 'rgba(100, 110, 120, 0.08)';
+          const dx = mouse.x - x;
+          const dy = mouse.y - y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          let opacity = 0.25;
+          let color = '#33af87';
+
+          // Mouse reactivity - brighten nearby characters
+          if (distance < reactivityRadius) {
+            opacity = 0.3 + (1 - distance / reactivityRadius) * 0.6;
+            color = '#54d5aa';
           }
 
-          ctx.beginPath();
-          ctx.moveTo(node1.x, node1.y);
-          ctx.lineTo(node2.x, node2.y);
-          ctx.stroke();
+          // Highlight word being displayed
+          if (
+            r === grid.wordRow &&
+            c >= grid.wordCol &&
+            c < grid.wordCol + (grid.currentWord?.length || 0) &&
+            wordDisplayTime < WORD_DISPLAY_DURATION
+          ) {
+            opacity = 0.95;
+            color = '#54d5aa';
+          }
+
+          ctx.fillStyle = color.replace(')', `, ${opacity})`).replace('rgb', 'rgba');
+          ctx.fillText(displayChars[r][c], x, y);
         }
       }
 
-      // Draw nodes
-      nodes.forEach((node) => {
-        if (node.brightness > 0.05) {
-          // Active node - green with gold glow
-          const greenIntensity = node.brightness * 0.9;
-          const goldIntensity = node.brightness * 0.4;
-
-          // Main green node
-          ctx.fillStyle = `rgba(51, 175, 135, ${greenIntensity * 0.7})`;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 2.5 + node.brightness * 2.5, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Gold/warm glow
-          ctx.fillStyle = `rgba(212, 175, 55, ${goldIntensity * 0.2})`;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 5 + node.brightness * 4, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          // Inactive node - subtle gray
-          ctx.fillStyle = 'rgba(100, 110, 120, 0.15)';
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-
+      frameCount++;
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -161,7 +224,7 @@ function CircuitBoardBackground() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ mixBlendMode: 'multiply' }}
+      style={{ mixBlendMode: 'screen' }}
     />
   );
 }
@@ -236,9 +299,9 @@ export function HeroSection() {
   return (
     <section className="hero-section-wrapper">
       <section className="hero-section">
-        {/* Circuit Board Background */}
+        {/* ASCII Grid Background */}
         <div className="hero-background-container">
-          <CircuitBoardBackground />
+          <ASCIIGridBackground />
         </div>
 
         {/* Background glow */}
