@@ -31,7 +31,7 @@ function CircuitBoardBackground() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    const gridSize = 60;
+    const gridSize = 80;
     const nodes: CircuitNode[] = [];
 
     for (let x = 0; x < canvas.width; x += gridSize) {
@@ -58,11 +58,12 @@ function CircuitBoardBackground() {
     window.addEventListener('mousemove', handleMouseMove);
 
     const animate = () => {
-      ctx.fillStyle = '#0a0e27';
+      // Dark gray motherboard background
+      ctx.fillStyle = '#1a1f2e';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const mouse = mouseRef.current;
-      const activationRadius = 200;
+      const activationRadius = 250;
 
       nodes.forEach((node) => {
         const dx = mouse.x - node.x;
@@ -73,15 +74,16 @@ function CircuitBoardBackground() {
           node.active = true;
           node.brightness = Math.max(node.brightness, 1 - distance / activationRadius);
         } else {
-          node.brightness = Math.max(0, node.brightness - 0.05);
-          if (node.brightness < 0.1) {
+          node.brightness = Math.max(0, node.brightness - 0.03);
+          if (node.brightness < 0.05) {
             node.active = false;
           }
         }
       });
 
-      ctx.strokeStyle = 'rgba(100, 150, 200, 0.15)';
-      ctx.lineWidth = 1;
+      // Draw circuit board traces (subtle gray lines)
+      ctx.strokeStyle = 'rgba(120, 130, 140, 0.08)';
+      ctx.lineWidth = 1.5;
       for (let i = 0; i < nodes.length - 1; i++) {
         const node1 = nodes[i];
         const node2 = nodes[i + 1];
@@ -89,9 +91,17 @@ function CircuitBoardBackground() {
         const dx = node2.x - node1.x;
         const dy = node2.y - node1.y;
 
-        if (Math.abs(dx) < gridSize * 1.5 && Math.abs(dy) < gridSize * 1.5) {
+        if (Math.abs(dx) < gridSize * 1.2 && Math.abs(dy) < gridSize * 1.2) {
           const avgBrightness = (node1.brightness + node2.brightness) / 2;
-          ctx.strokeStyle = `rgba(100, 200, 255, ${avgBrightness * 0.4})`;
+
+          if (avgBrightness > 0.1) {
+            // Green for main accent
+            ctx.strokeStyle = `rgba(51, 175, 135, ${avgBrightness * 0.3})`;
+          } else {
+            // Subtle gray for inactive traces
+            ctx.strokeStyle = 'rgba(100, 110, 120, 0.08)';
+          }
+
           ctx.beginPath();
           ctx.moveTo(node1.x, node1.y);
           ctx.lineTo(node2.x, node2.y);
@@ -99,16 +109,29 @@ function CircuitBoardBackground() {
         }
       }
 
+      // Draw nodes
       nodes.forEach((node) => {
-        ctx.fillStyle = `rgba(100, 200, 255, ${node.brightness * 0.8})`;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 2 + node.brightness * 2, 0, Math.PI * 2);
-        ctx.fill();
+        if (node.brightness > 0.05) {
+          // Active node - green with gold glow
+          const greenIntensity = node.brightness * 0.9;
+          const goldIntensity = node.brightness * 0.4;
 
-        if (node.brightness > 0.3) {
-          ctx.fillStyle = `rgba(150, 220, 255, ${node.brightness * 0.3})`;
+          // Main green node
+          ctx.fillStyle = `rgba(51, 175, 135, ${greenIntensity * 0.7})`;
           ctx.beginPath();
-          ctx.arc(node.x, node.y, 4 + node.brightness * 6, 0, Math.PI * 2);
+          ctx.arc(node.x, node.y, 2.5 + node.brightness * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Gold/warm glow
+          ctx.fillStyle = `rgba(212, 175, 55, ${goldIntensity * 0.2})`;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 5 + node.brightness * 4, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Inactive node - subtle gray
+          ctx.fillStyle = 'rgba(100, 110, 120, 0.15)';
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2);
           ctx.fill();
         }
       });
@@ -138,7 +161,7 @@ function CircuitBoardBackground() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ mixBlendMode: 'screen' }}
+      style={{ mixBlendMode: 'multiply' }}
     />
   );
 }

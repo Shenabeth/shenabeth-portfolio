@@ -32,7 +32,7 @@
 }
 
 :root {
-  /* Old site color palette */
+  /* Old site color palette - updated with gold accent */
   --ink: #080b0a;
   --ink-soft: #0d1210;
   --surface: #111715;
@@ -44,6 +44,8 @@
   --accent: #33af87;
   --accent-bright: #54d5aa;
   --accent-soft: rgba(51, 175, 135, 0.12);
+  --accent-secondary: #d4af37;
+  --accent-secondary-bright: #f4d157;
 
   /* Dark mode base: Dark slate grays with light text */
   --background: #0f172a;
