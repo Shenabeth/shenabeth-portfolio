@@ -31,10 +31,10 @@ export function NavBar({ currentPage }: NavBarProps) {
 
   return (
     <nav className="nav-fixed">
-      <div className="grid grid-cols-3 items-center gap-4 h-[4.25rem] px-6 py-2 lg:grid-cols-3">
+      <div className="flex items-center justify-between h-[4.25rem] px-6 py-2">
         {/* Logo/Wordmark - Left */}
         <Link href="/" className="wordmark">
-          SJ<span className="wordmark-accent">.</span>
+          Shenabeth
         </Link>
 
         {/* Desktop Navigation - Center */}
@@ -75,7 +75,7 @@ export function NavBar({ currentPage }: NavBarProps) {
         </div>
 
         {/* Resume Button & Mobile Menu - Right */}
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <Button
             asChild
             className="hidden lg:inline-flex text-xs font-semibold px-5 py-2 rounded-md"
