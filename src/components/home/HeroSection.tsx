@@ -66,7 +66,7 @@ export function HeroSection() {
         className="hero-copy"
         initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <h1 className="hero-title">
           <ScrambleText text="Shenabeth" /> <span className="hero-title-stroke"><ScrambleText text="Jenkins" /></span>
@@ -104,6 +104,15 @@ export function HeroSection() {
               <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
+        </motion.div>
+
+        {/* Social Links */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.4 }}
+        >
+          <SocialLinks className="social-links-hero" />
         </motion.div>
       </motion.div>
 
@@ -149,12 +158,6 @@ export function HeroSection() {
         {/* Floating tags */}
         <div className="floating-tag floating-tag-code">&lt;/&gt;</div>
         <div className="floating-tag floating-tag-logic">Logic</div>
-      </div>
-
-      {/* Scroll cue */}
-      <div className="scroll-cue hidden lg:flex">
-        <span>Scroll To Explore</span>
-        <div className="scroll-cue-line" />
       </div>
     </section>
   );

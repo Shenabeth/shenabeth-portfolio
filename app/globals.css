@@ -315,6 +315,10 @@
     margin-top: 2.2rem;
   }
 
+  .social-links-hero {
+    margin-top: 2.5rem !important;
+  }
+
   .primary-action,
   .secondary-action {
     display: inline-flex;
