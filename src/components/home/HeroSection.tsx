@@ -1,18 +1,54 @@
 /*
  * File: HeroSection.tsx
- * Purpose: Landing page hero section with name, tagline, avatar, and action buttons
+ * Purpose: Landing page hero section with animated art, name, and action buttons
  */
 
 'use client';
 
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { SocialLinks } from '@/components/shared/SocialLinks';
 
-/**
- * Display hero section with introduction, social links, and action buttons
- */
+const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+
+function ScrambleText({ text }: { text: string }) {
+  const [displayText, setDisplayText] = useState('');
+
+  useEffect(() => {
+    let startTime: number;
+    const duration = 600;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      const newText = text
+        .split('')
+        .map((char, index) => {
+          const charDelay = (index / text.length) * duration;
+          if (elapsed < charDelay) {
+            return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+          }
+          return char;
+        })
+        .join('');
+
+      setDisplayText(newText);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [text]);
+
+  return displayText;
+}
+
 export function HeroSection() {
-  const handleContactScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleContactScroll = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const element = document.getElementById('contact');
     if (element) {
@@ -21,49 +57,94 @@ export function HeroSection() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 py-20">
-      <div className="max-w-4xl w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left side: Text content */}
-          <div className="flex flex-col justify-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              Shenabeth Jenkins
-            </h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-8">
-              Full-stack engineer building on AWS
-            </p>
+    <section className="hero-section">
+      {/* Background glow */}
+      <div className="hero-glow" aria-hidden="true" />
 
-            {/* Social Links */}
-            <div className="mb-8">
-              <SocialLinks />
-            </div>
+      {/* Left side: Text content */}
+      <div className="hero-copy">
+        <h1 className="hero-title">
+          <ScrambleText text="Shenabeth" /> <span className="hero-title-stroke"><ScrambleText text="Jenkins" /></span>
+        </h1>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a
-                href="/resume.pdf"
-                download="resume.pdf"
-                className="inline-block px-6 py-3 bg-slate-700 text-white rounded hover:bg-slate-600 transition-colors text-center"
-              >
-                Resume
-              </a>
-              <a
-                href="#contact"
-                onClick={handleContactScroll}
-                className="inline-block px-6 py-3 border border-slate-600 text-slate-300 rounded hover:border-slate-500 hover:text-white transition-colors text-center"
-              >
-                Contact
-              </a>
-            </div>
-          </div>
+        <p className="hero-role">Software Developer & Cloud Architect</p>
 
-          {/* Right side: Avatar placeholder */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full bg-slate-700 flex items-center justify-center">
-              <span className="text-slate-500 text-sm">Avatar</span>
-            </div>
-          </div>
+        <p className="hero-description">
+          I build scalable cloud systems and craft the interfaces that connect them to real users. From infrastructure to user experience, I design solutions that are <em>reliable and thoughtful.</em>
+        </p>
+
+        {/* Action Buttons */}
+        <div className="hero-actions">
+          <a
+            href="/resume.pdf"
+            download="resume.pdf"
+            className="primary-action"
+          >
+            Resume
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 16h12" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </a>
+          <button
+            onClick={handleContactScroll}
+            className="secondary-action"
+          >
+            Let&apos;s Talk
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </button>
         </div>
+      </div>
+
+      {/* Right side: Animated art */}
+      <div className="hero-art hidden lg:block">
+        {/* Orbits */}
+        <div className="orbit" />
+        <div className="orbit orbit-reverse">
+          <span className="orbit-dot orbit-dot-alt" />
+        </div>
+
+        {/* Art card */}
+        <div className="art-card">
+
+          <div className="flex justify-between mb-auto text-xs uppercase tracking-widest" style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace' }}>
+            <span>01 — Principle</span>
+            <i className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)', marginTop: '0.2rem' }} />
+          </div>
+
+          <div
+            className="my-auto flex flex-col font-medium leading-tight"
+            style={{
+              fontSize: 'clamp(3rem, 5vw, 5.5rem)',
+              letterSpacing: '-0.085em',
+            }}
+          >
+            <span style={{ color: 'var(--muted)' }}>under</span>
+            <strong style={{ color: 'var(--accent-bright)', fontWeight: 500, paddingLeft: '12%' }}>stand</strong>
+          </div>
+
+          <div className="flex flex-col gap-2 w-7/12 mb-7">
+            <i className="h-px" style={{ background: 'var(--line-strong)' }} />
+            <i className="h-px" style={{ background: 'var(--line-strong)', width: '78%' }} />
+            <i className="h-px" style={{ background: 'var(--line-strong)', width: '91%' }} />
+            <i className="h-px" style={{ background: 'var(--line-strong)', width: '52%' }} />
+          </div>
+
+          <p className="text-xs" style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace' }}>
+            Complexity, Made Clear.
+          </p>
+        </div>
+
+        {/* Floating tags */}
+        <div className="floating-tag floating-tag-code">&lt;/&gt;</div>
+        <div className="floating-tag floating-tag-logic">Logic</div>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="scroll-cue hidden lg:flex">
+        <span>Scroll To Explore</span>
+        <div className="scroll-cue-line" />
       </div>
     </section>
   );

@@ -86,8 +86,8 @@ export function NavBar({ currentPage }: NavBarProps) {
             }}
           >
             <a href="/resume.pdf" download="resume.pdf">
-              <Download size={14} />
               Resume
+              <Download size={14} />
             </a>
           </Button>
 
@@ -178,8 +178,8 @@ export function NavBar({ currentPage }: NavBarProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <a href="/resume.pdf" download="resume.pdf">
-                    <Download size={14} />
                     Resume
+                    <Download size={14} />
                   </a>
                 </Button>
               </motion.div>
