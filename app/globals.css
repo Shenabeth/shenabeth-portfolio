@@ -87,13 +87,14 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
     color-scheme: dark;
     font-family: "Manrope", sans-serif;
   }
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   button {
@@ -688,6 +689,26 @@
   /* Smooth scroll anchor */
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Dark mode scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 5px;
+    transition: background 200ms ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
   }
 }
 
