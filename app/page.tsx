@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <HeroSection />
       <FeaturedProjectsSection projects={FEATURED_PROJECTS} />
-      <CertificationsSection />
+      <CertificationsSection variant="link" />
       <ContactSection />
     </>
   );

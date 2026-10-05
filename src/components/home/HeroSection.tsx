@@ -1,50 +1,12 @@
 /*
  * File: HeroSection.tsx
- * Purpose: Landing page hero section with animated ASCII grid background
+ * Purpose: Landing page hero section
  */
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-
-const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
-
-function ScrambleText({ text }: { text: string }) {
-  const [displayText, setDisplayText] = useState('');
-
-  useEffect(() => {
-    let startTime: number;
-    const duration = 1400;
-
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      const newText = text
-        .split('')
-        .map((char, index) => {
-          const charDelay = (index / text.length) * duration;
-          if (elapsed < charDelay) {
-            return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
-          }
-          return char;
-        })
-        .join('');
-
-      setDisplayText(newText);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, [text]);
-
-  return displayText;
-}
+import { ScrambleText } from '@/components/shared/ScrambleText';
 
 export function HeroSection() {
   const handleContactScroll = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -108,18 +70,18 @@ export function HeroSection() {
             <a
               href="/resume.pdf"
               download="resume.pdf"
-              className="primary-action"
+              className="primary-action sweep-button"
             >
-              Resume
+              <span>Resume</span>
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 16h12" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </a>
             <button
               onClick={handleContactScroll}
-              className="secondary-action"
+              className="secondary-action sweep-button"
             >
-              Let&apos;s Talk
+              <span>Let&apos;s Talk</span>
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
               </svg>

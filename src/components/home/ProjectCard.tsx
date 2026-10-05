@@ -1,4 +1,7 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+
 /*
  * File: ProjectCard.tsx
  * Purpose: Display a single project in card format for featured projects section
@@ -35,33 +38,33 @@ export function ProjectCard({
   status,
 }: ProjectCardProps) {
   return (
-    <div className="flex-shrink-0 w-80 p-6 rounded border border-slate-600 bg-slate-800 hover:border-slate-500 transition-colors">
+    <div className="flex-shrink-0 w-96 p-6 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors group">
       {/* Status Badge */}
       {status && (
         <div className="mb-3">
-          <span className="inline-block px-2 py-1 text-xs rounded bg-slate-700 text-slate-300">
+          <Badge variant={status === 'live' ? 'default' : 'outline'}>
             {status === 'coming-soon' && 'Coming Soon'}
             {status === 'live' && 'Live'}
             {status === 'in-progress' && 'In Progress'}
-          </span>
+          </Badge>
         </div>
       )}
 
       {/* Title */}
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <h4 className="text-foreground mb-3 group-hover:text-primary transition-colors">{title}</h4>
 
       {/* Description */}
-      <p className="text-sm text-slate-300 mb-4">{description}</p>
+      <p className="text-sm text-muted-foreground mb-4">{description}</p>
 
       {/* Tech Stack */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-6">
         {techStack.slice(0, 3).map((tech) => (
-          <span key={tech} className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">
+          <span key={tech} className="text-xs px-2.5 py-1 rounded-md bg-muted text-muted-foreground font-medium">
             {tech}
           </span>
         ))}
         {techStack.length > 3 && (
-          <span className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-400">
+          <span className="text-xs px-2.5 py-1 rounded-md bg-muted/50 text-muted-foreground/70 font-medium">
             +{techStack.length - 3}
           </span>
         )}
@@ -69,31 +72,24 @@ export function ProjectCard({
 
       {/* Links */}
       <div className="flex gap-2 flex-wrap">
-        <a
-          href={githubLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs px-3 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
-        >
-          GitHub
-        </a>
-        {demoLink && (
-          <a
-            href={demoLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs px-3 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
-          >
-            Demo
+        <Button asChild variant="outline" size="sm">
+          <a href={githubLink} target="_blank" rel="noopener noreferrer">
+            GitHub
           </a>
+        </Button>
+        {demoLink && (
+          <Button asChild variant="outline" size="sm">
+            <a href={demoLink} target="_blank" rel="noopener noreferrer">
+              Demo
+            </a>
+          </Button>
         )}
         {caseStudyLink && (
-          <a
-            href={caseStudyLink}
-            className="text-xs px-3 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
-          >
-            Case Study
-          </a>
+          <Button asChild variant="outline" size="sm">
+            <a href={caseStudyLink}>
+              Case Study
+            </a>
+          </Button>
         )}
       </div>
     </div>

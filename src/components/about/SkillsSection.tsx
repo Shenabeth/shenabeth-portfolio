@@ -1,35 +1,41 @@
 import React from 'react';
 /*
  * File: SkillsSection.tsx
- * Purpose: Display skills organized by category
+ * Purpose: Display tech stack organized by category
  */
 
-import { SKILLS_BY_CATEGORY } from '@/config/constants';
-import { SkillBadge } from '@/components/shared/SkillBadge';
+import { TechStackGrid } from '@/components/about/TechStackGrid';
 
 /**
- * Display skills organized by category in a responsive layout
+ * Display tech stack organized by category, rendered as a tabbed icon grid
  */
 export function SkillsSection() {
   return (
-    <section className="mb-12">
-      <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">Skills</h2>
-
-      {/* Skills categories */}
-      <div className="space-y-8">
-        {SKILLS_BY_CATEGORY.map((category) => (
-          <div key={category.category}>
-            <h3 className="text-lg md:text-xl font-semibold text-slate-200 mb-3">
-              {category.category}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {category.skills.map((skill) => (
-                <SkillBadge key={skill} label={skill} />
-              ))}
-            </div>
-          </div>
-        ))}
+    <section className="py-28">
+      {/* Section heading */}
+      <div className="mb-14">
+        <p
+          className="mb-4 text-xs tracking-widest font-medium"
+          style={{
+            color: 'var(--accent-bright)',
+            fontFamily: '"DM Mono", monospace',
+          }}
+        >
+          {'// stack.json'}
+        </p>
+        <h2
+          className="font-medium leading-tight"
+          style={{
+            fontSize: 'clamp(2.8rem, 5vw, 5rem)',
+            letterSpacing: '-0.065em',
+            margin: 0,
+          }}
+        >
+          Tech Stack
+        </h2>
       </div>
+
+      <TechStackGrid />
     </section>
   );
 }

@@ -6,6 +6,9 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { sendContactEmail } from '@/lib/api';
 import { validateEmail } from '@/lib/utils';
 
@@ -55,72 +58,66 @@ export function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md w-full">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-md w-full">
       {/* Name Input */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-1">
+        <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-2">
           Name
         </label>
-        <input
+        <Input
           id="name"
           name="name"
           type="text"
           value={formData.name}
           onChange={handleChange}
           placeholder="Your name"
-          className="w-full px-4 py-2 rounded bg-slate-700 text-white placeholder-slate-500 border border-slate-600 focus:border-slate-500 focus:outline-none"
           disabled={isLoading}
         />
       </div>
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-2">
           Email
         </label>
-        <input
+        <Input
           id="email"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
           placeholder="your@email.com"
-          className="w-full px-4 py-2 rounded bg-slate-700 text-white placeholder-slate-500 border border-slate-600 focus:border-slate-500 focus:outline-none"
           disabled={isLoading}
         />
       </div>
 
       {/* Message Textarea */}
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-1">
+        <label htmlFor="message" className="block text-sm font-medium text-muted-foreground mb-2">
           Message
         </label>
-        <textarea
+        <Textarea
           id="message"
           name="message"
           value={formData.message}
           onChange={handleChange}
           placeholder="Your message"
           rows={4}
-          className="w-full px-4 py-2 rounded bg-slate-700 text-white placeholder-slate-500 border border-slate-600 focus:border-slate-500 focus:outline-none resize-none"
           disabled={isLoading}
+          className="resize-none"
         />
       </div>
 
       {/* Error Message */}
-      {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <div className="text-sm text-destructive font-medium">{error}</div>}
 
       {/* Success Message */}
-      {success && <div className="text-sm text-green-400">Message sent successfully!</div>}
+      {success && <div className="text-sm text-primary font-medium">Message sent successfully!</div>}
 
       {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full px-6 py-3 bg-slate-700 text-white rounded hover:bg-slate-600 disabled:bg-slate-800 disabled:text-slate-500 transition-colors font-medium"
-      >
+      <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? 'Sending...' : 'Send Message'}
-      </button>
+      </Button>
     </form>
   );
 }

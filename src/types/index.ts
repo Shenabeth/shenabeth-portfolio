@@ -7,6 +7,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  category?: string;
   longDescription?: string;
   techStack: string[];
   demoLink?: string;
@@ -56,8 +57,16 @@ export interface SkillCategory {
 export interface Certification {
   id: string;
   name: string;
+  code?: string;
   issuer: string;
   dateEarned: string;
   credlyUrl: string;
   badgeUrl?: string;
+}
+
+export interface Education {
+  degree: string;
+  university: string;
+  year: string;
+  tag: string;
 }

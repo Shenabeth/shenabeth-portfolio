@@ -9,14 +9,9 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 
-interface NavBarProps {
-  currentPage?: string;
-}
-
-export function NavBar({ currentPage }: NavBarProps) {
+export function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -77,19 +72,17 @@ export function NavBar({ currentPage }: NavBarProps) {
 
         {/* Resume Button & Mobile Menu - Right */}
         <div className="flex items-center gap-3 ml-auto">
-          <Button
-            asChild
-            className="hidden md:inline-flex text-xs font-semibold px-4 py-2 rounded-md gap-1"
+          <a
+            href="/resume.pdf"
+            download="resume.pdf"
+            className="primary-action sweep-button hidden md:inline-flex text-xs"
             style={{
-              background: 'var(--text)',
-              color: 'var(--ink)',
+              padding: '0.6rem 1.1rem',
             }}
           >
-            <a href="/resume.pdf" download="resume.pdf">
-              Resume
-              <Download size={14} />
-            </a>
-          </Button>
+            <span>Resume</span>
+            <Download size={14} />
+          </a>
 
           {/* Mobile Menu Button */}
           <motion.button
@@ -168,20 +161,15 @@ export function NavBar({ currentPage }: NavBarProps) {
                   delay: 0.15,
                 }}
               >
-                <Button
-                  asChild
-                  className="text-xs font-semibold px-4 py-2 rounded-md gap-1"
-                  style={{
-                    background: 'var(--text)',
-                    color: 'var(--ink)',
-                  }}
+                <a
+                  href="/resume.pdf"
+                  download="resume.pdf"
+                  className="primary-action sweep-button text-xs"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <a href="/resume.pdf" download="resume.pdf">
-                    Resume
-                    <Download size={14} />
-                  </a>
-                </Button>
+                  <span>Resume</span>
+                  <Download size={14} />
+                </a>
               </motion.div>
             </div>
           </motion.div>

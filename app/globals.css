@@ -47,33 +47,33 @@
   --accent-secondary: #d4af37;
   --accent-secondary-bright: #f4d157;
 
-  /* Dark mode base: Dark slate grays with light text */
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
+  /* Dark mode base: neutral gray/black, no blue tint (matches --ink/--surface above) */
+  --background: #080b0a;
+  --foreground: #edf5f1;
+  --card: #111715;
+  --card-foreground: #edf5f1;
+  --popover: #111715;
+  --popover-foreground: #edf5f1;
 
   /* Primary: Green accent (#33af87) */
   --primary: #33af87;
-  --primary-foreground: #0f172a;
+  --primary-foreground: #080b0a;
 
   /* Secondary: Off-white */
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary: #edf5f1;
+  --secondary-foreground: #080b0a;
 
   /* Muted: Gray tones */
   --muted-new: #475569;
-  --muted-foreground: #cbd5e1;
+  --muted-foreground: #8e9c95;
 
   /* Accent: Green (same as primary for consistency) */
   --accent-new: #33af87;
-  --accent-foreground: #0f172a;
+  --accent-foreground: #080b0a;
 
   /* Borders and inputs */
-  --border: #334155;
-  --input: #1e293b;
+  --border: rgba(235, 245, 240, 0.11);
+  --input: #111715;
   --ring: #33af87;
 
   /* Destructive */
@@ -95,7 +95,6 @@
   }
 
   html {
-    scroll-behavior: smooth;
     overflow-x: hidden;
   }
 
@@ -232,6 +231,58 @@
     border-color: rgba(84, 213, 170, 0.35);
   }
 
+  /* Site-wide fixed background: gray/black base, thin accent grid, soft glows (no blue) */
+  .site-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--ink);
+  }
+
+  .site-background-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image:
+      linear-gradient(var(--accent-bright) 1px, transparent 1px),
+      linear-gradient(90deg, var(--accent-bright) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .site-background-glow-1 {
+    position: absolute;
+    top: -20%;
+    left: 15%;
+    width: 50rem;
+    height: 38rem;
+    border-radius: 9999px;
+    background: var(--accent-bright);
+    opacity: 0.05;
+    filter: blur(120px);
+  }
+
+  .site-background-glow-2 {
+    position: absolute;
+    top: 25%;
+    right: -15%;
+    width: 38rem;
+    height: 38rem;
+    border-radius: 9999px;
+    background: var(--surface-raised);
+    opacity: 0.4;
+    filter: blur(140px);
+  }
+
+  .site-background-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25rem;
+    background: linear-gradient(to top, var(--ink), transparent);
+  }
+
   /* Hero section wrapper */
   .hero-section-wrapper {
     position: relative;
@@ -264,7 +315,6 @@
     pointer-events: none;
   }
 
-
   @media (max-width: 1024px) {
     .hero-section {
       grid-template-columns: 1fr;
@@ -288,6 +338,8 @@
     position: relative;
     z-index: 10;
     max-width: 46rem;
+    padding: 2.5rem;
+    background: var(--ink);
   }
 
   .hero-kicker {
@@ -349,7 +401,6 @@
     border-radius: 0.8rem;
     font-size: 0.82rem;
     font-weight: 600;
-    transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
     padding: 1rem 1.3rem;
   }
 
@@ -358,24 +409,55 @@
     color: var(--ink);
   }
 
-  .primary-action:hover {
-    transform: translateY(-2px);
-  }
-
   .secondary-action {
     border: 1px solid var(--line-strong);
     color: var(--text);
-  }
-
-  .secondary-action:hover {
-    border-color: var(--accent);
-    background: var(--accent-soft);
   }
 
   .primary-action svg,
   .secondary-action svg {
     width: 1rem;
     height: 1rem;
+  }
+
+  /*
+   * Sweep / "inverted button" hover effect: a diagonal edge grows out of the
+   * top-left corner and travels toward the bottom-right corner, covering the
+   * button in solid white and inverting the text/icon to black. On
+   * mouse-leave the same diagonal edge retreats back into the top-left
+   * corner. Used on the nav Resume button, hero Resume button, and hero
+   * "Let's Talk" button for a consistent feel.
+   */
+  .sweep-button {
+    position: relative;
+    overflow: hidden;
+    border-radius: inherit;
+    background-clip: padding-box;
+    transition: color 320ms ease, border-color 320ms ease, transform 180ms ease;
+  }
+
+  .sweep-button > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sweep-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    clip-path: polygon(0 0, 0 0, 0 0);
+    transition: clip-path 340ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .sweep-button:hover {
+    transform: translateY(-2px);
+    color: #000000;
+    border-color: #ffffff;
+  }
+
+  .sweep-button:hover::before {
+    clip-path: polygon(0 0, 200% 0, 0 200%);
   }
 
   .hero-art {
@@ -538,6 +620,28 @@
     border: 1px solid var(--line);
     border-radius: 2rem;
     background: var(--surface);
+  }
+
+  /* Full-bleed background band for the featured-projects carousel: breaks
+     out to the full viewport width while staying in normal document flow
+     (unlike .hero-background-container, which is absolutely positioned) */
+  .carousel-bleed {
+    position: relative;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    background: var(--surface);
+  }
+
+  /* Subtle diagonal hairline texture, used on the footer for a textured,
+     integrated feel rather than a flat color block */
+  .diagonal-texture {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent 9px
+    );
   }
 
   .carousel-track {
@@ -709,11 +813,6 @@
   .admin-link:hover {
     color: var(--accent-bright);
     opacity: 1;
-  }
-
-  /* Smooth scroll anchor */
-  html {
-    scroll-behavior: smooth;
   }
 
   /* Dark mode scrollbars */

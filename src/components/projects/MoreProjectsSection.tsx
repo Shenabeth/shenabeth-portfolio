@@ -19,9 +19,19 @@ export function MoreProjectsSection({ projects }: MoreProjectsSectionProps) {
   // Phase 1: Show placeholder only
   if (!projects || projects.length === 0) {
     return (
-      <section className="py-16">
-        <div className="text-center">
-          <p className="text-slate-400 text-lg">More projects coming soon...</p>
+      <section className="carousel-bleed py-20" style={{ background: 'var(--ink-soft)' }}>
+        <div className="w-[min(92vw,1320px)] mx-auto text-center">
+          <h2
+            className="font-medium leading-tight mb-4"
+            style={{
+              fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
+              letterSpacing: '-0.05em',
+              margin: 0,
+            }}
+          >
+            More Projects
+          </h2>
+          <p style={{ color: 'var(--muted)', fontSize: '1.05rem' }}>More projects coming soon...</p>
         </div>
       </section>
     );

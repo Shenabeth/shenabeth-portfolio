@@ -30,11 +30,11 @@ export function CertificationBadge({
       href={credlyUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="block p-4 rounded border border-slate-600 hover:border-slate-500 hover:bg-slate-800 transition-colors"
+      className="block p-4 rounded-lg border border-border bg-background hover:border-primary hover:bg-card transition-colors group"
     >
-      <div className="text-sm font-semibold text-slate-100">{name}</div>
-      <div className="text-xs text-slate-400">{issuer}</div>
-      <div className="text-xs text-slate-500 mt-1">{dateEarned}</div>
+      <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{name}</div>
+      <div className="text-xs text-muted-foreground">{issuer}</div>
+      <div className="text-xs text-muted-foreground/70 mt-2">{dateEarned}</div>
     </a>
   );
 }
