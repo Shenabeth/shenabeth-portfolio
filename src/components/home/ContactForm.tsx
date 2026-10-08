@@ -1,20 +1,19 @@
 /*
  * File: ContactForm.tsx
- * Purpose: Contact form with validation and API submission
+ * Purpose: Contact form with validation and API submission. Name + email
+ *          share a row on wider viewports; message expands below.
  */
 
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { sendContactEmail } from '@/lib/api';
 import { validateEmail } from '@/lib/utils';
 
-/**
- * Contact form with email validation and submission to API
- */
+/** Contact form with email validation and submission to API. */
 export function ContactForm() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +30,6 @@ export function ContactForm() {
     setError(null);
     setSuccess(false);
 
-    // Validation
     if (!formData.name.trim()) {
       setError('Name is required');
       return;
@@ -58,42 +56,65 @@ export function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-md w-full">
-      {/* Name Input */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-2">
-          Name
-        </label>
-        <Input
-          id="name"
-          name="name"
-          type="text"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Your name"
-          disabled={isLoading}
-        />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="name"
+            className="block mb-2 uppercase tracking-widest"
+            style={{
+              color: 'var(--muted)',
+              fontFamily: '"DM Mono", monospace',
+              fontSize: '0.72rem',
+            }}
+          >
+            Name
+          </label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Your name"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="email"
+            className="block mb-2 uppercase tracking-widest"
+            style={{
+              color: 'var(--muted)',
+              fontFamily: '"DM Mono", monospace',
+              fontSize: '0.72rem',
+            }}
+          >
+            Email
+          </label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="your@email.com"
+            disabled={isLoading}
+          />
+        </div>
       </div>
 
-      {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-2">
-          Email
-        </label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="your@email.com"
-          disabled={isLoading}
-        />
-      </div>
-
-      {/* Message Textarea */}
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-muted-foreground mb-2">
+        <label
+          htmlFor="message"
+          className="block mb-2 uppercase tracking-widest"
+          style={{
+            color: 'var(--muted)',
+            fontFamily: '"DM Mono", monospace',
+            fontSize: '0.72rem',
+          }}
+        >
           Message
         </label>
         <Textarea
@@ -101,23 +122,57 @@ export function ContactForm() {
           name="message"
           value={formData.message}
           onChange={handleChange}
-          placeholder="Your message"
-          rows={4}
+          placeholder="What's on your mind?"
+          rows={9}
           disabled={isLoading}
-          className="resize-none"
+          className="resize-y"
+          style={{ minHeight: '12rem' }}
         />
       </div>
 
-      {/* Error Message */}
-      {error && <div className="text-sm text-destructive font-medium">{error}</div>}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="text-sm font-medium"
+            style={{ color: 'var(--destructive)' }}
+          >
+            {error}
+          </motion.div>
+        )}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center gap-2 text-sm font-medium"
+            style={{ color: 'var(--accent-bright)' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Message sent — thanks! I&apos;ll be in touch soon.
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Success Message */}
-      {success && <div className="text-sm text-primary font-medium">Message sent successfully!</div>}
-
-      {/* Submit Button */}
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? 'Sending...' : 'Send Message'}
-      </Button>
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="primary-action sweep-button"
+          style={{ padding: '0.7rem 1.4rem', fontSize: '0.82rem' }}
+        >
+          <span>{isLoading ? 'Sending…' : 'Send Message'}</span>
+          {!isLoading && (
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

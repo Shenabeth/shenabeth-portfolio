@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
  */
 
 import { Project } from '@/types';
+import { SectionHeading } from '@/components/shared/SectionHeading';
 
 interface FeaturedProjectsSectionProps {
   projects: Project[];
@@ -79,34 +80,12 @@ export function FeaturedProjectsSection({ projects, pageHero = false, showHeadin
   return (
     <section className={pageHero ? 'pt-16' : 'py-28'} style={{ paddingBottom: '8.5rem' }}>
       {showHeading && (
-        <div
-          className="w-[min(92vw,1320px)] mx-auto flex items-end justify-between gap-16 mb-14"
-          style={{
-            marginBottom: '3.5rem',
-          }}
-        >
-          <div>
-            <h2
-              className="font-medium leading-tight"
-              style={{
-                fontSize: 'clamp(2.8rem, 5vw, 5rem)',
-                letterSpacing: '-0.065em',
-                margin: 0,
-              }}
-            >
-              Projects
-            </h2>
-          </div>
-          <p
-            className="max-w-lg"
-            style={{
-              color: 'var(--muted)',
-              fontSize: '0.95rem',
-              lineHeight: '1.7',
-            }}
-          >
-            Ideas brought to life through strategy, systems, and a healthy obsession with detail.
-          </p>
+        <div className="w-[min(92vw,1320px)] mx-auto">
+          <SectionHeading
+            kicker="// projects.json"
+            title="Projects"
+            comment="Ideas brought to life through strategy, systems, and a healthy obsession with detail."
+          />
         </div>
       )}
 
@@ -133,7 +112,7 @@ export function FeaturedProjectsSection({ projects, pageHero = false, showHeadin
                   <p
                     className="mb-4 text-xs uppercase tracking-widest"
                     style={{
-                      color: 'var(--accent-bright)',
+                      color: 'var(--accent-secondary-bright)',
                       fontFamily: '"DM Mono", monospace',
                     }}
                   >
@@ -172,8 +151,8 @@ export function FeaturedProjectsSection({ projects, pageHero = false, showHeadin
                     ))}
                   </div>
                   <a
-                    href={current.caseStudyLink || '#'}
-                    className="secondary-action sweep-button mt-8"
+                    href={`/projects/${current.id}`}
+                    className="primary-action sweep-button mt-8"
                   >
                     <span>View Project</span>
                     <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">

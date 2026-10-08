@@ -1,32 +1,47 @@
-# Portfolio Site Planning Docs
+# Portfolio Site — Project Guide
 
-Reference these files in order based on what you're building.
+Personal portfolio for Shenabeth Jenkins. Modular Next.js (App Router) app in TypeScript,
+styled with Tailwind + custom CSS tokens, deployed on **AWS Amplify**. No application backend:
+content is typed data in `src/config/`, rendered by shared components.
 
-## Quick Navigation
-- [**TODO.md**](docs/todo.md) — Current tasks and what's next (check this first)
-- [**RULESET.md**](docs/ruleset.md) — Code style, TypeScript, comments, all standards
-- [**API.md**](docs/api.md) — All backend: Lambda routes, DynamoDB schema, Cognito flow, SES
-- [**NAV_FOOTER.md**](docs/nav-footer.md) — Navigation bar and footer layout + tasks
-- [**HOME.md**](docs/home.md) — Landing page (hero, featured projects, certs, contact form)
-- [**ABOUT.md**](docs/about.md) — About page (education, skills, philosophy)
-- [**PROJECTS.md**](docs/projects.md) — Projects page (featured expanded, admin-added projects)
-- [**ADMIN.md**](docs/admin.md) — Admin panel components (login, project form, project list, auth guard)
-- [**SHARED.md**](docs/shared.md) — Shared/utility components (buttons, cards, badges, forms)
-- [**FILE_STRUCTURE.md**](docs/file-structure.md) — Directory layout for src/ and config files
+## Read these first
 
-## When Coding
-Drag this file (CLAUDE.md) into your session. It tells Claude where to find everything.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — how the app is structured, the project/case-study template system, and deployment. **Start here.**
+- [docs/CONTENT.md](docs/CONTENT.md) — how to add or edit projects, certifications, skills, and the resume.
+- [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) — code conventions (TypeScript, components, styling, grids).
+- [docs/ROADMAP.md](docs/ROADMAP.md) — planned work (SES contact, Route 53 domain, admin panel).
+- [README.md](README.md) — project overview and scripts.
 
-## Tech Stack (Reference)
-- **Frontend:** Next.js 14+, React, TypeScript
-- **Styling:** Tailwind CSS (dark mode default, pretty animations Phase 2)
-- **Components:** shadcn/ui
-- **Animations:** Framer Motion (Phase 2)
-- **Backend:** AWS Lambda, API Gateway, Cognito, DynamoDB, SES, S3, CloudFront
-- **Database:** DynamoDB
-- **Hosting:** S3 + CloudFront
+## Key facts
 
-## Phase 1 (MVP - Ship This)
-Landing page + Projects page + About page + Contact form. No admin panel yet.
+- **Tech stack:** Next.js 16, React 19, TypeScript, Tailwind CSS v4, shadcn/ui, Framer Motion.
+- **Hosting:** AWS Amplify (CI from GitHub on push to `main`). Cost watched with AWS Budgets +
+  a CloudWatch billing alarm. SES (contact form) and Route 53 (custom domain) are planned, not
+  yet wired. There is **no** Lambda/DynamoDB/Cognito/S3 backend — an earlier plan used those,
+  but the project moved to Amplify.
+- **Pages** live in `app/`. **Everything else** (components, config, lib, types) lives in
+  `src/`, with the `@/*` → `src/*` path alias.
+- **Projects are data.** A project's card is an entry in `FEATURED_PROJECTS`
+  (`src/config/constants.ts`); its detail page is a `CaseStudy` entry in
+  `src/config/case-studies.ts`, rendered by the single `app/projects/[slug]/page.tsx` template.
+  Adding a project means adding config, not files. This is also the basis for the planned admin
+  panel.
+- **Resume** is `Shenabeth_Jenkins_Software_Engineer_Resume.pdf` in the repo root; a prebuild
+  script copies it into `public/`.
 
-See TODO.md for current blockers and next steps.
+## Conventions (summary — full details in STYLE_GUIDE.md)
+
+- Every file starts with a `/* File / Purpose */` header comment; non-trivial functions get
+  JSDoc.
+- Dark mode only. Reference colors via CSS variables in `app/globals.css`, never hard-coded hex.
+- Group components by area under `src/components/`.
+- Use `.balanced-grid` + `data-count` for variable-count card grids (avoids 3+1 layouts).
+- Keep content in `src/config/`, not in component markup.
+- Keep docs accurate: describe what exists; mark planned work as planned. No stale task lists.
+
+## Verifying changes
+
+```bash
+npm run build   # typechecks + builds; the real gate before deploy
+npm run lint    # ESLint
+```

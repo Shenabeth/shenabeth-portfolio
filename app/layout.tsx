@@ -33,10 +33,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="site-background-glow-2" />
           <div className="site-background-fade" />
         </div>
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <ScrollToTop />
         <NavBar />
         <div className="relative z-10 flex-grow">
-          <main className="pt-24">{children}</main>
+          <main id="main-content" className="pt-24">{children}</main>
         </div>
         <Footer />
       </body>

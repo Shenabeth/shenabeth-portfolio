@@ -11,6 +11,7 @@ import { ChevronDown } from 'lucide-react';
 
 import { CERTIFICATIONS, HIDDEN_CERTIFICATIONS } from '@/config/constants';
 import type { Certification } from '@/types';
+import { SectionHeading } from '@/components/shared/SectionHeading';
 
 interface CertificationsSectionProps {
   /**
@@ -22,74 +23,114 @@ interface CertificationsSectionProps {
   variant?: 'dropdown' | 'link';
 }
 
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Normalize the stored dateEarned string into the "Issued Mon DD, YYYY"
+ * (or "Issued Mon YYYY" when the day isn't specified) form the card
+ * displays, matching the Credly reference layout. Returns the raw value
+ * for "In Progress" / "TBD" since those aren't dates.
+ */
+function formatIssuedDate(dateEarned: string): string {
+  if (dateEarned === 'In Progress' || dateEarned === 'TBD') return dateEarned;
+  const parsed = new Date(dateEarned);
+  if (Number.isNaN(parsed.getTime())) return dateEarned;
+  const month = MONTH_ABBR[parsed.getMonth()];
+  const year = parsed.getFullYear();
+  // Detect "Month YYYY" strings (no day) so we don't invent a bogus day
+  const hasDay = /\d{1,2}(?!\d)/.test(dateEarned.replace(String(year), ''));
+  if (hasDay) {
+    return `Issued ${month} ${parsed.getDate()}, ${year}`;
+  }
+  return `Issued ${month} ${year}`;
+}
+
 function CertificationCard({ cert }: { cert: Certification }) {
+  const dateLabel = formatIssuedDate(cert.dateEarned);
   return (
-    <article
-      className="relative grid grid-rows-[1fr_auto] min-h-64 p-6 rounded-xl border transition-all duration-240"
+    <a
+      href={cert.credlyUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative flex flex-col rounded-2xl border transition-all duration-240"
       style={{
         borderColor: 'var(--line)',
         background: 'var(--surface)',
+        padding: '1.75rem',
+        minHeight: '18rem',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-0.35rem)';
-        e.currentTarget.style.borderColor = 'rgba(84,213,170,.35)';
+        e.currentTarget.style.borderColor = 'rgba(84,213,170,0.4)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.borderColor = 'var(--line)';
       }}
     >
-      {/* Code badge - top right */}
-      <div
-        className="flex items-center justify-center w-12 h-12 rounded-full border self-start justify-self-end"
-        style={{
-          borderColor: 'var(--line-strong)',
-          color: 'var(--accent-bright)',
-          fontFamily: '"DM Mono", monospace',
-          fontSize: '0.75rem',
-        }}
-      >
-        {cert.code || 'CERT'}
+      {/* Badge image: centered horizontally in the top block. AWS circular
+          badges fill a square tightly; non-AWS logos (CompTIA, Google,
+          Microsoft, Adobe Photoshop) tend to be wider-than-tall and read
+          as visually smaller at the same bounding box. Scale non-AWS
+          logos up so their perceived size matches. */}
+      <div className="flex items-center justify-center" style={{ height: '9rem', marginBottom: '1.25rem' }}>
+        {cert.badgeUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={cert.badgeUrl}
+            alt={`${cert.name} badge, issued by ${cert.issuer}`}
+            className="object-contain"
+            style={
+              cert.issuer === 'Amazon Web Services'
+                ? { maxWidth: '7.5rem', maxHeight: '7.5rem' }
+                : { maxWidth: '11rem', maxHeight: '8.5rem' }
+            }
+          />
+        ) : (
+          <div
+            className="flex items-center justify-center rounded-full border"
+            style={{
+              width: '6.5rem',
+              height: '6.5rem',
+              borderColor: 'var(--line-strong)',
+              color: 'var(--accent-bright)',
+              fontFamily: '"DM Mono", monospace',
+              fontSize: '0.9rem',
+            }}
+          >
+            {cert.code || 'CERT'}
+          </div>
+        )}
       </div>
 
-      {/* Cert info - bottom */}
-      <div className="self-end">
-        <p
-          className="mb-2 text-xs uppercase tracking-wider font-medium"
-          style={{
-            color: 'var(--muted)',
-            fontFamily: '"DM Mono", monospace',
-            fontSize: '0.75rem',
-          }}
-        >
-          {cert.issuer}
-        </p>
+      {/* Text column: left-aligned, consistent spacing between title/issuer/date */}
+      <div className="flex flex-col text-left" style={{ gap: '0.4rem' }}>
         <h3
-          className="font-medium leading-tight"
+          className="font-semibold leading-snug"
           style={{
-            fontSize: '1.35rem',
-            letterSpacing: '-0.035em',
-            maxWidth: '14rem',
-            margin: 0,
+            color: 'var(--text)',
+            fontSize: '1.05rem',
+            letterSpacing: '-0.015em',
           }}
         >
           {cert.name}
         </h3>
+        <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>{cert.issuer}</p>
       </div>
 
-      {/* Arrow icon - bottom right */}
-      <svg
-        className="absolute bottom-6 right-6 w-5"
-        viewBox="0 0 20 20"
-        fill="none"
-        aria-hidden="true"
+      <p
+        className="text-left"
         style={{
           color: 'var(--muted)',
+          fontFamily: '"DM Mono", monospace',
+          fontSize: '0.8rem',
+          marginTop: 'auto',
+          paddingTop: '1.25rem',
         }}
       >
-        <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    </article>
+        {dateLabel}
+      </p>
+    </a>
   );
 }
 
@@ -111,47 +152,12 @@ export function CertificationsSection({ variant = 'dropdown' }: CertificationsSe
         scrollMarginTop: '7rem',
       }}
     >
-      {/* Section heading */}
-      <div
-        className="flex items-end justify-between gap-16 mb-14"
-        style={{
-          marginBottom: '3.5rem',
-        }}
-      >
-        <div>
-          {variant === 'dropdown' && (
-            <p
-              className="mb-4 text-xs tracking-widest font-medium"
-              style={{
-                color: 'var(--accent-bright)',
-                fontFamily: '"DM Mono", monospace',
-              }}
-            >
-              {'// certifications.json'}
-            </p>
-          )}
-          <h2
-            className="font-medium leading-tight"
-            style={{
-              fontSize: 'clamp(2.8rem, 5vw, 5rem)',
-              letterSpacing: '-0.065em',
-              margin: 0,
-            }}
-          >
-            Certifications
-          </h2>
-        </div>
-        <p
-          className="max-w-lg"
-          style={{
-            color: 'var(--muted)',
-            fontSize: '0.95rem',
-            lineHeight: '1.7',
-          }}
-        >
-          Industry credentials supporting a strong foundation in cloud architecture and information technology.
-        </p>
-      </div>
+      <SectionHeading
+        kicker="// certifications.json"
+        title="Certifications"
+        comment="Industry credentials supporting a strong foundation in cloud architecture and information technology."
+      />
+
 
       {/* Certifications grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -162,7 +168,7 @@ export function CertificationsSection({ variant = 'dropdown' }: CertificationsSe
 
       {HIDDEN_CERTIFICATIONS.length > 0 && variant === 'link' && (
         <div className="flex justify-center mt-10">
-          <Link href="/about#certifications" className="secondary-action sweep-button">
+          <Link href="/about#certifications" className="primary-action sweep-button">
             <span>View all credentials</span>
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
@@ -178,7 +184,7 @@ export function CertificationsSection({ variant = 'dropdown' }: CertificationsSe
               type="button"
               onClick={() => setShowAll((prev) => !prev)}
               aria-expanded={showAll}
-              className="secondary-action sweep-button"
+              className="primary-action sweep-button"
             >
               <span>{showAll ? 'Hide additional credentials' : 'View all credentials'}</span>
               <ChevronDown

@@ -39,12 +39,9 @@ yarn-error.log*
 .env*.local
 .env.*.local
 
-# lambda env files
-lambda/.env*
-lambda/.env.local
-
-# vercel
-.vercel
+# generated: the resume is copied from the repo root into public/ at build
+# time by scripts/copy-resume.mjs — edit the root copy, not this one
+/public/Shenabeth_Jenkins_Software_Engineer_Resume.pdf
 
 # typescript
 *.tsbuildinfo

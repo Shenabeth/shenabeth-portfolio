@@ -38,7 +38,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "docs/old_site"
+    "node_modules"
   ]
 }

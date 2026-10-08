@@ -5,38 +5,53 @@
 
 import { Project, Certification, SkillCategory, Education } from '@/types';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-
 export const SOCIAL_LINKS = {
-  github: 'https://github.com/shenabeth',
-  linkedin: 'https://linkedin.com/in/shenabeth',
-  credly: 'https://credly.com/users/shenabeth',
+  github: 'https://github.com/Shenabeth',
+  linkedin: 'https://www.linkedin.com/in/shenabeth-jenkins/',
+  credly: 'https://www.credly.com/users/shenabeth-jenkins/badges/credly',
+  email: 'shenabeth@gmail.com',
+};
+
+/**
+ * Resume PDF asset. The canonical file lives in the repo ROOT as
+ * `Shenabeth_Jenkins_Software_Engineer_Resume.pdf` so it's easy to drop in
+ * a new version. A `prebuild` npm script copies it into `public/` (which is
+ * git-ignored) before every build, so Next serves it from the site root at
+ * the URL below. `downloadName` is the filename the browser suggests on save.
+ * To update the resume: replace the root PDF — no code change needed.
+ */
+export const RESUME_FILENAME = 'Shenabeth_Jenkins_Software_Engineer_Resume.pdf';
+
+export const RESUME = {
+  url: `/${RESUME_FILENAME}`,
+  downloadName: RESUME_FILENAME,
 };
 
 export const FEATURED_PROJECTS: Project[] = [
   {
     id: 'portfolio-site',
     title: 'Portfolio Site',
-    category: 'Portfolio · Full-Stack Development',
-    description: 'My personal corner of the web, built to share my work, experience, and approach to creating thoughtful software.',
+    category: 'Portfolio · Front-End Engineering',
+    description:
+      'This site. A rebuild of my old hand-coded portfolio into a modular, component-driven Next.js app deployed on AWS Amplify.',
     longDescription:
-      'A dynamic portfolio site built with Next.js and hosted on AWS. Features admin authentication, dynamic project pages stored in DynamoDB, and responsive design. This site is a case study in full-stack development and serverless architecture.',
-    techStack: ['React', 'TypeScript', 'AWS Services'],
-    githubLink: 'https://github.com/shenabeth/portfolio',
-    demoLink: 'https://portfolio.example.com',
+      'A complete rebuild of my original HTML/CSS/Bootstrap portfolio into a modular Next.js application. Every section is a typed, reusable React component, and project pages are generated from a single case-study template. Deployed on AWS Amplify with continuous deployment from GitHub.',
+    techStack: ['Next.js', 'TypeScript', 'AWS Amplify'],
+    githubLink: 'https://github.com/Shenabeth/shenabeth-portfolio',
+    caseStudyLink: '/projects/portfolio-site',
     status: 'live',
     featured: true,
   },
   {
     id: 'sai-system',
     title: 'SAI System',
-    category: 'Fine-Tuned AI · Bring Your Own Key',
-    description: 'A custom fine-tuned AI platform where users connect their own API key and work in a secure, personalized environment.',
+    category: 'AI Platform · Bring Your Own Key',
+    description:
+      'A bring-your-own-key AI platform where users connect their own LLM API key and work with custom agents in a secure, personalized environment.',
     longDescription:
-      'A bring-your-own-key AI platform. Users log in, add their OpenAI/Claude/other LLM API keys, and interact with custom AI agents. Features user authentication, chat history persistence, and flexible agent customization.',
-    techStack: ['AWS Cognito', 'DynamoDB', 'Amazon Bedrock'],
-    githubLink: 'https://github.com/shenabeth/sai-system',
-    caseStudyLink: 'https://portfolio.example.com/projects/sai-system',
+      'A bring-your-own-key AI platform. Users sign in, add their own OpenAI, Anthropic, or other LLM API keys, and interact with custom AI agents. Includes user authentication, persisted chat history, and flexible per-user agent configuration.',
+    techStack: ['Next.js', 'TypeScript', 'Supabase'],
+    caseStudyLink: '/projects/sai-system',
     status: 'coming-soon',
     featured: true,
   },
@@ -44,12 +59,12 @@ export const FEATURED_PROJECTS: Project[] = [
     id: 'dog-game',
     title: 'Dog Game',
     category: 'Game Development · Tower Defense',
-    description: 'An endless tower defense game made in Unity, where players build a defense and protect their territory for as long as possible.',
+    description:
+      'An endless tower-defense game made in Unity, where players build a defense and protect their territory for as long as they can.',
     longDescription:
-      'A browser-based game about raising and training a dog, built with Unity and hosted on Vercel. Focuses on intuitive gameplay and engaging progression mechanics.',
-    techStack: ['Unity', 'C#', 'Game Design'],
-    githubLink: 'https://github.com/shenabeth/dog-game',
-    demoLink: 'https://dog-game.example.com',
+      'A browser-playable endless tower-defense game built in Unity and exported to WebGL. The focus was tight, readable gameplay and a satisfying difficulty curve as waves escalate.',
+    techStack: ['Unity', 'C#', 'WebGL'],
+    caseStudyLink: '/projects/dog-game',
     status: 'live',
     featured: true,
   },
@@ -57,28 +72,31 @@ export const FEATURED_PROJECTS: Project[] = [
 
 export const CERTIFICATIONS: Certification[] = [
   {
-    id: 'comptia-tech-plus',
-    name: 'CompTIA Tech+',
-    code: 'TECH+',
-    issuer: 'CompTIA',
-    dateEarned: 'January 2024',
-    credlyUrl: 'https://credly.com/badges/comptia-tech-plus',
+    id: 'aws-saa-c03',
+    name: 'AWS Certified Solutions Architect – Associate',
+    code: 'SAA',
+    issuer: 'Amazon Web Services',
+    dateEarned: 'In Progress',
+    credlyUrl: '#',
+    badgeUrl: '/certs/aws-saa.png',
   },
   {
     id: 'aws-clf',
     name: 'AWS Certified Cloud Practitioner',
     code: 'CLF',
     issuer: 'Amazon Web Services',
-    dateEarned: 'June 2024',
-    credlyUrl: 'https://credly.com/badges/aws-clf',
+    dateEarned: 'September 2026',
+    credlyUrl: 'https://www.credly.com/badges/77850338-9124-40b8-89cf-3ad16d7e4679',
+    badgeUrl: '/certs/aws-ccp.png',
   },
   {
-    id: 'aws-saa-c03',
-    name: 'AWS Certified Solutions Architect – Associate',
-    code: 'SAA',
-    issuer: 'Amazon Web Services',
-    dateEarned: 'In Progress',
-    credlyUrl: 'https://credly.com/badges/aws-saa-c03',
+    id: 'comptia-tech-plus',
+    name: 'CompTIA Tech+',
+    code: 'TECH+',
+    issuer: 'CompTIA',
+    dateEarned: 'June 2026',
+    credlyUrl: 'https://www.credly.com/badges/b6841f36-764a-4f46-a5d1-7496c6ec889c',
+    badgeUrl: '/certs/comptia-techplus.png',
   },
 ];
 
@@ -86,34 +104,48 @@ export const CERTIFICATIONS: Certification[] = [
 export const HIDDEN_CERTIFICATIONS: Certification[] = [
   {
     id: 'adobe-photoshop-associate',
-    name: 'Adobe Certified Professional: Photoshop',
+    name: 'Adobe Certified Associate in Visual Communication Using Adobe Photoshop CS6',
     code: 'PS',
     issuer: 'Adobe',
-    dateEarned: 'TBD',
-    credlyUrl: 'https://credly.com/badges/adobe-photoshop-associate',
+    dateEarned: 'June 12, 2017',
+    credlyUrl: 'https://www.credly.com/badges/4e8208f9-ae4a-4c04-be03-a969b0dbd681',
+    badgeUrl: '/certs/photoshop.png',
   },
   {
     id: 'google-ux-design',
     name: 'Google UX Design Professional Certificate',
     code: 'UX',
-    issuer: 'Google (Coursera)',
-    dateEarned: 'TBD',
-    credlyUrl: 'https://credly.com/badges/google-ux-design',
+    issuer: 'Coursera',
+    dateEarned: 'February 2025',
+    credlyUrl: 'https://www.credly.com/badges/59280511-11e4-4f2f-8e50-83bf15dcb6ba',
+    badgeUrl: '/certs/google-ux.png',
+  },
+  {
+    id: 'microsoft-ux-design',
+    name: 'Microsoft UX Design Professional Certificate',
+    code: 'UX',
+    issuer: 'Coursera',
+    dateEarned: 'February 2025',
+    credlyUrl: 'https://www.credly.com/badges/15391522-233a-49a0-a45b-8ea3b00b48a5',
+    badgeUrl: '/certs/microsoft-ux.png',
   },
 ];
 
 export const EDUCATION: Education[] = [
   {
     degree: 'Bachelor of Science in Computer Science',
+    minor: 'Astronomy',
     university: 'University of Maryland',
-    year: '2025',
-    tag: 'CORE_SYSTEM',
+    location: 'College Park, MD',
+    tag: 'LATEST',
+    logoUrl: '/schools/umd.svg',
   },
   {
     degree: 'Associate of Arts in Computer Science',
     university: 'Montgomery College',
-    year: '2023',
+    location: 'Rockville, MD',
     tag: 'FOUNDATION',
+    logoUrl: '/schools/montgomery-college.svg',
   },
 ];
 
@@ -136,6 +168,4 @@ export const TECH_STACK: SkillCategory[] = [
   },
 ];
 
-export const ALL_TECH_SKILLS: string[] = TECH_STACK.flatMap((c) => c.skills);
-
-export const CONTACT_EMAIL = 'shenakinz610@gmail.com';
+export const CONTACT_EMAIL = 'shenabeth@gmail.com';

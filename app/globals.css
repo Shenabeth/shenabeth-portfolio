@@ -152,6 +152,31 @@
 }
 
 @layer components {
+  /* Skip-to-content link — visually hidden until keyboard focus, then
+     slides into view at the top-left. Lets keyboard and screen-reader
+     users bypass the nav and jump straight to <main>. */
+  .skip-to-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background: var(--accent);
+    color: var(--ink);
+    font-family: "DM Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 0 0 0.5rem 0;
+    transform: translateY(-120%);
+    transition: transform 160ms ease;
+  }
+
+  .skip-to-content:focus {
+    transform: translateY(0);
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 2px;
+  }
+
   /* Navigation */
   .nav-fixed {
     position: fixed;
@@ -182,14 +207,16 @@
 
   /* Monospace label styles (section indices, etc.) */
   .section-index {
-    @apply text-xs uppercase tracking-widest mb-4;
+    @apply uppercase tracking-widest mb-4;
     font-family: "DM Mono", monospace;
+    font-size: 0.9rem;
     color: var(--accent-bright);
   }
 
   .monospace-label {
-    @apply text-xs uppercase tracking-widest;
+    @apply uppercase tracking-widest;
     font-family: "DM Mono", monospace;
+    font-size: 0.85rem;
   }
 
   /* Nav link hover animation */
@@ -283,13 +310,24 @@
     background: linear-gradient(to top, var(--ink), transparent);
   }
 
-  /* Hero section wrapper */
+  /* Hero section wrapper.
+     `isolation: isolate` establishes a stacking context HERE so the
+     circuit background's negative z-index can't tunnel behind the rest
+     of the page. Everything stacking-related for the hero is contained
+     inside this wrapper. */
   .hero-section-wrapper {
     position: relative;
     width: 100%;
+    isolation: isolate;
   }
 
-  /* Hero section */
+  /* Hero section.
+     IMPORTANT: no z-index / isolation / transform here. The liquid-glass
+     panel in .hero-copy uses backdrop-filter to blur the circuit pattern
+     behind it, and backdrop-filter can only reach into its CONTAINING
+     stacking context. If this element established one, the circuit
+     (which lives outside .hero-section) would be hidden from the
+     backdrop and the panel would look transparent instead of frosted. */
   .hero-section {
     position: relative;
     display: grid;
@@ -298,27 +336,41 @@
     width: min(92vw, 1320px);
     min-height: 100vh;
     margin: 0 auto;
-    padding: 9rem 0 5rem;
-    z-index: 1;
+    padding: 2rem 0 7rem;
   }
 
-  .hero-background-container {
+  /* Full-bleed circuit-board background wrapper. Sibling of .hero-section
+     inside .hero-section-wrapper so it reaches the viewport edges.
+     Negative z-index puts it behind the hero content WITHIN the wrapper's
+     stacking context, which keeps the circuit visible to backdrop-filter
+     on the glass panel above it. */
+  .hero-circuit-bg {
     position: absolute;
-    top: 0;
+    top: -6rem;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    margin-left: calc(-50vw + 50%);
-    z-index: 0;
+    z-index: -1;
+    width: 100%;
     pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Tiled pattern layer with a bottom mask-fade so it dissolves to
+     transparent — nothing underneath (no background-color on the parent
+     either), so the page behind shows through the fade region. */
+  .hero-circuit-bg-pattern {
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
   }
 
   @media (max-width: 1024px) {
     .hero-section {
       grid-template-columns: 1fr;
-      padding-top: 9rem;
+      padding-top: 3.5rem;
     }
   }
 
@@ -334,12 +386,108 @@
     z-index: 0;
   }
 
+  /* .hero-copy is the layout box; it holds the glass panel and the
+     text block as SIBLINGS. It must not have a transform or filter
+     applied, or backdrop-filter on the glass would be trapped. */
   .hero-copy {
     position: relative;
-    z-index: 10;
-    max-width: 46rem;
-    padding: 2.5rem;
-    background: var(--ink);
+    width: min(42rem, 100%);
+    padding: 2.75rem 2.5rem;
+  }
+
+  /* iOS liquid-glass panel — a real, non-transformed element so its
+     backdrop-filter can reach the circuit background behind the hero.
+     Dark-mode variant: heavy ink tint, strong blur, saturation boost so
+     the circuit colors show through as a faint tinted haze instead of
+     a sharp pattern. Layered inset shadows fake refraction/curvature
+     (top gleam, bottom shadow, side vignette) without a hard border. */
+  .hero-glass {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 1.75rem;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    background:
+      /* Soft top-left highlight — static gleam that sells curvature */
+      radial-gradient(
+        120% 100% at 30% 0%,
+        rgba(255, 255, 255, 0.09) 0%,
+        rgba(255, 255, 255, 0.03) 35%,
+        transparent 70%
+      ),
+      /* Dark base tint — the glass's dark-mode body */
+      rgba(8, 11, 10, 0.45);
+    backdrop-filter: blur(28px) saturate(165%) brightness(0.9);
+    -webkit-backdrop-filter: blur(28px) saturate(165%) brightness(0.9);
+    box-shadow:
+      /* Top edge gleam — bright bevel line */
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.28),
+      inset 0 3px 2px rgba(255, 255, 255, 0.08),
+      /* Side bevels — thin bright inner edges on left/right so the
+         glass reads as a thick slab rather than a flat tint */
+      inset 1px 0 0 rgba(255, 255, 255, 0.1),
+      inset -1px 0 0 rgba(255, 255, 255, 0.1),
+      /* Bottom bevel — bright catch along the lower edge keeps the
+         pane visibly bounded instead of fading out */
+      inset 0 -1.5px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -4px 10px rgba(255, 255, 255, 0.04),
+      /* Outer drop lifts the pane off the circuit background */
+      0 24px 60px rgba(0, 0, 0, 0.55),
+      0 4px 14px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+  }
+
+  /* Specular diagonal sheen — static highlight on top of the frosted
+     pane, giving the illusion of a thicker glass slab. */
+  .hero-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.03) 18%,
+      transparent 42%,
+      transparent 100%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* Text block sits on top of the glass panel. position:relative +
+     z-index keeps it above .hero-glass without creating a stacking
+     context for the glass itself. */
+  .hero-copy-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 1024px) {
+    .hero-copy {
+      width: 100%;
+    }
+  }
+
+  /* Solid black highlight behind inline text — a tight contained pill so
+     each line of hero copy reads crisp against the circuit background.
+     `box-decoration-break: clone` means multi-line text gets independent
+     highlight shapes per line rather than one rectangle spanning the
+     whole block. */
+  .text-blur-highlight {
+    display: inline;
+    background-color: #000000;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0.2em 0.4em;
+    border-radius: 0.35em;
+  }
+
+  .text-blur-highlight-inline {
+    display: inline-block;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.8rem;
   }
 
   .hero-kicker {
@@ -351,44 +499,93 @@
 
   .hero-title {
     margin: 0;
-    max-width: 8ch;
-    font-size: clamp(4.8rem, 9.2vw, 9.5rem);
+    /* Fixed width tied to the two words stacked ("Shenabeth" / "Jenkins")
+       — 9ch is the longest word; the width locks so the title never
+       spills past the glass panel at any viewport, with equal breathing
+       room on the left and right. Font-size is clamped so the glyphs
+       stay inside that character count without resizing dynamically. */
+    width: 9ch;
+    font-size: clamp(3.6rem, 6.4vw, 5.6rem);
     font-weight: 500;
-    line-height: 0.79;
-    letter-spacing: -0.085em;
+    line-height: 0.9;
+    letter-spacing: -0.075em;
+    /* Heavy, wide dark halo behind the title so each glyph sits well off
+       the busy circuit pattern. Big soft spread (24-40px) + a tight
+       grounding shadow underneath. */
+    text-shadow:
+      0 4px 0 rgba(0, 0, 0, 0.95),
+      0 6px 14px rgba(0, 0, 0, 0.95),
+      0 0 24px rgba(0, 0, 0, 0.85),
+      0 0 40px rgba(0, 0, 0, 0.6);
   }
 
+  /* Jenkins (second word): clean outlined wordmark. The outline is built
+     from a 4-direction text-shadow stack so the stroke sits ENTIRELY
+     outside each letter (no half-stroke inside the glyph like
+     -webkit-text-stroke produces). The fill is the page ink color so the
+     interior reads as a solid, non-transparent surface with the circuit
+     pattern blocked. The dark halo shadows from .hero-title still apply
+     via inheritance of the h1's text-shadow? No — text-shadow is not
+     inherited through child spans in a way that compounds. The outline
+     stack here replaces the parent shadow for the Jenkins word; the
+     distinct dark drop under the whole word is layered as the final
+     shadow entries. */
   .hero-title-stroke {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(237, 245, 241, 0.42);
+    color: var(--ink);
+    text-shadow:
+      /* 4-direction white outline (sits outside each glyph) */
+      -2px 0 0 #ffffff,
+      2px 0 0 #ffffff,
+      0 -2px 0 #ffffff,
+      0 2px 0 #ffffff,
+      -1.4px -1.4px 0 #ffffff,
+      1.4px -1.4px 0 #ffffff,
+      -1.4px 1.4px 0 #ffffff,
+      1.4px 1.4px 0 #ffffff,
+      /* Big dark drop behind the outlined word so it lifts off the
+         circuit background with the same weight as the solid word. */
+      0 6px 14px rgba(0, 0, 0, 0.9),
+      0 0 24px rgba(0, 0, 0, 0.75),
+      0 0 40px rgba(0, 0, 0, 0.55);
   }
 
   .hero-role {
     margin: 2.5rem 0 0;
-    color: var(--text);
+    color: var(--accent-bright);
     font-family: "DM Mono", monospace;
-    font-size: 0.76rem;
+    font-size: 1.05rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.1em;
   }
 
   .hero-description {
     max-width: 40rem;
     margin: 1.3rem 0 0;
-    color: var(--muted);
+    color: var(--text);
     font-size: clamp(1rem, 1.4vw, 1.2rem);
     line-height: 1.75;
   }
 
   .hero-description em {
-    color: var(--accent-bright);
+    color: var(--accent-secondary-bright);
     font-style: normal;
+    font-weight: 600;
   }
 
   .hero-actions {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.75rem;
     margin-top: 2.2rem;
+  }
+
+  /* Social icons inside the action row — even gap, chips are
+     fixed-width so spacing between them stays uniform. */
+  .hero-actions-social {
+    gap: 0.5rem !important;
+    margin-left: 0.5rem;
   }
 
 
@@ -411,6 +608,7 @@
 
   .secondary-action {
     border: 1px solid var(--line-strong);
+    background: var(--ink);
     color: var(--text);
   }
 
@@ -431,7 +629,7 @@
   .sweep-button {
     position: relative;
     overflow: hidden;
-    border-radius: inherit;
+    border-radius: 0.8rem;
     background-clip: padding-box;
     transition: color 320ms ease, border-color 320ms ease, transform 180ms ease;
   }
@@ -467,94 +665,166 @@
     aspect-ratio: 1 / 1.08;
   }
 
-  /* Orbit animations */
-  .orbit {
-    position: absolute;
-    inset: 0;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-    animation: spin 22s linear infinite;
+  /* CPU chip: replaces .art-card. Square die with radiating pin legs/pads
+     and an animated face (see CpuChip.tsx). Palette-matched to
+     --surface/--ink rather than the literal silicon-gray of reference
+     photography. */
+  .cpu-chip {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 
-  .orbit-reverse {
-    inset: 18%;
-    animation-direction: reverse;
-    animation-duration: 14s;
-  }
-
-  .orbit-dot {
-    position: absolute;
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 1.2rem var(--accent);
-  }
-
-  .orbit-dot-alt {
-    top: auto;
-    left: auto;
-    right: 2%;
-    bottom: 24%;
-    background: var(--text);
-    box-shadow: none;
-  }
-
-  /* Art card */
-  .art-card {
+  .cpu-chip--large {
     position: absolute;
     inset: 11% 4% 8% 8%;
     z-index: 2;
+  }
+
+  .cpu-chip--small {
+    width: 7rem;
+    height: 7rem;
+    flex-shrink: 0;
+  }
+
+  /* Wraps pins + body so both move as one rigid unit under a single
+     card-float animation timeline, instead of the body animating alone
+     while the pins (a sibling) stayed static. */
+  .cpu-chip-assembly {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    overflow: hidden;
-    border: 1px solid var(--line-strong);
-    border-radius: 2rem;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 42%), var(--surface);
-    box-shadow: 2rem 2rem 5rem rgba(0, 0, 0, 0.28);
-    transform: rotate(3deg);
+    align-items: center;
+    justify-content: center;
     animation: card-float 7s ease-in-out infinite;
   }
 
-  .art-card::after {
-    content: "";
+  /* Chip artwork SVG — contains body outline, pins, tendrils, screws.
+     Covers the whole chip bounding box; face is overlaid separately. */
+  .cpu-chip-art {
     position: absolute;
-    right: -20%;
-    bottom: -30%;
-    width: 80%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .cpu-body-rect {
+    fill: var(--surface);
+    stroke: rgba(84, 213, 170, 0.35);
+    stroke-width: 1.5;
+  }
+
+  .cpu-body-inset {
+    fill: var(--ink);
+    stroke: rgba(84, 213, 170, 0.18);
+    stroke-width: 0.75;
+  }
+
+  .cpu-body-screw {
+    fill: var(--muted);
+    opacity: 0.6;
+  }
+
+  .cpu-pin {
+    fill: var(--muted);
+    opacity: 0.85;
+  }
+
+  .cpu-tendril path {
+    fill: none;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cpu-tendril--dim path { stroke: rgba(235, 245, 240, 0.55); }
+  .cpu-tendril--bright path { stroke: var(--accent-bright); }
+  .cpu-tendril--gold path { stroke: var(--accent-secondary-bright); }
+
+  .cpu-tendril-pad {
+    fill: var(--accent-bright);
+  }
+
+  .cpu-tendril--gold .cpu-tendril-pad {
+    fill: var(--accent-secondary-bright);
+  }
+
+  .cpu-tendril--dim .cpu-tendril-pad {
+    fill: rgba(235, 245, 240, 0.75);
+  }
+
+  .cpu-tendril-pad-hollow {
+    fill: var(--ink);
+    stroke: var(--accent-bright);
+    stroke-width: 1.5;
+  }
+
+  .cpu-tendril--gold .cpu-tendril-pad-hollow {
+    stroke: var(--accent-secondary-bright);
+  }
+
+  .cpu-tendril--dim .cpu-tendril-pad-hollow {
+    stroke: rgba(235, 245, 240, 0.75);
+  }
+
+  /* Face overlay: sits on top of the chip die, centered on the body area */
+  .cpu-chip-face-wrap {
+    position: relative;
+    width: 46%;
     aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--accent);
-    filter: blur(75px);
-    opacity: 0.12;
-    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
   }
 
-  .floating-tag {
-    position: absolute;
-    z-index: 3;
-    padding: 0.7rem 0.85rem;
-    border: 1px solid var(--line-strong);
-    border-radius: 0.65rem;
-    background: rgba(13, 18, 16, 0.9);
-    font-family: "DM Mono", monospace;
-    font-size: 0.72rem;
-    box-shadow: 0 0.8rem 2.5rem rgba(0, 0, 0, 0.22);
+  .cpu-chip-face {
+    width: 100%;
+    height: 100%;
   }
 
-  .floating-tag-code {
-    top: 4%;
-    right: 13%;
-    color: var(--accent-bright);
-    animation: float 4s ease-in-out infinite;
+  .cpu-chip-face .chip-eye {
+    fill: none;
   }
 
-  .floating-tag-logic {
-    right: -1%;
-    bottom: 17%;
-    color: var(--muted);
-    animation: float 4s 1.2s ease-in-out infinite;
+  .cpu-chip-face .chip-eye {
+    fill: var(--accent-bright);
+    transition: all 160ms ease;
+  }
+
+  .cpu-chip-face.is-looking .chip-eye {
+    transition: all 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .cpu-chip-face .chip-eye-socket {
+    stroke: var(--accent-bright);
+    stroke-width: 2.5;
+    fill: rgba(84, 213, 170, 0.08);
+  }
+
+  .cpu-chip-face .chip-mouth {
+    stroke: var(--accent-bright);
+    stroke-width: 2;
+    fill: none;
+    transition: all 160ms ease;
+  }
+
+  .cpu-chip-face .chip-eye-love {
+    fill: var(--accent-secondary-bright);
+  }
+
+  .cpu-chip-face .chip-eye-mad {
+    stroke: #e2574c;
+    stroke-width: 2.5;
+    fill: none;
+  }
+
+  .cpu-chip-face .chip-eye-mad-pupil {
+    fill: #e2574c;
   }
 
   /* Scroll cue */
@@ -567,7 +837,7 @@
     gap: 1rem;
     color: var(--muted);
     font-family: "DM Mono", monospace;
-    font-size: 0.64rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
   }
@@ -612,6 +882,232 @@
     color: var(--muted);
     font-size: 0.95rem;
     line-height: 1.7;
+  }
+
+  /* IDE-style section heading. Two columns (gutter | body) × three rows
+     (kicker / title / comment). The gutter background and accent border
+     are painted as a positioned overlay (.ide-heading-gutter-bg) spanning
+     every row of column 1, while each line-number sits in its own row
+     cell and aligns to the first line-box of its body row. This keeps a
+     wrapped comment's "03" on the first line instead of drifting. */
+  .ide-heading {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: 1.4rem;
+    row-gap: 0.4rem;
+    margin-bottom: 3.5rem;
+    width: 100%;
+    font-family: "DM Mono", monospace;
+  }
+
+  .ide-heading-gutter-bg {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    background: rgba(13, 18, 16, 0.65);
+    border-right: 2px solid var(--accent);
+    border-radius: 0.35rem 0 0 0.35rem;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Gutter numbers must line up HORIZONTALLY with the first text line of
+     their row (kicker↔01, title↔02, first comment line↔03). Each row's
+     text uses a different font-size and line-height, so instead of a
+     fixed line-height on the number we match each row's leading via
+     per-row overrides below and anchor to the first baseline with
+     align-self: baseline. */
+  .ide-heading-gutter-num {
+    grid-column: 1;
+    justify-self: end;
+    align-self: baseline;
+    padding: 0 0.9rem 0 0.6rem;
+    color: var(--text);
+    font-size: 0.85rem;
+    opacity: 0.85;
+    user-select: none;
+  }
+
+  /* Per-row leading overrides so each gutter number's baseline sits on
+     the same line as the first visible text line of its row. */
+  .ide-heading-gutter-num.ide-heading-row-kicker {
+    line-height: 1.1;
+  }
+  .ide-heading-gutter-num.ide-heading-row-title {
+    line-height: 1;
+  }
+  .ide-heading-gutter-num.ide-heading-row-comment {
+    line-height: 1.6;
+  }
+
+  .ide-heading-row-kicker {
+    grid-row: 1;
+  }
+
+  .ide-heading-row-title {
+    grid-row: 2;
+  }
+
+  .ide-heading-row-comment {
+    grid-row: 3;
+  }
+
+  /* Line number sits in column 1; body elements sit in column 2. The
+     explicit column assignment prevents them from auto-flowing into the
+     wrong cell. A heavy soft text-shadow sits behind every row so the
+     text stays legible against the circuit-pattern background. */
+  .ide-heading-kicker,
+  .ide-heading-title,
+  .ide-heading-comment {
+    grid-column: 2;
+    text-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.9),
+      0 0 16px rgba(0, 0, 0, 0.75),
+      0 0 28px rgba(0, 0, 0, 0.55);
+  }
+
+  .ide-heading-kicker {
+    margin: 0;
+    color: var(--accent-bright);
+    font-family: "DM Mono", monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    line-height: 1.1;
+  }
+
+  .ide-heading-title {
+    margin: 0;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.065em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* Main h1 variant: page-level title (About, Projects) — large and bold */
+  .ide-heading--main .ide-heading-title {
+    font-size: clamp(3.4rem, 7vw, 6rem);
+    letter-spacing: -0.08em;
+    line-height: 1;
+  }
+
+  .ide-heading--main .ide-heading-kicker {
+    font-size: 1.05rem;
+  }
+
+  .ide-heading--main .ide-heading-gutter-num {
+    font-size: 0.9rem;
+  }
+
+  /* Page-title banner wrapper: full-bleed strip at the very top of About
+     / Projects pages, with the circuit pattern layered behind the title
+     and a soft fade to TRANSPARENT at the bottom (not to the ink color)
+     so the pattern dissolves into whatever is beneath, matching the hero
+     treatment. The main .ide-heading sits above it in normal flow. */
+  .page-title-banner {
+    position: relative;
+    width: 100%;
+    isolation: isolate;
+    /* Extend upward past the nav's safe area so the banner background
+       starts at the true top of the viewport (matches the hero's
+       background flow). Padding below cancels the lift for inline flow. */
+    margin-top: -6rem;
+    padding-top: 6rem;
+  }
+
+  .page-title-banner-bg {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .page-title-banner-pattern {
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+    /* Mask so the pattern fades to transparent at the bottom edge
+       instead of cutting off hard against the ink color below. */
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  }
+
+  .ide-heading--main {
+    position: relative;
+    padding: 3.5rem 0 4rem;
+  }
+
+  /* Sub h2 variant: subsection title — bigger than before so landing-page
+     section headings (Projects, Certifications, Contact) feel more
+     prominent, but still smaller than a main page title. */
+  .ide-heading-title--sub {
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    letter-spacing: -0.055em;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .ide-heading--sub .ide-heading-gutter-num {
+    font-size: 0.82rem;
+  }
+
+  .ide-heading-caret {
+    display: inline-block;
+    width: 0.45em;
+    height: 0.95em;
+    background: var(--accent-bright);
+    opacity: 0.85;
+    transform: translateY(0.08em);
+    animation: ide-caret-blink 1s steps(2) infinite;
+    border-radius: 1px;
+  }
+
+  .ide-heading-comment {
+    margin: 0;
+    font-family: "DM Mono", monospace;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 54rem;
+  }
+
+  .ide-heading-comment::before {
+    content: '/* ';
+    color: var(--muted);
+  }
+
+  .ide-heading-comment::after {
+    content: ' */';
+    color: var(--muted);
+  }
+
+  @keyframes ide-caret-blink {
+    0%, 50% { opacity: 0.85; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  @media (max-width: 640px) {
+    .ide-heading {
+      column-gap: 0.9rem;
+    }
+    .ide-heading-gutter-num {
+      font-size: 0.68rem;
+      padding: 0 0.5rem 0 0.4rem;
+    }
+    .ide-heading--main .ide-heading-title {
+      font-size: clamp(2.6rem, 10vw, 4rem);
+    }
+    .ide-heading-title--sub {
+      font-size: clamp(1.9rem, 7vw, 2.6rem);
+    }
   }
 
   /* Carousel */
@@ -690,7 +1186,7 @@
   .slide-count {
     color: var(--muted);
     font-family: "DM Mono", monospace;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
   }
 
   .slide-count-active {
@@ -765,7 +1261,7 @@
     margin: 0.5rem 0 0;
     color: var(--muted);
     font-family: "DM Mono", monospace;
-    font-size: 0.62rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -797,6 +1293,45 @@
     height: 1rem;
   }
 
+  /* Flat social button: no background pill — icon sits directly on the
+     page, with a subtle drop-shadow for depth. Icon fills most of the
+     target area so the glyph itself is the button. */
+  .social-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    transition: transform 220ms ease, color 220ms ease;
+  }
+
+  .social-chip-ring {
+    display: none;
+  }
+
+  .social-chip-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.6));
+    transition: transform 220ms ease, filter 220ms ease, color 220ms ease;
+  }
+
+  .social-chip:hover {
+    color: var(--accent-bright);
+    transform: translateY(-0.2rem);
+  }
+
+  .social-chip:hover .social-chip-icon {
+    transform: scale(1.08);
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 14px rgba(84, 213, 170, 0.55));
+  }
+
   .admin-link {
     position: absolute;
     right: 0;
@@ -813,6 +1348,447 @@
   .admin-link:hover {
     color: var(--accent-bright);
     opacity: 1;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Case Study pages (modular template at /projects/[slug])
+     ─────────────────────────────────────────────────────────────── */
+
+  /* Banner heading tweaks — single-line title, no kicker/comment. The
+     row-grid still reserves three rows via SectionHeading styles, so
+     collapse the vertical padding slightly for the title-only banner. */
+  .case-study-heading .ide-heading-row-title {
+    grid-row: 1;
+  }
+
+  /* Short summary paragraph beneath the banner */
+  .case-study-summary-wrap {
+    width: min(92vw, 920px);
+    margin: 0 auto 4rem;
+    padding: 0 0.5rem;
+  }
+
+  .case-study-summary {
+    color: var(--muted);
+    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+    line-height: 1.75;
+    text-align: center;
+  }
+
+  /* Section wrapper used by every case-study block */
+  .case-study-section {
+    width: min(92vw, 1180px);
+    margin: 0 auto;
+    padding: 4rem 0;
+  }
+
+  .case-study-section-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .case-study-section-step {
+    margin: 0;
+    color: var(--accent-bright);
+    font-family: "DM Mono", monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .case-study-section-title {
+    margin: 0;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1;
+  }
+
+  .case-study-section-description {
+    margin: 0 0 1rem;
+    max-width: 48rem;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .case-study-section-body {
+    margin-top: 1.5rem;
+  }
+
+  /* Balanced grid: picks a column count that avoids an orphan last row
+     (e.g. a 4-item grid becomes 2x2 then 1x4, never 3+1). The column count
+     is driven by `data-count` on the grid so any item count lays out
+     symmetrically. Base (mobile) is always a single column. */
+  .balanced-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  /* Tablet and up: 2-up for even counts and most odd counts. */
+  @media (min-width: 640px) {
+    .balanced-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    /* 3 items read better as a single row than 2+1. */
+    .balanced-grid[data-count="3"] {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Desktop: open up to the full row only when it divides evenly. */
+  @media (min-width: 1040px) {
+    .balanced-grid[data-count="4"] {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .balanced-grid[data-count="5"],
+    .balanced-grid[data-count="6"] {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* GitHub-style "languages used" breakdown (top of a case study's tech
+     stack). A segmented bar that draws in on scroll, plus a dot legend. */
+  .language-bar {
+    margin-bottom: 2.5rem;
+  }
+
+  .language-bar-title {
+    margin: 0 0 0.85rem;
+    color: var(--muted);
+    font-family: "DM Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .language-bar-track {
+    display: flex;
+    width: 100%;
+    height: 0.75rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+
+  /* Hairline between segments so adjacent colors stay distinct, like GitHub. */
+  .language-bar-segment {
+    height: 100%;
+    box-shadow: inset -1px 0 0 rgba(8, 11, 10, 0.55);
+  }
+
+  .language-bar-segment:last-child {
+    box-shadow: none;
+  }
+
+  .language-bar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .language-bar-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .language-bar-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .language-bar-name {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .language-bar-percent {
+    color: var(--muted);
+    font-family: "DM Mono", monospace;
+    font-size: 0.8rem;
+  }
+
+  /* Tech stack grid — layout handled by .balanced-grid; wider gap here. */
+  .tech-stack-grid {
+    gap: 2rem;
+  }
+
+  .tech-stack-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+
+  .tech-stack-group-label {
+    margin: 0;
+    color: var(--accent-bright);
+    font-family: "DM Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tech-stack-group-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tech-stack-chip {
+    display: inline-block;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--ink-soft);
+    color: var(--text);
+    font-size: 0.82rem;
+    transition: border-color 220ms ease, color 220ms ease, transform 220ms ease;
+  }
+
+  .tech-stack-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-bright);
+    transform: translateY(-2px);
+  }
+
+  /* Problem / Before vs After */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: stretch;
+  }
+
+  @media (max-width: 768px) {
+    .problem-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .problem-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+
+  .problem-col--before {
+    border-color: rgba(235, 245, 240, 0.08);
+    opacity: 0.95;
+  }
+
+  .problem-col--after {
+    border-color: rgba(84, 213, 170, 0.35);
+    background: linear-gradient(180deg, var(--surface), var(--surface-raised));
+  }
+
+  .problem-col-label {
+    margin: 0;
+    color: var(--muted);
+    font-family: "DM Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .problem-col--after .problem-col-label {
+    color: var(--accent-bright);
+  }
+
+  .problem-col-heading {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .problem-col-points {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .problem-col-points li {
+    position: relative;
+    padding-left: 1.1rem;
+  }
+
+  .problem-col-points li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--muted);
+    font-family: "DM Mono", monospace;
+  }
+
+  .problem-col--after .problem-col-points li::before {
+    color: var(--accent-bright);
+  }
+
+  .problem-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-bright);
+    width: 3rem;
+  }
+
+  .problem-arrow svg {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 768px) {
+    .problem-arrow {
+      transform: rotate(90deg);
+      width: 2rem;
+      margin: 0.5rem auto;
+    }
+  }
+
+  /* Impact stat grid — layout handled by .balanced-grid; this adds spacing. */
+  .impact-grid {
+    gap: 1.25rem;
+  }
+
+  .impact-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    transition: border-color 240ms ease, transform 240ms ease;
+  }
+
+  .impact-tile:hover {
+    border-color: rgba(84, 213, 170, 0.35);
+    transform: translateY(-3px);
+  }
+
+  .impact-tile-value {
+    margin: 0;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: var(--accent-bright);
+    font-family: "DM Mono", monospace;
+  }
+
+  .impact-tile-label {
+    margin: 0.6rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .impact-tile-description {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  /* Feature cards — layout handled by .balanced-grid; this adds spacing. */
+  .features-grid {
+    gap: 1.25rem;
+  }
+
+  .feature-card {
+    position: relative;
+    padding: 1.75rem;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--surface);
+    transition: border-color 240ms ease, transform 240ms ease;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(84, 213, 170, 0.35);
+    transform: translateY(-3px);
+  }
+
+  .feature-card-index {
+    display: inline-block;
+    margin-bottom: 0.9rem;
+    color: var(--accent-bright);
+    font-family: "DM Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+  }
+
+  .feature-card-title {
+    margin: 0 0 0.6rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .feature-card-body {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  /* Lessons list */
+  .lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 1.75rem 1.75rem 1.75rem 1.75rem;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent);
+    border-radius: 0.75rem;
+    background: var(--ink-soft);
+    list-style: none;
+  }
+
+  .lessons-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+    color: var(--text);
+    font-family: "DM Mono", monospace;
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .lessons-item-marker {
+    color: var(--accent-bright);
+    flex: 0 0 auto;
+  }
+
+  .lessons-item-text {
+    color: var(--text);
   }
 
   /* Dark mode scrollbars */
