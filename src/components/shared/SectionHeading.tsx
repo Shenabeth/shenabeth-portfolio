@@ -2,26 +2,26 @@
 
 /*
  * File: SectionHeading.tsx
- * Purpose: Reusable section heading styled as a multi-line IDE snippet.
+ * Purpose: Reusable section heading, in two visual weights:
  *
- *          Each row (kicker, title, optional comment) sits next to a left
- *          gutter showing its line number in muted DM Mono, divided from
- *          the content by a vertical accent rule — like a real code
- *          editor's line-number column. The gutter has its own subtle
- *          background panel so it reads as a distinct editor sidebar,
- *          not just a thin border.
+ *          - `variant="main"` — the heavier page-level IDE treatment (big
+ *            h1 title + full gutter/line-number/caret system). Used for
+ *            About/Projects page titles and case-study banners.
+ *          - `variant="sub"` (default) — the lighter "section-label"
+ *            pattern ported from the reference prototype (docs/Portfolio/
+ *            src/{App.tsx,styles.css}): a small bracket-boxed index number
+ *            + a `~/path/file.ext`-style mono caption above a plain h2
+ *            title, instead of the full gutter/caret/comment system. Used
+ *            for ordinary section headings (home Projects, Certifications).
  *
- *          A blinking block caret pulses after the title and a typewriter
- *          effect reveals the title text once per page load when it
- *          scrolls into view.
+ *          Both variants keep the same typewriter-on-scroll-into-view
+ *          behavior and a blinking caret after the title; only the markup
+ *          and visual weight differ.
  *
- *          Supports two sizes:
- *            - `variant="main"` — big page-level h1 title (About, Projects)
- *            - `variant="sub"` — smaller subsection h2 title (Education,
- *              Certifications, Tech Stack, home Projects/Contact rows)
- *
- *          The `// filename.ext` kicker is ALWAYS rendered in green —
- *          that's the project's convention for "// slug.json" labels.
+ *          The kicker (e.g. "// certifications.json") is ALWAYS rendered
+ *          in green — that's the project's convention for "// slug.json"
+ *          labels. For the `sub` variant, `kicker` is parsed into an index
+ *          number (`startLine`) and a `~/portfolio/<path>` caption.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -64,6 +64,15 @@ function useTypewriter(text: string, active: boolean, durationMs = 420) {
   return out;
 }
 
+/**
+ * Strip a leading `// ` comment marker from a kicker string, e.g.
+ * `"// certifications.json"` -> `"certifications.json"`, so the `sub`
+ * variant can reuse the same `kicker` prop as a file-path caption.
+ */
+function stripCommentMarker(kicker: string): string {
+  return kicker.replace(/^\/\/\s*/, '');
+}
+
 export function SectionHeading({
   kicker,
   title,
@@ -75,17 +84,35 @@ export function SectionHeading({
   const inView = useInView(ref, { once: true, margin: '-80px' });
   const typed = useTypewriter(title, inView);
 
-  const rootClass = variant === 'main' ? 'ide-heading ide-heading--main' : 'ide-heading ide-heading--sub';
+  if (variant === 'sub') {
+    const index = String(startLine).padStart(2, '0');
+    const path = stripCommentMarker(kicker);
+    return (
+      <div ref={ref}>
+        <div className="section-label">
+          <span className="section-label-index" aria-hidden="true">{index}</span>
+          <span className="section-label-path">~/portfolio/{path}</span>
+        </div>
+        <div className="section-label-heading">
+          {/* Give the heading its full accessible name via aria-label so
+              screen readers and WCAG checkers never see it as empty while
+              the typewriter is still animating in the visible text. */}
+          <h2 className="section-label-heading-title" aria-label={title}>
+            <span aria-hidden="true">{typed}</span>
+            <span className="section-label-caret" aria-hidden="true" />
+          </h2>
+          {comment && <p className="section-label-heading-comment">{comment}</p>}
+        </div>
+      </div>
+    );
+  }
 
   const kickerNum = String(startLine).padStart(2, '0');
   const titleNum = String(startLine + 1).padStart(2, '0');
   const commentNum = String(startLine + 2).padStart(2, '0');
 
-  const TitleTag = variant === 'main' ? 'h1' : 'h2';
-  const titleClass = variant === 'main' ? 'ide-heading-title' : 'ide-heading-title ide-heading-title--sub';
-
   return (
-    <div ref={ref} className={rootClass}>
+    <div ref={ref} className="ide-heading ide-heading--main">
       {/* Row-grid layout: each line-number sits in the gutter column
           aligned to the first line-box of its row, so a wrapped comment
           keeps "03" on its first line instead of drifting. The gutter
@@ -99,10 +126,10 @@ export function SectionHeading({
       {/* Give the heading its full accessible name via aria-label so
           screen readers and WCAG checkers never see it as empty while
           the typewriter is still animating in the visible text. */}
-      <TitleTag className={`${titleClass} ide-heading-row-title`} aria-label={title}>
+      <h1 className="ide-heading-title ide-heading-row-title" aria-label={title}>
         <span aria-hidden="true">{typed}</span>
         <span className="ide-heading-caret" aria-hidden="true" />
-      </TitleTag>
+      </h1>
 
       {comment && (
         <>

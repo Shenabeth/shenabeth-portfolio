@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -32,6 +32,20 @@
 }
 
 :root {
+  /* ---- Typefaces --------------------------------------------------------
+     Space Grotesk carries the UI and headings: a grotesque with angled
+     terminals and an irregular `g`/`a`, so it reads as a deliberate type
+     choice rather than a system default. JetBrains Mono handles the code
+     voice — section indices, kickers, tags and the editor chrome.
+     Both are loaded by the @import at the top of this file.
+
+     Note: --mono and --display were previously referenced but never
+     declared, so those rules silently fell back to the browser's default
+     monospace/serif. They are real tokens now. */
+  --sans: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
+  --display: var(--sans);
+
   /* Old site color palette - updated with gold accent */
   --ink: #080b0a;
   --ink-soft: #0d1210;
@@ -91,7 +105,7 @@
   body {
     @apply bg-background text-foreground overflow-x-hidden;
     color-scheme: dark;
-    font-family: "Manrope", sans-serif;
+    font-family: var(--sans);
   }
 
   html {
@@ -163,8 +177,8 @@
     padding: 0.75rem 1rem;
     background: var(--accent);
     color: var(--ink);
-    font-family: "DM Mono", monospace;
-    font-size: 0.9rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
     font-weight: 600;
     border-radius: 0 0 0.5rem 0;
     transform: translateY(-120%);
@@ -177,7 +191,11 @@
     outline-offset: 2px;
   }
 
-  /* Navigation */
+  /* Navigation. Lightened toward the reference prototype's flatter chrome:
+     a thinner shadow and slightly less opaque fill, so the bar reads as a
+     thin blurred strip rather than a heavy floating glass pill. Mechanics
+     (fixed position, sliding layoutId underline, dropdown, mobile
+     slide-down) are unchanged. */
   .nav-fixed {
     position: fixed;
     top: 0;
@@ -186,15 +204,15 @@
     z-index: 50;
     width: min(92vw, 1320px);
     border: 1px solid var(--line);
-    border-radius: 1.25rem;
-    background: rgba(8, 11, 10, 0.78);
-    backdrop-filter: blur(18px);
-    box-shadow: 0 1rem 4rem rgba(0, 0, 0, 0.25);
+    border-radius: 1rem;
+    background: rgba(8, 11, 10, 0.7);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.18);
     margin-top: 1rem;
   }
 
   .wordmark {
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
     font-size: 1.1rem;
     font-weight: 500;
     letter-spacing: -0.06em;
@@ -208,15 +226,15 @@
   /* Monospace label styles (section indices, etc.) */
   .section-index {
     @apply uppercase tracking-widest mb-4;
-    font-family: "DM Mono", monospace;
-    font-size: 0.9rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
     color: var(--accent-bright);
   }
 
   .monospace-label {
     @apply uppercase tracking-widest;
-    font-family: "DM Mono", monospace;
-    font-size: 0.85rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
   }
 
   /* Nav link hover animation */
@@ -255,16 +273,26 @@
 
   .card-hover:hover {
     @apply -translate-y-1;
-    border-color: rgba(84, 213, 170, 0.35);
+    border-color: var(--green-dark);
   }
 
-  /* Site-wide fixed background: gray/black base, thin accent grid, soft glows (no blue) */
+  /* Site-wide fixed background: gray/black base, thin accent grid, soft glows (no blue).
+     The glow children below use very large blur radii. Without an explicit
+     compositor layer the browser re-rasterizes those blurs against the
+     scrolling content on every frame, which makes scrolling stutter badly
+     once a tall section (the projects grid) is on screen. Promoting this
+     fixed layer once — and marking it as not affecting layout/paint of
+     anything else — lets it be rasterized a single time and merely
+     recomposited while scrolling. */
   .site-background {
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
     background: var(--ink);
+    transform: translateZ(0);
+    will-change: transform;
+    contain: strict;
   }
 
   .site-background-grid {
@@ -321,13 +349,8 @@
     isolation: isolate;
   }
 
-  /* Hero section.
-     IMPORTANT: no z-index / isolation / transform here. The liquid-glass
-     panel in .hero-copy uses backdrop-filter to blur the circuit pattern
-     behind it, and backdrop-filter can only reach into its CONTAINING
-     stacking context. If this element established one, the circuit
-     (which lives outside .hero-section) would be hidden from the
-     backdrop and the panel would look transparent instead of frosted. */
+  /* Hero section. Retained for the inner-page hero layout; the homepage
+     hero now uses the reference `.hero` rules further down this file. */
   .hero-section {
     position: relative;
     display: grid;
@@ -337,6 +360,17 @@
     min-height: 100vh;
     margin: 0 auto;
     padding: 2rem 0 7rem;
+  }
+
+  
+
+  
+
+  @media (max-width: 1024px) {
+    .hero-section {
+      grid-template-columns: 1fr;
+      padding-top: 3.5rem;
+    }
   }
 
   /* Full-bleed circuit-board background wrapper. Sibling of .hero-section
@@ -367,108 +401,11 @@
     -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
   }
 
-  @media (max-width: 1024px) {
-    .hero-section {
-      grid-template-columns: 1fr;
-      padding-top: 3.5rem;
-    }
-  }
-
-  .hero-glow {
-    position: absolute;
-    top: 20%;
-    left: 52%;
-    width: 26rem;
-    height: 26rem;
-    border-radius: 50%;
-    background: rgba(51, 175, 135, 0.11);
-    filter: blur(90px);
-    z-index: 0;
-  }
-
-  /* .hero-copy is the layout box; it holds the glass panel and the
-     text block as SIBLINGS. It must not have a transform or filter
-     applied, or backdrop-filter on the glass would be trapped. */
-  .hero-copy {
-    position: relative;
-    width: min(42rem, 100%);
-    padding: 2.75rem 2.5rem;
-  }
-
-  /* iOS liquid-glass panel — a real, non-transformed element so its
-     backdrop-filter can reach the circuit background behind the hero.
-     Dark-mode variant: heavy ink tint, strong blur, saturation boost so
-     the circuit colors show through as a faint tinted haze instead of
-     a sharp pattern. Layered inset shadows fake refraction/curvature
-     (top gleam, bottom shadow, side vignette) without a hard border. */
-  .hero-glass {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: 1.75rem;
-    border: 1.5px solid rgba(255, 255, 255, 0.18);
-    background:
-      /* Soft top-left highlight — static gleam that sells curvature */
-      radial-gradient(
-        120% 100% at 30% 0%,
-        rgba(255, 255, 255, 0.09) 0%,
-        rgba(255, 255, 255, 0.03) 35%,
-        transparent 70%
-      ),
-      /* Dark base tint — the glass's dark-mode body */
-      rgba(8, 11, 10, 0.45);
-    backdrop-filter: blur(28px) saturate(165%) brightness(0.9);
-    -webkit-backdrop-filter: blur(28px) saturate(165%) brightness(0.9);
-    box-shadow:
-      /* Top edge gleam — bright bevel line */
-      inset 0 1.5px 0 rgba(255, 255, 255, 0.28),
-      inset 0 3px 2px rgba(255, 255, 255, 0.08),
-      /* Side bevels — thin bright inner edges on left/right so the
-         glass reads as a thick slab rather than a flat tint */
-      inset 1px 0 0 rgba(255, 255, 255, 0.1),
-      inset -1px 0 0 rgba(255, 255, 255, 0.1),
-      /* Bottom bevel — bright catch along the lower edge keeps the
-         pane visibly bounded instead of fading out */
-      inset 0 -1.5px 0 rgba(255, 255, 255, 0.14),
-      inset 0 -4px 10px rgba(255, 255, 255, 0.04),
-      /* Outer drop lifts the pane off the circuit background */
-      0 24px 60px rgba(0, 0, 0, 0.55),
-      0 4px 14px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
-  }
-
-  /* Specular diagonal sheen — static highlight on top of the frosted
-     pane, giving the illusion of a thicker glass slab. */
-  .hero-glass::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.11) 0%,
-      rgba(255, 255, 255, 0.03) 18%,
-      transparent 42%,
-      transparent 100%
-    );
-    mix-blend-mode: screen;
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  /* Text block sits on top of the glass panel. position:relative +
-     z-index keeps it above .hero-glass without creating a stacking
-     context for the glass itself. */
-  .hero-copy-inner {
-    position: relative;
-    z-index: 1;
-  }
-
-  @media (max-width: 1024px) {
-    .hero-copy {
-      width: 100%;
-    }
-  }
+  /* Removed with the 2026 redesign: .hero-glow, .hero-copy, .hero-glass
+     (+ ::after) and .hero-copy-inner. The hero markup no longer renders
+     any of them (HeroSection uses .hero / .hero__copy / .hero__art), and
+     their large blur(90px) / backdrop-filter: blur(28px) saturate(165%)
+     layers were still being composited on every scroll frame. */
 
   /* Solid black highlight behind inline text — a tight contained pill so
      each line of hero copy reads crisp against the circuit background.
@@ -493,66 +430,45 @@
   .hero-kicker {
     margin: 0 0 0.8rem;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
     font-size: clamp(1rem, 1.7vw, 1.35rem);
   }
 
+  /* Wordmark. Both names share one clean, heavy sans treatment stacked on
+     two lines; the surname is set in the brand green instead of a hollow
+     outline, so the title reads as a single intentional mark at every size.
+     The width locks to the longest word (9ch) so it never spills past the
+     glass panel, and the font-size is clamped to stay inside that measure.
+     A soft dark halo (no brittle multi-direction outline) keeps every glyph
+     legible over the busy circuit pattern. */
   .hero-title {
     margin: 0;
-    /* Fixed width tied to the two words stacked ("Shenabeth" / "Jenkins")
-       — 9ch is the longest word; the width locks so the title never
-       spills past the glass panel at any viewport, with equal breathing
-       room on the left and right. Font-size is clamped so the glyphs
-       stay inside that character count without resizing dynamically. */
     width: 9ch;
     font-size: clamp(3.6rem, 6.4vw, 5.6rem);
-    font-weight: 500;
-    line-height: 0.9;
-    letter-spacing: -0.075em;
-    /* Heavy, wide dark halo behind the title so each glyph sits well off
-       the busy circuit pattern. Big soft spread (24-40px) + a tight
-       grounding shadow underneath. */
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    color: var(--text);
     text-shadow:
-      0 4px 0 rgba(0, 0, 0, 0.95),
-      0 6px 14px rgba(0, 0, 0, 0.95),
-      0 0 24px rgba(0, 0, 0, 0.85),
-      0 0 40px rgba(0, 0, 0, 0.6);
+      0 2px 6px rgba(0, 0, 0, 0.75),
+      0 0 22px rgba(0, 0, 0, 0.6);
   }
 
-  /* Jenkins (second word): clean outlined wordmark. The outline is built
-     from a 4-direction text-shadow stack so the stroke sits ENTIRELY
-     outside each letter (no half-stroke inside the glyph like
-     -webkit-text-stroke produces). The fill is the page ink color so the
-     interior reads as a solid, non-transparent surface with the circuit
-     pattern blocked. The dark halo shadows from .hero-title still apply
-     via inheritance of the h1's text-shadow? No — text-shadow is not
-     inherited through child spans in a way that compounds. The outline
-     stack here replaces the parent shadow for the Jenkins word; the
-     distinct dark drop under the whole word is layered as the final
-     shadow entries. */
-  .hero-title-stroke {
-    color: var(--ink);
+  /* Surname: same weight, brand-green fill. A slightly tighter dark halo
+     plus a faint green glow ties it to the accent system and lifts it off
+     the circuit background with the same weight as the first line. */
+  .hero-title-accent {
+    color: var(--accent-bright);
     text-shadow:
-      /* 4-direction white outline (sits outside each glyph) */
-      -2px 0 0 #ffffff,
-      2px 0 0 #ffffff,
-      0 -2px 0 #ffffff,
-      0 2px 0 #ffffff,
-      -1.4px -1.4px 0 #ffffff,
-      1.4px -1.4px 0 #ffffff,
-      -1.4px 1.4px 0 #ffffff,
-      1.4px 1.4px 0 #ffffff,
-      /* Big dark drop behind the outlined word so it lifts off the
-         circuit background with the same weight as the solid word. */
-      0 6px 14px rgba(0, 0, 0, 0.9),
-      0 0 24px rgba(0, 0, 0, 0.75),
-      0 0 40px rgba(0, 0, 0, 0.55);
+      0 2px 6px rgba(0, 0, 0, 0.8),
+      0 0 18px rgba(0, 0, 0, 0.55),
+      0 0 26px rgba(51, 175, 135, 0.35);
   }
 
   .hero-role {
     margin: 2.5rem 0 0;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
     font-size: 1.05rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -595,10 +511,18 @@
     align-items: center;
     justify-content: center;
     gap: 0.7rem;
-    border-radius: 0.8rem;
-    font-size: 0.82rem;
+    border-radius: 0;
+    font-size: var(--fs-base);
     font-weight: 600;
     padding: 1rem 1.3rem;
+    /* A button is always ONE line. `white-space` alone was not enough:
+       the label and the trailing icon are separate flex children, so the
+       icon could still drop to a second line. `flex-wrap: nowrap` keeps
+       every child on the single line, and the box grows with the text. */
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    flex: none;
+    max-width: 100%;
   }
 
   .primary-action {
@@ -626,10 +550,22 @@
    * corner. Used on the nav Resume button, hero Resume button, and hero
    * "Let's Talk" button for a consistent feel.
    */
+  /*
+   * WCAG note: the sweep paints the button with `--sweep-fill` (a near-white
+   * #f4f7f5), so the label MUST invert to a dark ink at the same time. The
+   * two are deliberately tied to one pair of tokens — change the fill and
+   * the text color follows — because the previous version flipped the text
+   * on `:hover` only. A keyboard user tabbing to the button got the white
+   * fill with the original light label on top: 1.04:1, invisible.
+   *
+   * `--sweep-ink` on #f4f7f5 measures 18.1:1 (AA/AAA for all sizes).
+   */
   .sweep-button {
+    --sweep-fill: #f4f7f5;
+    --sweep-ink: #06100b;
     position: relative;
     overflow: hidden;
-    border-radius: 0.8rem;
+    border-radius: 0;
     background-clip: padding-box;
     transition: color 320ms ease, border-color 320ms ease, transform 180ms ease;
   }
@@ -637,33 +573,67 @@
   .sweep-button > * {
     position: relative;
     z-index: 1;
+    /* The label and its trailing icon live inside this single wrapper, so
+       the ONE-LINE guarantee has to hold here, not just on the button:
+       an inline-flow icon would otherwise drop to a second line. */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    flex-wrap: nowrap;
   }
 
   .sweep-button::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: #ffffff;
+    background: var(--sweep-fill);
     clip-path: polygon(0 0, 0 0, 0 0);
     transition: clip-path 340ms cubic-bezier(0.65, 0, 0.35, 1);
   }
 
-  .sweep-button:hover {
-    transform: translateY(-2px);
-    color: #000000;
-    border-color: #ffffff;
+  /* Hover AND keyboard focus both trigger the sweep, so both must invert
+     the label. Splitting these would re-introduce the contrast failure for
+     keyboard users. */
+  .sweep-button:hover,
+  .sweep-button:focus-visible {
+    color: var(--sweep-ink);
+    border-color: var(--sweep-fill);
   }
 
-  .sweep-button:hover::before {
+  .sweep-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .sweep-button:hover::before,
+  .sweep-button:focus-visible::before {
     clip-path: polygon(0 0, 200% 0, 0 200%);
   }
 
-  .hero-art {
-    position: relative;
-    justify-self: end;
-    width: min(38vw, 34rem);
-    aspect-ratio: 1 / 1.08;
+  /*
+   * Force every descendant to take the inverted ink. Icons and nested spans
+   * frequently carry their own `color` (or a `stroke`/`fill` that resolved
+   * against the pre-hover color), which left light-on-white glyphs sitting
+   * on the swept fill even when the label itself inverted correctly.
+   */
+  .sweep-button:hover *,
+  .sweep-button:focus-visible * {
+    color: var(--sweep-ink);
   }
+
+  .sweep-button:hover svg,
+  .sweep-button:focus-visible svg {
+    stroke: currentColor;
+  }
+
+  /* Keep the focus ring visible ON TOP of the white fill — a light ring on
+     a light fill is not a visible indicator. */
+  .sweep-button:focus-visible {
+    outline: 2px solid var(--sweep-ink);
+    outline-offset: 2px;
+  }
+
+  
 
   /* CPU chip: replaces .art-card. Square die with radiating pin legs/pads
      and an animated face (see CpuChip.tsx). Palette-matched to
@@ -836,8 +806,8 @@
     align-items: center;
     gap: 1rem;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.8rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     text-transform: uppercase;
     letter-spacing: 0.12em;
   }
@@ -880,7 +850,7 @@
     max-width: 28rem;
     margin: 0;
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     line-height: 1.7;
   }
 
@@ -899,7 +869,7 @@
     row-gap: 0.4rem;
     margin-bottom: 3.5rem;
     width: 100%;
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
   }
 
   .ide-heading-gutter-bg {
@@ -924,7 +894,7 @@
     align-self: baseline;
     padding: 0 0.9rem 0 0.6rem;
     color: var(--text);
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
     opacity: 0.85;
     user-select: none;
   }
@@ -970,8 +940,8 @@
   .ide-heading-kicker {
     margin: 0;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
-    font-size: 0.95rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
     letter-spacing: 0.08em;
     font-weight: 500;
     line-height: 1.1;
@@ -999,7 +969,7 @@
   }
 
   .ide-heading--main .ide-heading-gutter-num {
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
   }
 
   /* Page-title banner wrapper: full-bleed strip at the very top of About
@@ -1056,7 +1026,7 @@
   }
 
   .ide-heading--sub .ide-heading-gutter-num {
-    font-size: 0.82rem;
+    font-size: var(--fs-base);
   }
 
   .ide-heading-caret {
@@ -1072,7 +1042,7 @@
 
   .ide-heading-comment {
     margin: 0;
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
     color: var(--muted);
     font-size: 1.05rem;
     line-height: 1.6;
@@ -1099,7 +1069,7 @@
       column-gap: 0.9rem;
     }
     .ide-heading-gutter-num {
-      font-size: 0.68rem;
+      font-size: var(--fs-xs);
       padding: 0 0.5rem 0 0.4rem;
     }
     .ide-heading--main .ide-heading-title {
@@ -1185,12 +1155,669 @@
 
   .slide-count {
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.85rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
   }
 
   .slide-count-active {
     color: var(--text);
+  }
+
+  /* Featured-project slide (home + /projects carousel).
+
+     Overflow fix: the two columns use minmax(0, <fr>) rather than a bare
+     <fr>. A bare fr track has an implicit min-width of auto, so it refuses to
+     shrink below its content's intrinsic size — a long title or the tag row
+     then pushes the whole slide wider than the carousel, which is what used
+     to spill content past the container (and out of reach) as the screen
+     narrowed. minmax(0, …) lets each track shrink, and min-width: 0 on the
+     copy column lets its own children (the title especially) wrap instead of
+     dictating the width. */
+  .project-slide {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.75rem, 4vw, 4.5rem);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .project-slide {
+      grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+      height: 100%;
+    }
+  }
+
+  .project-slide-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0; /* allow the title/tags to wrap, never widen the track */
+    padding: 0.5rem 0;
+  }
+
+  .project-slide-category {
+    margin: 0 0 1rem;
+    font-size: var(--fs-sm);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .project-slide-title {
+    margin: 0;
+    max-width: 100%;
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.055em;
+    font-size: clamp(2.1rem, 4.6vw, 4.4rem);
+    overflow-wrap: anywhere; /* never let a long word blow out the column */
+  }
+
+  .project-slide-desc {
+    max-width: 42rem;
+    margin: 1.25rem 0 1.75rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+
+  .project-slide-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .project-slide-tag {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+
+  .project-slide-cta {
+    margin-top: 0.5rem;
+  }
+
+  /* Visual panel: a fixed-aspect frame so every project's media is framed
+     identically and nothing distorts. On mobile the aspect ratio sets the
+     height; on desktop the panel fills the slide height, and the media still
+     covers it. overflow: hidden + object-fit: cover keep images uniform
+     regardless of their native dimensions. */
+  /* Square corners: nothing else on this site is rounded. */
+  .project-visual {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--ink-soft);
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .project-visual {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 20rem;
+    }
+  }
+
+  .project-visual-img,
+  .project-visual-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .project-visual-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    text-align: center;
+    padding: 1rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Section label (lighter alternative to .ide-heading--sub)
+     ─────────────────────────────────────────────────────────────── */
+
+  /* Lightweight section-label pattern, ported from the reference
+     prototype (docs/Portfolio/src/{App.tsx,styles.css}): a small
+     bracket-boxed index number + a `~/path/file.ext`-style mono caption.
+     Used in place of the heavy `.ide-heading--sub` gutter/caret system
+     for ordinary section headings (home Projects, Certifications), while
+     keeping the same monospace/numbered/code-path flavor at much lower
+     visual weight. Page-level `.ide-heading--main` banners are untouched. */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+  }
+
+  .section-label-index {
+    display: grid;
+    flex-shrink: 0;
+    width: 1.9rem;
+    height: 1.5rem;
+    place-items: center;
+    border: 1px solid rgba(84, 213, 170, 0.35);
+    border-radius: 0.3rem;
+    color: var(--accent-bright);
+  }
+
+  .section-label-path {
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* Heading that follows a .section-label — plain, no gutter/line-number
+     chrome, just a clean display heading with the typewriter output and
+     optional supporting comment underneath. */
+  .section-label-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-label-heading-title {
+    margin: 0;
+    font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.055em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .section-label-heading-comment {
+    max-width: 26rem;
+    margin: 0 0 0.3rem;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.7;
+  }
+
+  /* Reuses the same blinking caret as .ide-heading-caret, scoped here so
+     the lighter heading doesn't need to pull in the full IDE class set. */
+  .section-label-caret {
+    display: inline-block;
+    width: 0.4em;
+    height: 0.9em;
+    background: var(--accent-bright);
+    opacity: 0.85;
+    transform: translateY(0.07em);
+    animation: ide-caret-blink 1s steps(2) infinite;
+    border-radius: 1px;
+  }
+
+  @media (max-width: 640px) {
+    .section-label-heading {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Hero editor-window visual (ProfileEditorCard)
+     ─────────────────────────────────────────────────────────────── */
+
+  /* Replaces the retired .cpu-chip in the hero's right column: a small
+     "code editor" card modeled on the reference's `.editor` block — file
+     tab bar with window-control dots, line numbers, a syntax-colored
+     snippet, and a status bar. Palette uses the real site's tokens. */
+  .editor-window {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background: var(--ink-soft);
+    box-shadow: 0 2rem 5.5rem rgba(0, 0, 0, 0.45);
+  }
+
+  .editor-window-topbar {
+    display: grid;
+    height: 2.75rem;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 0.85rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+  }
+
+  .editor-window-controls {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .editor-window-controls span {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+
+  .editor-window-controls span:nth-child(2) {
+    background: var(--accent-secondary);
+  }
+
+  .editor-window-controls span:nth-child(3) {
+    background: var(--accent);
+  }
+
+  .editor-window-filename {
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    gap: 0.4rem;
+    color: var(--text);
+  }
+
+  .editor-window-filename svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: var(--accent-bright);
+  }
+
+  .editor-window-branch {
+    justify-self: end;
+  }
+
+  .editor-window-body {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    min-height: 15rem;
+    padding: 1.4rem 0;
+  }
+
+  .editor-window-line-numbers {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 0.75rem;
+    border-right: 1px solid var(--line);
+    color: var(--muted);
+    opacity: 0.6;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    line-height: 1.85;
+  }
+
+  .editor-window-code {
+    margin: 0;
+    overflow: auto;
+    padding: 0 1.4rem;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    line-height: 1.85;
+  }
+
+  .editor-window-code .code-muted {
+    color: var(--muted);
+  }
+
+  .editor-window-code .code-purple {
+    color: #b8a4e3;
+  }
+
+  .editor-window-code .code-gold {
+    color: var(--accent-secondary-bright);
+  }
+
+  .editor-window-code .code-green {
+    color: var(--accent-bright);
+  }
+
+  .editor-window-status {
+    display: flex;
+    min-height: 2.25rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.85rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+  }
+
+  .editor-window-status-ready {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent-bright);
+  }
+
+  .editor-window-status-ready svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  @media (max-width: 640px) {
+    .editor-window-body {
+      min-height: 13rem;
+    }
+    .editor-window-code,
+    .editor-window-line-numbers {
+      font-size: var(--fs-sm);
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Credentials row-list (Certifications section)
+     ─────────────────────────────────────────────────────────────── */
+
+  /* Reference-style row list: index, badge image/fallback, title+issuer,
+     meta date, hover-shift, arrow — replacing the card-grid for ordinary
+     presentation. Keeps the existing data + "view all" toggle behavior,
+     only the visual chrome changes. */
+  .credentials-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+  }
+
+  .credential-row {
+    display: grid;
+    grid-template-columns: 2.25rem 3.25rem 1fr auto 1.1rem;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: 6.5rem;
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: background 180ms ease;
+  }
+
+  .credential-row:hover {
+    background: var(--accent-soft);
+  }
+
+  .credential-row-index {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+  }
+
+  .credential-row-badge {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .credential-row-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: saturate(0.8);
+  }
+
+  .credential-row-badge-fallback {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+  }
+
+  .credential-row-title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--text);
+  }
+
+  .credential-row-issuer {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-base);
+  }
+
+  .credential-row-meta {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+
+  .credential-row-arrow {
+    width: 1rem;
+    height: 1rem;
+    color: var(--accent-bright);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .credential-row {
+      grid-template-columns: 1.4rem 2.5rem 1fr 1rem;
+      gap: 0.85rem;
+    }
+    .credential-row-meta {
+      display: none;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Plain bordered mono tag — single standardized tag style replacing
+     the mix of filled rounded-full pills (project-tag, cert fallback
+     badge, carousel tech pills) sitewide. Modeled on the reference's
+     `.tag-row span`: a small bordered label, not a filled pill.
+     ─────────────────────────────────────────────────────────────── */
+  .mono-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 0.3rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Contact callout (homepage closing block — "Option E")
+     ─────────────────────────────────────────────────────────────── */
+
+  /* Compact closing contact block: a solid --accent green rectangle used
+     as a structural layout element (bold dark-on-green mono labels)
+     sitting beside a dark content panel with the mailto link + socials.
+     Deliberately NOT a soft gradient wash — a flat, confident block. */
+  .contact-callout {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+  }
+
+  .contact-callout-flag {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2.25rem 2rem;
+    background: var(--accent);
+    color: var(--ink);
+  }
+
+  .contact-callout-flag-label {
+    margin: 0;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .contact-callout-flag-heading {
+    margin: 0;
+    font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .contact-callout-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2.25rem 2.25rem;
+    background: var(--surface);
+  }
+
+  .contact-callout-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+  }
+
+  .contact-callout-status svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .contact-callout-mailto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    align-self: flex-start;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px dashed var(--line-strong);
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  .contact-callout-mailto:hover {
+    color: var(--accent-bright);
+    border-color: var(--accent-bright);
+  }
+
+  .contact-callout-mailto svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--accent-bright);
+  }
+
+  @media (max-width: 768px) {
+    .contact-callout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────
+     Section seams (Option B2) — diagonal clip-path transitions between
+     homepage sections, stepping through the ink → ink-soft → surface
+     ramp. Alternating seam direction per boundary so sections interlock
+     instead of all tilting the same way. Applied only to homepage
+     section wrappers (app/page.tsx) — page-level banners keep their
+     existing `.page-title-banner` treatment untouched.
+     ─────────────────────────────────────────────────────────────── */
+
+  .section-seam {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Seam variant A: shallow diagonal falling left-to-right (↘). Applied
+     to the bottom edge of a section via clip-path on ITSELF, so the next
+     section's flat top edge appears to interlock underneath it. */
+  .section-seam--a {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 3.5rem));
+  }
+
+  /* Seam variant B: shallow diagonal falling right-to-left (↙) — the
+     mirror of A, alternated per boundary so consecutive seams don't tilt
+     the same way. */
+  .section-seam--b {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.5rem), 0 100%);
+  }
+
+  /* Padding reserve so real content never sits in the clipped-away
+     corner of a seam. Applied to the section's inner content wrapper. */
+  .section-seam-pad-bottom {
+    padding-bottom: 4.5rem;
+  }
+
+  .section-seam-pad-top {
+    padding-top: 4.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .section-seam--a {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 2rem));
+    }
+    .section-seam--b {
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 2rem), 0 100%);
+    }
+    .section-seam-pad-bottom {
+      padding-bottom: 2.75rem;
+    }
+    .section-seam-pad-top {
+      padding-top: 2.75rem;
+    }
+  }
+
+  /* Reserved slot for a future Clippy-style assistant mascot + chat
+     feature (see ClippyPlaceholder.tsx). Deliberately inert: no character
+     art, no animation, no chat UI. pointer-events: none so this placeholder
+     never intercepts clicks/taps meant for real page content. */
+  .clippy-placeholder {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 30;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--surface-raised);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .clippy-placeholder {
+      right: 1rem;
+      bottom: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
   }
 
   /* Cert card */
@@ -1208,7 +1835,7 @@
 
   .cert-card:hover {
     transform: translateY(-0.35rem);
-    border-color: rgba(84, 213, 170, 0.35);
+    border-color: var(--green-dark);
   }
 
   .cert-code {
@@ -1221,8 +1848,8 @@
     border: 1px solid var(--line-strong);
     border-radius: 50%;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
-    font-size: 0.64rem;
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
   }
 
   .cert-arrow {
@@ -1260,8 +1887,8 @@
   .footer-name p {
     margin: 0.5rem 0 0;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.8rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -1296,40 +1923,46 @@
   /* Flat social button: no background pill — icon sits directly on the
      page, with a subtle drop-shadow for depth. Icon fills most of the
      target area so the glyph itself is the button. */
+  /* Square buttons, sized and bordered like the action buttons beside
+     them, rather than small bare glyphs. */
   .social-chip {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.6rem;
-    height: 2.6rem;
-    background: transparent;
-    border: none;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    background: var(--ink);
     color: var(--text);
-    transition: transform 220ms ease, color 220ms ease;
+    transition: transform 220ms ease, color 220ms ease, border-color 220ms ease,
+      background 220ms ease;
   }
 
   .social-chip-ring {
     display: none;
   }
 
+  /* Sized up from 1.5rem: the glyph read as too small inside the 3rem
+     chip, leaving more padding than mark. */
   .social-chip-icon {
-    width: 1.9rem;
-    height: 1.9rem;
+    width: 1.75rem;
+    height: 1.75rem;
     position: relative;
     z-index: 1;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 10px rgba(0, 0, 0, 0.6));
-    transition: transform 220ms ease, filter 220ms ease, color 220ms ease;
+    transition: transform 220ms ease, color 220ms ease;
   }
 
   .social-chip:hover {
+    border-color: var(--accent-bright);
+    background: rgba(84, 213, 170, 0.08);
     color: var(--accent-bright);
     transform: translateY(-0.2rem);
   }
 
   .social-chip:hover .social-chip-icon {
-    transform: scale(1.08);
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 14px rgba(84, 213, 170, 0.55));
+    transform: scale(1.06);
   }
 
   .admin-link {
@@ -1337,8 +1970,8 @@
     right: 0;
     bottom: 1.5rem;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.55rem;
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
     text-transform: uppercase;
     letter-spacing: 0.12em;
     opacity: 0.24;
@@ -1391,8 +2024,8 @@
   .case-study-section-step {
     margin: 0;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
-    font-size: 0.85rem;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -1458,8 +2091,8 @@
   .language-bar-title {
     margin: 0 0 0.85rem;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1497,7 +2130,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
   }
 
   .language-bar-dot {
@@ -1514,8 +2147,8 @@
 
   .language-bar-percent {
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.8rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
   }
 
   /* Tech stack grid — layout handled by .balanced-grid; wider gap here. */
@@ -1529,15 +2162,15 @@
     gap: 0.9rem;
     padding: 1.4rem 1.5rem;
     border: 1px solid var(--line);
-    border-radius: 1rem;
+    border-radius: 0;
     background: var(--surface);
   }
 
   .tech-stack-group-label {
     margin: 0;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1548,21 +2181,16 @@
     gap: 0.5rem;
   }
 
+  /* Static chips — these are informational labels, not interactive, so
+     they intentionally have no hover state. */
   .tech-stack-chip {
     display: inline-block;
     padding: 0.45rem 0.85rem;
     border: 1px solid var(--line-strong);
-    border-radius: 999px;
+    border-radius: 0;
     background: var(--ink-soft);
     color: var(--text);
-    font-size: 0.82rem;
-    transition: border-color 220ms ease, color 220ms ease, transform 220ms ease;
-  }
-
-  .tech-stack-chip:hover {
-    border-color: var(--accent);
-    color: var(--accent-bright);
-    transform: translateY(-2px);
+    font-size: var(--fs-base);
   }
 
   /* Problem / Before vs After */
@@ -1585,25 +2213,25 @@
     gap: 1rem;
     padding: 1.75rem;
     border: 1px solid var(--line);
-    border-radius: 1rem;
+    border-radius: 0;
     background: var(--surface);
   }
 
   .problem-col--before {
-    border-color: rgba(235, 245, 240, 0.08);
+    border-color: var(--line);
     opacity: 0.95;
   }
 
   .problem-col--after {
-    border-color: rgba(84, 213, 170, 0.35);
+    border-color: var(--green-dark);
     background: linear-gradient(180deg, var(--surface), var(--surface-raised));
   }
 
   .problem-col-label {
     margin: 0;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1628,7 +2256,7 @@
     padding: 0;
     list-style: none;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     line-height: 1.6;
   }
 
@@ -1643,7 +2271,7 @@
     left: 0;
     top: 0;
     color: var(--muted);
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
   }
 
   .problem-col--after .problem-col-points li::before {
@@ -1682,13 +2310,13 @@
     gap: 0.4rem;
     padding: 1.75rem 1.5rem;
     border: 1px solid var(--line);
-    border-radius: 1rem;
+    border-radius: 0;
     background: var(--surface);
     transition: border-color 240ms ease, transform 240ms ease;
   }
 
   .impact-tile:hover {
-    border-color: rgba(84, 213, 170, 0.35);
+    border-color: var(--green-dark);
     transform: translateY(-3px);
   }
 
@@ -1699,12 +2327,12 @@
     letter-spacing: -0.045em;
     line-height: 1;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
+    font-family: var(--mono);
   }
 
   .impact-tile-label {
     margin: 0.6rem 0 0;
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     font-weight: 600;
     color: var(--text);
   }
@@ -1712,7 +2340,7 @@
   .impact-tile-description {
     margin: 0;
     color: var(--muted);
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
     line-height: 1.55;
   }
 
@@ -1725,13 +2353,13 @@
     position: relative;
     padding: 1.75rem;
     border: 1px solid var(--line);
-    border-radius: 1rem;
+    border-radius: 0;
     background: var(--surface);
     transition: border-color 240ms ease, transform 240ms ease;
   }
 
   .feature-card:hover {
-    border-color: rgba(84, 213, 170, 0.35);
+    border-color: var(--green-dark);
     transform: translateY(-3px);
   }
 
@@ -1739,8 +2367,8 @@
     display: inline-block;
     margin-bottom: 0.9rem;
     color: var(--accent-bright);
-    font-family: "DM Mono", monospace;
-    font-size: 0.78rem;
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
     letter-spacing: 0.1em;
   }
 
@@ -1754,8 +2382,359 @@
   .feature-card-body {
     margin: 0;
     color: var(--muted);
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     line-height: 1.65;
+  }
+
+  /* Case-study action links (live demo / source), under the summary */
+  .case-study-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-top: 1.75rem;
+  }
+
+  /* "At a glance" overview fact tiles */
+  .overview-grid {
+    gap: 1rem;
+  }
+
+  .overview-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.25rem 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--surface);
+  }
+
+  .overview-tile-label {
+    margin: 0;
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .overview-tile-value {
+    margin: 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  /* Showcase: figure cards (image + title + body) */
+  .showcase-grid {
+    gap: 1.5rem;
+  }
+
+  .showcase-card {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color 240ms ease, transform 240ms ease;
+  }
+
+  .showcase-card:hover {
+    border-color: var(--green-dark);
+    transform: translateY(-3px);
+  }
+
+  /* Fixed 16:10 media frame so every card's image/placeholder is uniform. */
+  .showcase-card-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .showcase-card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .showcase-card-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: var(--fs-base);
+    letter-spacing: 0.04em;
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent 11px
+    );
+  }
+
+  .showcase-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.4rem 1.5rem 1.6rem;
+  }
+
+  .showcase-card-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .showcase-card-text {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.65;
+  }
+
+  .showcase-card-caption {
+    margin: 0.3rem 0 0;
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.03em;
+  }
+
+  /* Gallery: captioned image grid */
+  .gallery-grid {
+    gap: 1.25rem;
+  }
+
+  .gallery-tile {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    gap: 0.75rem;
+  }
+
+  .gallery-tile-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--ink-soft);
+    overflow: hidden;
+  }
+
+  .gallery-tile-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .gallery-tile-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--line-strong);
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent 11px
+    );
+  }
+
+  .gallery-tile-caption {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+  }
+  /* Inline PDF preview (case-study document section) */
+  .pdf-embed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .pdf-embed-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .pdf-embed-title {
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: var(--fs-base);
+    letter-spacing: 0.02em;
+  }
+
+  .pdf-embed-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .pdf-embed-frame {
+    position: relative;
+    width: 100%;
+    /* Tall enough to read a page, capped against the viewport on small screens. */
+    height: min(80vh, 760px);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--ink-soft);
+    overflow: hidden;
+  }
+
+  .pdf-embed-object {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border: 0;
+  }
+
+  .pdf-embed-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .pdf-embed-caption {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.5;
+  }
+
+  /* Team / credits list */
+  .roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .roles-row {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--surface);
+  }
+
+  /* The author's own row is accented to stand out from teammates. */
+  .roles-row--me {
+    border-color: var(--green-dark);
+    border-left: 2px solid var(--accent);
+    background: var(--ink-soft);
+  }
+
+  .roles-row-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .roles-row-name {
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .roles-row-badge {
+    padding: 0.15rem 0.6rem;
+    border-radius: 0;
+    background: var(--accent-soft);
+    color: var(--accent-bright);
+    font-family: var(--mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .roles-row-contribution {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.65;
+  }
+
+  /* Controls: key -> action legend */
+  .controls-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--ink-soft);
+    list-style: none;
+  }
+
+  @media (min-width: 640px) {
+    .controls-list {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem 2.5rem;
+    }
+  }
+
+  .controls-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    padding: 0.35rem 0;
+  }
+
+  .controls-key {
+    flex: 0 0 auto;
+    min-width: 6.5rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--line-strong);
+    border-bottom-width: 2px;
+    border-radius: 0;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: var(--fs-sm);
+    text-align: center;
+  }
+
+  .controls-action {
+    color: var(--muted);
+    font-size: var(--fs-base);
+    line-height: 1.5;
   }
 
   /* Lessons list */
@@ -1767,24 +2746,28 @@
     padding: 1.75rem 1.75rem 1.75rem 1.75rem;
     border: 1px solid var(--line);
     border-left: 2px solid var(--accent);
-    border-radius: 0.75rem;
+    border-radius: 0;
     background: var(--ink-soft);
     list-style: none;
   }
 
+  /* Body text here uses the page's sans font (Space Grotesk), matching the rest
+     of the case study — only the leading number keeps the mono accent. */
   .lessons-item {
     display: flex;
     gap: 0.9rem;
     align-items: baseline;
     color: var(--text);
-    font-family: "DM Mono", monospace;
-    font-size: 0.95rem;
-    line-height: 1.65;
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   .lessons-item-marker {
     color: var(--accent-bright);
     flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: var(--fs-base);
+    font-weight: 500;
   }
 
   .lessons-item-text {
@@ -1872,4 +2855,2895 @@
 
 .animate-spin-slow {
   animation: spin 22s linear infinite;
+}
+
+/* ============================================================
+   REFERENCE DESIGN SYSTEM — ported verbatim from
+   docs/Portfolio/src/styles.css (the Figma Make prototype).
+   Everything below this banner is the prototype's own CSS, in its
+   original order, and is the authority for the landing page's
+   appearance. The landing page markup is src/components/home/
+   LandingPage.tsx, with NavBar carrying .site-header; the footer
+   is the previous site's column layout (.site-footer--columns),
+   kept rather than the prototype's single-row footer.
+
+   The prototype's tokens are aliased onto this file's existing
+   --ink / --surface / --accent names below, so the rest of the
+   site (/about, /projects, /admin, case studies) keeps rendering
+   against the same palette the landing page now uses.
+   ============================================================ */
+
+/* The prototype's palette, verbatim. These REDEFINE the tokens
+   declared in :root near the top of this file, so the whole site
+   picks up the reference colors. */
+:root {
+  --ink: #0b0d0c;
+  --ink-soft: #101311;
+  --surface: #141815;
+  --surface-raised: #191e1b;
+  --line: #28302b;
+  --line-soft: #1c221e;
+  --text: #edf2ee;
+  --muted: #929d96;
+  --green: #63d69f;
+  --green-dark: #193b2b;
+  --green-wash: rgba(99, 214, 159, 0.08);
+  --gold: #d2b36c;
+  --purple: #b8a4e3;
+  --display: var(--sans);
+  --mono: var(--mono);
+  --radius: 14px;
+
+  /* Type scale. Fluid: each step interpolates with the viewport via
+     clamp() so text scales on every screen size instead of snapping at
+     breakpoints. The clamp MINIMUMS are the WCAG-safe floor — nothing
+     ever renders below 15px, and the small meta/mono text that used to
+     sit at 14px now starts at 15px and grows to 17px.
+     Mono/uppercase/letter-spaced labels start at --fs-sm, because the
+     added tracking costs legibility at a given size. */
+  --fs-xs: clamp(0.9375rem, 0.9rem + 0.18vw, 1.0625rem);  /* 15 → 17px */
+  --fs-sm: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);        /* 16 → 18px */
+  --fs-base: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);  /* 17 → 19px */
+  --fs-md: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);     /* 18 → 20px */
+  --fs-lg: clamp(1.25rem, 1.15rem + 0.35vw, 1.4375rem);   /* 20 → 23px */
+  --fs-xl: clamp(1.4375rem, 1.3rem + 0.45vw, 1.75rem);    /* 23 → 28px */
+
+  /* Aliases so pre-existing rules above keep working against the
+     reference palette instead of the old one. */
+  --line-strong: #3d4942;
+  --accent: var(--green);
+  --accent-bright: var(--green);
+  --accent-soft: var(--green-wash);
+  --background: var(--ink);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--green);
+  --primary-foreground: #08100c;
+  --border: var(--line);
+  --input: var(--surface);
+  --ring: var(--green);
+  --muted-foreground: var(--muted);
+}
+
+/* The prototype's base resets. Scoped to the element selectors it
+   used, so Tailwind's preflight above still applies elsewhere. */
+html {
+  scroll-behavior: smooth;
+  background: var(--ink);
+}
+
+/*
+ * Anchor landing offset. The header is fixed at 72px, so without this an
+ * in-page jump puts the target's top edge UNDER the header — and for a
+ * section whose heading sits inside its own padding (the contact block),
+ * the heading ended up above the fold, which read as "landing halfway
+ * down the section". scroll-margin-top pushes each landing point clear of
+ * the header plus a little breathing room.
+ */
+#home,
+#projects,
+#about,
+#certifications,
+#contact {
+  scroll-margin-top: 96px;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* WCAG 2.4.7 Focus Visible / 1.4.11 Non-text Contrast. Every keyboard-
+   reachable control gets the same ring. :focus-visible keeps it off
+   mouse clicks. The offset colour matches the page so the ring reads as
+   a gap rather than a halo, and outline (not box-shadow) survives
+   forced-colors mode. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove the UA ring only where :focus-visible is honoured, so the
+   fallback stays for older engines. */
+@supports selector(:focus-visible) {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* The prototype sized every icon off the font. Scoped to the
+   landing page + chrome so it cannot shrink icons on other routes
+   (case studies, admin) that size their own SVGs.
+
+   `:not(.clippy__art)` exempts the hero assistant's artwork, which is
+   illustration rather than an icon and sizes itself off its container. */
+.site-header svg,
+.mobile-nav svg,
+#main > .hero svg:not(.clippy__art),
+#main > .section svg,
+#main > .contact-block svg {
+  width: 1em;
+  height: 1em;
+  stroke-width: 1.7;
+}
+
+/* The prototype's single background wash, replacing the old
+   blurred-glow stack. Fixed + contained so it is rasterized once
+   and only recomposited while scrolling. */
+.ambient {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 4%, rgba(69, 130, 97, 0.12), transparent 30%),
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: auto, 100% 72px;
+  contain: strict;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 8px;
+  left: 8px;
+  padding: 10px 14px;
+  color: var(--ink);
+  background: var(--green);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/*
+ * The single content measure for the whole site. Every full-width section
+ * centres its content on `.shell`, so the left and right gutters are always
+ * equal and never collapse to the viewport edge.
+ *
+ * --shell-max grows on large screens (see the min-width queries at the end
+ * of this file) so a 1440p/4K display fills with content instead of showing
+ * one narrow column floating in the middle.
+ */
+:root {
+  --shell-max: 1180px;
+  --shell-gutter: clamp(20px, 4vw, 64px);
+}
+
+.shell {
+  width: min(var(--shell-max), calc(100% - var(--shell-gutter) * 2));
+  margin-inline: auto;
+}
+
+.ambient {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 72% 4%, rgba(69, 130, 97, 0.12), transparent 30%),
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: auto, 100% 72px;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 8px;
+  left: 8px;
+  padding: 10px 14px;
+  color: var(--ink);
+  background: var(--green);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.site-header {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: max(var(--shell-gutter), calc((100vw - var(--shell-max)) / 2));
+  border-bottom: 1px solid rgba(40, 48, 43, 0.75);
+  background: rgba(11, 13, 12, 0.86);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* The `<>` mark. Holds an inline SVG rather than the earlier "SJ"
+   initials, so the box is sized for the glyph and the border/wash stay. */
+.brand__mark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--green-dark);
+  background: var(--green-wash);
+  color: var(--green);
+}
+
+.brand__mark svg {
+  width: 17px;
+  height: 17px;
+}
+
+.brand__name {
+  font-size: var(--fs-sm);
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.desktop-nav a {
+  position: relative;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  transition: color 180ms ease;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a.is-active {
+  color: var(--text);
+}
+
+/*
+ * Every nav link is a positioned flex box so the sliding underline (and,
+ * on Projects, the chevron) can be laid out against the LABEL rather than
+ * against the header.
+ */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+ * Active-section underline — one shared element that SLIDES between links
+ * (Framer `layoutId`, see NavBar.tsx) instead of a per-link `::after` that
+ * blinks in and out. It is a child of the active link, so it is sized to
+ * that link's box and animates from the previous one's.
+ *
+ * Anchored just beneath the label rather than pinned to the header's bottom
+ * edge, so it reads as belonging to the word.
+ */
+.nav-underline {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  left: 0;
+  height: 2px;
+  background: var(--green);
+}
+
+/*
+ * Projects carries a chevron to advertise its submenu. It sits BESIDE the
+ * label, on the same baseline — the row direction is the point: a stacked
+ * chevron reads as decoration under the word instead of as the dropdown
+ * affordance it is.
+ *
+ * The chevron is taken OUT of the flow (absolute, hung off the label's
+ * right edge) so it adds no width to the link. Were it a flex sibling, its
+ * 12px plus the gap would push "Projects" left of where the word would
+ * otherwise sit, and the nav row's labels would no longer share a centre
+ * line with the others. This way the link's box is the word alone.
+ *
+ * Because the chevron is out of the flow, the row's 32px gap is measured
+ * from the END OF THE WORD, so the arrow hangs into it and "About" reads as
+ * crowding "Projects". The wrapper reserves the arrow's width (5px offset +
+ * 12px icon) as right margin, restoring a full gap after the chevron.
+ */
+.nav-link--has-menu {
+  position: relative;
+  flex-direction: row;
+  gap: 0;
+}
+
+.nav-link__chevron {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  color: var(--green);
+  opacity: 0.75;
+  transform: translateY(-50%);
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+/* Keeps the vertical centring while adding the open-state flip. */
+.nav-link--has-menu:hover .nav-link__chevron,
+.nav-link__chevron.is-open {
+  opacity: 1;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/*
+ * The label and chevron are side by side, so the underline sits at the
+ * same offset as every other link's rather than dropping to clear a
+ * stacked arrow.
+ *
+ * The link's box is the word alone (the chevron is out of the flow), so a
+ * `right: 0` underline would stop short of the arrow. It is pulled right by
+ * the arrow's reach — 5px offset + 12px icon — so the rule spans the whole
+ * "Projects ⌄" pair.
+ */
+.nav-link--has-menu .nav-underline {
+  right: -17px;
+  bottom: -8px;
+}
+
+/* Projects + its hover submenu. The right margin reserves the space the
+   out-of-flow chevron occupies, so the gap to "About" is a real gap. */
+.nav-projects {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 17px;
+}
+
+/*
+ * The submenu is offset to span the gap between the trigger and the panel,
+ * with a transparent top padding acting as the bridge, so moving the
+ * pointer down into the list never crosses "dead" space that would close it.
+ */
+.nav-projects__menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 18px);
+  /*
+   * Centred under the trigger with margins rather than a translateX: Framer
+   * Motion drives this panel's entrance with its own `transform`, which would
+   * overwrite a `translateX(-50%)` and pull the menu off-centre. Anchoring
+   * both edges to the trigger's centre and letting `margin` do the centring
+   * keeps `transform` free for the animation.
+   */
+  left: 50%;
+  right: auto;
+  display: flex;
+  width: max-content;
+  min-width: 232px;
+  margin-left: -116px;
+  flex-direction: column;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: var(--ink-soft);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+}
+
+.nav-projects__menu::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  right: 0;
+  left: 0;
+  height: 18px;
+}
+
+.nav-projects__menu a {
+  padding: 10px 12px;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.4 var(--mono);
+  white-space: nowrap;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.nav-projects__menu a:hover {
+  color: var(--text);
+  background: var(--green-wash);
+}
+
+/* "View all projects" closes the list: ruled off and tinted green. */
+.nav-projects__all {
+  margin-top: 4px;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--line);
+  color: var(--green) !important;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+
+.menu-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.mobile-nav {
+  position: fixed;
+  z-index: 40;
+  top: 72px;
+  right: 0;
+  left: 0;
+  display: flex;
+  max-height: calc(100svh - 72px);
+  flex-direction: column;
+  padding: 16px 24px 28px;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-soft);
+  /* The sublist can make the menu taller than the viewport on short
+     screens; scroll it rather than letting it overflow the page. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: center;
+}
+
+/*
+ * Menu items are centred, and the numerals that used to prefix them
+ * (01, 02, ...) are gone — the label alone carries the row.
+ */
+.mobile-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.mobile-nav__item:last-child {
+  border-bottom: 0;
+}
+
+.mobile-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 0;
+  text-align: center;
+}
+
+/* Same green underline as the desktop nav, sized to the label only. */
+.mobile-nav__item > a {
+  position: relative;
+}
+
+.mobile-nav__item > a.is-active {
+  color: var(--green);
+}
+
+.mobile-nav__item > a.is-active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  height: 2px;
+  background: var(--green);
+}
+
+/*
+ * Projects' row in the touch menu: the link, plus a disclosure button for
+ * the project pages. The button sits directly BESIDE the label, not parked
+ * against the row's right edge — the chevron belongs to the word it opens,
+ * and at the far edge it read as unrelated to it.
+ *
+ * The pair is centred together, so the row still lines up with the other
+ * menu items; `gap` is what keeps the arrow beside the text instead of
+ * floating away from it as the row widens.
+ */
+.mobile-nav__row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.mobile-nav__toggle {
+  display: grid;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--green);
+  cursor: pointer;
+}
+
+.mobile-nav__toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 220ms ease;
+}
+
+.mobile-nav__toggle svg.is-open {
+  transform: rotate(180deg);
+}
+
+/*
+ * The project pages, nested under Projects in the touch menu and COLLAPSED
+ * by default so the menu is five rows rather than nine. `overflow: hidden`
+ * is what lets the height animation clip the list as it opens.
+ */
+.mobile-nav__sub {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+.mobile-nav__sub a {
+  padding: 9px 0;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.4 var(--mono);
+}
+
+.mobile-nav__sub a:last-child {
+  padding-bottom: 12px;
+  color: var(--green);
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  min-height: 100svh;
+  /* `minmax(0, ...)` on BOTH tracks: a grid column's default minimum is
+     its content's intrinsic width, so without this a long word or a wide
+     button row would push the hero past the viewport and give the whole
+     page a horizontal scrollbar. */
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  align-items: center;
+  gap: clamp(48px, 8vw, 110px);
+  padding-block: 132px 108px;
+}
+
+.hero__copy {
+  min-width: 0;
+}
+
+.hero__copy {
+  min-width: 0;
+}
+
+/* Hero stack order: name, role, typed intro, actions, socials. */
+.hero h1,
+.hero__name {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(44px, 5.4vw, 76px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+}
+
+.hero__role {
+  margin: 18px 0 0;
+  color: var(--green);
+  text-transform: uppercase;
+  font: 500 var(--fs-sm)/1.5 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.caret {
+  display: inline-block;
+  width: 0.055em;
+  height: 0.82em;
+  margin-left: 0.08em;
+  background: var(--green);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.hero__intro {
+  max-width: 610px;
+  margin: 30px 0 0;
+  color: var(--muted);
+  font-size: var(--fs-base);
+  line-height: 1.75;
+}
+
+/*
+ * Typed intro. The visible text is absolutely positioned over an invisible
+ * copy of the longest line (`.hero__intro-sizer`), which is what actually
+ * occupies layout. The paragraph is therefore always as tall as the tallest
+ * line it can hold, so characters appearing and disappearing never reflow
+ * the hero or push the content below it around.
+ */
+.hero__intro--typed {
+  position: relative;
+}
+
+.hero__intro-sizer {
+  display: block;
+  visibility: hidden;
+}
+
+.hero__intro-text {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+/* Social icon row under the hero actions. */
+.hero__socials {
+  margin-top: 26px;
+  gap: 10px !important;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.button span {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.button--primary {
+  background: var(--green);
+  color: #08100c;
+}
+
+.button--secondary {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.button--text {
+  min-height: auto;
+  padding: 0;
+  color: var(--green);
+}
+
+/*
+ * Buttons on the landing page are the previous site's `.primary-action` /
+ * `.secondary-action` (declared in @layer components above), with
+ * `.sweep-button` adding only the hover animation. These few rules just
+ * size the icons and give the text variant a plain link treatment.
+ */
+.primary-action svg,
+.secondary-action svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+/* Text/link variant: green label, no sweep fill. */
+.link-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--green);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+
+.link-action svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.link-action.sweep-button {
+  overflow: visible;
+}
+
+.link-action.sweep-button::before {
+  display: none;
+}
+
+.link-action.sweep-button:hover {
+  color: var(--green);
+  border-color: transparent;
+}
+
+/*
+ * The hero grid aligns its items centre, but the assistant column should
+ * size to its own content rather than stretching, so the bubble is only as
+ * tall as the dialogue inside it.
+ */
+.hero__assistant {
+  min-width: 0;
+  align-self: center;
+}
+
+/*
+ * Hero assistant ("Clippy"). Replaces the former `profile.ts` editor mock in
+ * the hero's second column: a speech bubble carrying the typed TL;DR, with
+ * the paperclip figure beneath it.
+ *
+ * Layout: the bubble sits above the figure on every size; only the figure's
+ * scale and the bubble's padding change between breakpoints, so the panel
+ * keeps the same shape from phone to desktop.
+ */
+/*
+ * Hero assistant ("Clippy").
+ *
+ * In the hero he is only a TRIGGER: the figure plus a short greeting tag.
+ * The conversation itself is NOT inline — an inline bubble grew as Clippy
+ * talked and shoved the hero's layout sideways. Clicking opens
+ * `.clippy-window`, a modal above the page, which is a fixed overlay and so
+ * cannot affect hero layout at any size.
+ */
+.clippy {
+  --clippy-wire-light: #a7a3c4;
+  --clippy-wire-mid: #7f7aa3;
+  --clippy-wire-dark: #514d73;
+  /* The original art is black-browed on a white page. On this dark hero the
+     brows would disappear, so they are lightened just enough to separate
+     from the wire while still reading as black. */
+  --clippy-brow: #2a2535;
+
+  display: grid;
+  justify-items: center;
+}
+
+/* The whole character is one button: greeting tag above, figure below. */
+.clippy__trigger {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+}
+
+/* No ring after a mouse click — the greeting's own hover/active styling
+   already shows the press. Keyboard focus keeps a visible ring below. */
+.clippy__trigger:focus {
+  outline: none;
+}
+
+.clippy__trigger:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 6px;
+}
+
+/*
+ * The greeting. A fixed, short line — it never changes length, so it can
+ * never resize the hero. `max-width` keeps it to a tidy two lines on the
+ * narrowest phones.
+ */
+.clippy__greeting {
+  position: relative;
+  max-width: 24ch;
+  padding: 13px 17px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+}
+
+/* The bubble's little pointer, aimed down at Clippy. */
+.clippy__greeting-tail {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--surface);
+  transform: translateX(-50%) rotate(45deg);
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.clippy__trigger:hover .clippy__greeting,
+.clippy__trigger:focus-visible .clippy__greeting {
+  border-color: var(--green);
+  background: var(--green-wash);
+  transform: translateY(-2px);
+}
+
+.clippy__trigger:hover .clippy__greeting-tail,
+.clippy__trigger:focus-visible .clippy__greeting-tail {
+  border-color: var(--green);
+  background: var(--green-wash);
+}
+
+/* Wider than it is tall now that he stands on the sheet of notepaper
+   (the artwork's viewBox is 320x300, not the old 260x360). */
+.clippy__figure {
+  position: relative;
+  display: block;
+  width: min(330px, 68vw);
+}
+
+.clippy__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* A tighter, lower drop-shadow than before: the artwork now draws its own
+     contact shadow under the paper, so this only needs to lift the whole
+     character off the hero background. */
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.4));
+}
+
+/*
+ * The old separate contact-shadow ellipse is no longer rendered — the
+ * paper's own shadow is part of the artwork, and keeping both put a second
+ * shadow below the sheet. Retained as `display: none` rather than deleted
+ * because ClippyAssistant still emits the span.
+ */
+.clippy__shadow {
+  display: none;
+}
+
+/*
+ * The conversation window. `position: fixed` over a dimmed page, centred at
+ * every size — the same presentation on desktop, tablet and phone.
+ */
+.clippy-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  padding: clamp(16px, 4vw, 40px);
+  background: rgba(4, 6, 5, 0.72);
+  backdrop-filter: blur(6px);
+  place-items: center;
+}
+
+.clippy-window {
+  --clippy-wire-light: #a7a3c4;
+  --clippy-wire-mid: #7f7aa3;
+  --clippy-wire-dark: #514d73;
+  --clippy-brow: #2a2535;
+
+  display: flex;
+  width: min(620px, 100%);
+  max-height: min(680px, calc(100svh - 32px));
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+}
+
+.clippy-window:focus {
+  outline: none;
+}
+
+/* Title bar, which is what makes it read as a window rather than a card. */
+.clippy-window__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 12px 12px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+.clippy-window__title {
+  color: var(--green);
+  font: 400 var(--fs-xs)/1.4 var(--mono);
+}
+
+.clippy-window__close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--muted);
+  place-items: center;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.clippy-window__close:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.clippy-window__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Clippy on the left, the dialogue on the right; stacks on small screens. */
+.clippy-window__body {
+  display: grid;
+  overflow-y: auto;
+  gap: clamp(16px, 3vw, 26px);
+  padding: clamp(20px, 4vw, 30px);
+  grid-template-columns: 112px 1fr;
+}
+
+.clippy-window__figure {
+  width: 100%;
+}
+
+.clippy-window__dialogue {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.clippy__kicker {
+  color: var(--green);
+  text-transform: uppercase;
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.clippy__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.clippy__line {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  /* A long unbroken token must never widen the window. */
+  overflow-wrap: anywhere;
+}
+
+.clippy__replies {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.clippy__reply {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--ink);
+  color: var(--text);
+  text-align: left;
+  font: 400 var(--fs-xs)/1.4 var(--mono);
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease,
+    transform 180ms ease;
+}
+
+.clippy__reply span {
+  color: var(--green);
+}
+
+.clippy__reply:hover {
+  border-color: var(--green);
+  background: var(--green-wash);
+  transform: translateX(3px);
+}
+
+@media (max-width: 560px) {
+  /* Stack the figure above the dialogue, and shrink him so the replies
+     keep most of the window's height on a phone. */
+  .clippy-window__body {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .clippy-window__figure {
+    width: 92px;
+  }
+
+  .clippy-window__dialogue {
+    width: 100%;
+  }
+}
+
+
+/* Brows lift while Clippy is mid-sentence. */
+.clippy-brows {
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.clippy-brows.is-raised {
+  transform: translateY(-4px);
+}
+
+.clippy-pupil {
+  transition: transform 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clippy__reply,
+  .clippy-brows,
+  .clippy-pupil {
+    transition: none;
+  }
+
+  .clippy__reply:hover {
+    transform: none;
+  }
+}
+
+.section {
+  padding-block: 132px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  color: var(--green);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+
+.section-label__path {
+  color: var(--muted);
+}
+
+.section-heading {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  align-items: end;
+  gap: 60px;
+  margin-bottom: 52px;
+}
+
+.section-heading h2,
+.section--about h2 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+}
+
+.section-heading p {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+/*
+ * The skills card (src/components/shared/SkillsCard.tsx).
+ *
+ * A 10% / 80% / 10% split: a diagonal hatch bar, the content, and a
+ * matching hatch bar. Earlier versions were a 0.82fr / 1.18fr split whose
+ * larger side held a mocked product window, then a 4fr / 1fr split with
+ * one hatch edge. The mock was decorative and squeezed the copy, and a
+ * single edge made the panel read as lopsided, so the pattern now frames
+ * the content symmetrically and the copy keeps the middle 80%.
+ *
+ * The outer tracks are percentages rather than fr units so each bar stays
+ * at a true tenth of the card regardless of how long the copy runs.
+ */
+.skills-card {
+  display: grid;
+  min-height: 420px;
+  grid-template-columns: 10% minmax(0, 1fr) 10%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.skills-card__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 48px;
+  padding: 48px;
+}
+
+/*
+ * The hatch bars. Same two-tone diagonal the old
+ * `.featured-project__visual` painted, now as an edge treatment with no
+ * content on top of it. Each bar carries a hairline on its inner side only,
+ * so the content column is ruled off on both sides without doubling up on
+ * the card's own outer border.
+ */
+.skills-card__edge {
+  background:
+    linear-gradient(
+      135deg,
+      transparent 25%,
+      rgba(99, 214, 159, 0.025) 25% 50%,
+      transparent 50% 75%,
+      rgba(99, 214, 159, 0.025) 75%
+    ),
+    #0f1210;
+  background-size: 30px 30px;
+}
+
+.skills-card__edge--start {
+  border-right: 1px solid var(--line);
+}
+
+.skills-card__edge--end {
+  border-left: 1px solid var(--line);
+}
+
+.skills-card h3 {
+  margin: 24px 0 18px;
+  font-size: clamp(30px, 3.2vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+
+.skills-card__copy p {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+.featured-project {
+  display: grid;
+  min-height: 590px;
+  grid-template-columns: 0.82fr 1.18fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.featured-project__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 64px;
+  padding: 48px;
+}
+
+.project-kicker {
+  color: var(--green);
+  text-transform: uppercase;
+  font: 500 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.featured-project h3 {
+  margin: 24px 0 18px;
+  font-size: clamp(36px, 4vw, 54px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+
+.featured-project__copy p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+.project-details {
+  margin: 0 0 30px;
+  padding: 0;
+  list-style: none;
+}
+
+.project-details li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-base);
+}
+
+.project-details span {
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.project-details strong {
+  font-weight: 500;
+  text-align: right;
+}
+
+.featured-project__visual {
+  display: grid;
+  place-items: center;
+  padding: 62px 0 62px 62px;
+  background:
+    linear-gradient(135deg, transparent 25%, rgba(99, 214, 159, 0.025) 25% 50%, transparent 50% 75%, rgba(99, 214, 159, 0.025) 75%),
+    #0f1210;
+  background-size: 30px 30px;
+}
+
+.product-window {
+  display: grid;
+  width: 100%;
+  min-height: 420px;
+  grid-template-columns: 60px 1fr;
+  overflow: hidden;
+  border: 1px solid #344039;
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+  background: #101411;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.4);
+}
+
+.product-window__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-top: 18px;
+  border-right: 1px solid var(--line);
+  background: #0b0e0c;
+}
+
+.product-logo {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  background: var(--green);
+  color: var(--ink);
+  font: 500 var(--fs-xs)/1.5 var(--mono);
+}
+
+.product-window__rail i {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: #344039;
+}
+
+.product-window__rail i.is-selected {
+  background: var(--green);
+}
+
+.product-window__main {
+  padding: 28px;
+}
+
+.product-window__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.status-pill {
+  padding: 5px 8px;
+  border: 1px solid var(--green-dark);
+  color: var(--green);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.agent-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.agent-card {
+  display: grid;
+  grid-template-columns: 1fr 8px;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--line-soft);
+  background: #121613;
+}
+
+.agent-card.is-active {
+  border-color: var(--green-dark);
+  background: var(--green-wash);
+}
+
+
+.agent-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-card strong {
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+.agent-card small {
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.agent-card i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.prompt-bar {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.prompt-bar svg {
+  color: var(--green);
+}
+
+/*
+ * Project cards. One per FEATURED_PROJECTS entry, each ending in a
+ * "View project" button that routes to that project's case-study page.
+ * `.balanced-grid` isn't used here because the card count is small and the
+ * cards are deliberately equal-width columns that collapse to one.
+ */
+.project-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 48px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  transition: border-color 220ms ease, transform 220ms ease;
+}
+
+.project-card:hover {
+  border-color: var(--green-dark);
+  transform: translateY(-3px);
+}
+
+.project-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.project-card__index {
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.project-card h3 {
+  margin: 20px 0 14px;
+  font-size: clamp(24px, 2.4vw, 31px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.project-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+/* `margin-top: auto` pins the actions to the bottom so buttons line up
+   across cards whose copy runs to different lengths. */
+.project-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+/*
+ * The capability row. `gap: 1px` over a `--line` background is what draws
+ * the hairlines between cards, so the row reads as one bordered block
+ * subdivided rather than as separate cards with their own borders.
+ *
+ * `data-count` drives the column count (see CapabilityRow.tsx): the row is
+ * rendered twice on /projects with three and two cards, and `repeat(3, 1fr)`
+ * would leave the two-card row with an empty third column.
+ */
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 48px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+@media (min-width: 761px) {
+  .capability-grid[data-count='2'] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capability-grid[data-count='1'] {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* On /projects the row sits directly under the section heading, which
+   already supplies the space above it. */
+.capability-grid--featured {
+  margin-top: 40px;
+}
+
+.capability-card {
+  min-height: 330px;
+  padding: 32px;
+  background: var(--ink-soft);
+}
+
+.capability-card__top {
+  display: flex;
+  align-items: center;
+  color: var(--green);
+}
+
+.capability-card__top svg {
+  font-size: 24px;
+}
+
+/*
+ * The project variant used on /projects. The card is no longer a link —
+ * its action row at the bottom carries the links — so the hover state is
+ * a quiet background shift rather than an affordance promising a click
+ * anywhere on the card.
+ */
+.capability-card--link {
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  transition: background 220ms ease;
+}
+
+.capability-card--link:hover {
+  background: var(--surface-raised);
+}
+
+.capability-card--link .capability-card__top {
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.capability-card__kicker {
+  color: var(--green);
+  text-transform: uppercase;
+  font: 500 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+/* The linked cards lead with a kicker rather than an icon, so the title
+   sits closer to it than the icon cards' 58px drop allows. */
+.capability-card--link h3 {
+  margin-top: 28px;
+}
+
+/* Pins the tag row and the actions beneath it to the bottom, so the
+   buttons line up across cards whose copy runs to different lengths. */
+.capability-card--link .tag-row {
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+/* The card's links. Wraps on narrow columns rather than letting the two
+   buttons squeeze each other out of shape. */
+.capability-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.capability-card h3 {
+  margin: 58px 0 14px;
+  font-size: var(--fs-xl);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.capability-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 28px;
+}
+
+.tag-row span {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.section--about {
+  border-block: 1px solid var(--line);
+  background: #0e110f;
+}
+
+/*
+ * The heading column takes only what it needs; the copy takes the rest.
+ * Previously the two were near-equal (1fr / 0.85fr) with a gap of up to
+ * 140px, which left the left side mostly empty and pushed the content far
+ * to the right.
+ */
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.42fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+}
+
+.about-grid .section-label {
+  margin-bottom: 50px;
+}
+
+.about-copy {
+  padding-top: 54px;
+}
+
+.about-copy p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.8;
+}
+
+.about-copy .about-copy__lead {
+  color: var(--text);
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+}
+
+/* The name picked out in the accent green so the lead's first line reads
+   as an introduction rather than one even block of text. */
+.about-copy__name {
+  color: var(--green);
+  font-weight: 500;
+}
+
+.principles {
+  margin: 38px 0;
+  border-top: 1px solid var(--line);
+}
+
+.principles div {
+  display: grid;
+  gap: 15px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.principles strong {
+  font-size: var(--fs-base);
+  font-weight: 500;
+}
+
+.credentials-list {
+  border-top: 1px solid var(--line);
+}
+
+/*
+ * Credential rows. The name block and the issue-date meta sit in adjacent
+ * columns at the LEFT of the row rather than being pushed to opposite
+ * edges: the previous `1fr auto` stretched the gap to the full section
+ * width, so on a wide screen the date floated far from the name it
+ * belonged to. `max-content` + a trailing spacer column keeps them
+ * grouped, with the arrow still parked on the right.
+ */
+/*
+ * Four fixed tracks: badge | name + issuer | issued date | arrow.
+ *
+ * The previous template sized the middle tracks with `max-content`, so each
+ * row's columns were as wide as THAT row's text — which is why the names and
+ * dates did not line up down the list. Fixed tracks (a set badge width, a
+ * flexible body, a set date column) put every row on the same grid, so the
+ * logos, titles and dates each align in a single column.
+ */
+.credential-row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 13rem 24px;
+  min-height: 122px;
+  align-items: center;
+  gap: clamp(18px, 2vw, 32px);
+  border-bottom: 1px solid var(--line);
+  transition: background 180ms ease;
+}
+
+/* The trailing arrow (or its placeholder) always sits in the last track. */
+.credential-row > svg:last-child,
+.credential-row > span[aria-hidden]:last-child {
+  grid-column: 4;
+}
+
+.credential-row:hover {
+  background: var(--green-wash);
+}
+
+
+/*
+ * Badge art comes in two aspect ratios: the AWS badges are square (1:1)
+ * and the CompTIA/Google/Microsoft/Adobe ones are wide (1.91:1). A square
+ * box made the wide ones render at roughly half the height of the square
+ * ones — the CompTIA badge looked tiny. A landscape box sized for the
+ * WIDER ratio lets both fill it, so every badge reads at the same weight.
+ */
+.credential-row img {
+  width: 104px;
+  height: 58px;
+  object-fit: contain;
+  /* Centred, so badges of differing aspect ratios still form one
+     vertically-aligned column of logos. */
+  object-position: center;
+}
+
+.credential-row__body {
+  min-width: 0;
+}
+
+.credential-row h3 {
+  margin: 0 0 8px;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.credential-row p,
+.credential-row__meta {
+  margin: 0;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.credential-row > svg {
+  color: var(--green);
+}
+
+.credentials-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.credentials-toggle svg {
+  transition: transform 220ms ease;
+}
+
+.credentials-toggle .is-flipped {
+  transform: rotate(180deg);
+}
+
+/*
+ * Contact — "Option E" from the Section Divider Options canvas: a SOLID
+ * green block used as a layout device down one side (not a gradient or a
+ * glow), carrying mono labels at its top and bottom, with the dark content
+ * panel beside it.
+ *
+ * The generous bottom margin is deliberate: the block used to butt right up
+ * against the footer, so the two read as one slab.
+ */
+.contact-block {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  overflow: hidden;
+  margin-bottom: 120px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.contact-block__bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 32px;
+  background: var(--green);
+}
+
+.contact-block__bar-top,
+.contact-block__bar-bottom {
+  color: #08100c;
+  text-transform: uppercase;
+  font: 600 var(--fs-xs)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+}
+
+.contact-block__bar-bottom {
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.contact-block__panel {
+  padding: 72px 64px;
+}
+
+.contact-block h2 {
+  max-width: 620px;
+  margin: 0;
+  font-size: clamp(32px, 3.6vw, 50px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.contact-block__copy {
+  max-width: 520px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+/*
+ * The action row stretches its children so the social squares match the
+ * email button's height exactly. The button's height is fluid (padding plus
+ * a clamped font size), so a fixed pixel height on the squares drifted out
+ * of alignment at most viewport widths — `stretch` tracks it instead, and
+ * `aspect-ratio` below keeps the squares square at whatever height it
+ * resolves to.
+ */
+.contact-block__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 38px;
+}
+
+.contact__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  color: var(--green);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+/* Social links read as square buttons, matching the action buttons'
+   height and corner radius rather than sitting as small bare glyphs. */
+.socials {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+/*
+ * Height comes from the row (`align-items: stretch` on
+ * `.contact-block__actions`, so these are exactly as tall as the email
+ * button); `aspect-ratio` then derives the width from that height, which is
+ * what keeps them square without pinning either dimension.
+ */
+.socials a {
+  display: grid;
+  aspect-ratio: 1;
+  min-height: 48px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--text);
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.socials a svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.socials a:hover {
+  border-color: var(--green);
+  background: var(--green-wash);
+  color: var(--green);
+}
+
+/*
+ * Footer: brand block + three link columns, with a copyright/admin row
+ * below a rule. This is the previous site's footer layout, restored in
+ * place of the single-row ported one.
+ */
+.site-footer--columns {
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  padding-block: 56px 32px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-brand__name {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.footer-brand__role {
+  margin: 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  font: 500 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-column__label {
+  margin: 0;
+  color: var(--muted);
+  text-transform: uppercase;
+  font: 500 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.1em;
+}
+
+.footer-column__links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-column__links a {
+  color: var(--text);
+  font-size: var(--fs-sm);
+  transition: color 180ms ease;
+}
+
+.footer-column__links a:hover {
+  color: var(--green);
+}
+
+/*
+ * Copyright on the left, Admin on the right.
+ *
+ * When this wrapped to two rows, `justify-content: space-between` left the
+ * Admin link as the only item on its row, so its flex box stretched the
+ * full container width and the whole strip was clickable. `align-items:
+ * flex-start` + `margin-right: auto` on the text keeps each item sized to
+ * its own content at every width, so Admin is clickable only on the word.
+ */
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.footer-bottom p {
+  margin: 0;
+  margin-right: auto;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.footer-admin {
+  /* Sized to the word, never to the row it sits on. */
+  align-self: flex-start;
+  flex: none;
+  color: var(--muted);
+  text-transform: uppercase;
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.12em;
+  opacity: 0.6;
+  transition: color 180ms ease, opacity 180ms ease;
+}
+
+.footer-admin:hover {
+  color: var(--green);
+  opacity: 1;
+}
+
+@media (max-width: 980px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .menu-button {
+    display: flex;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 64px;
+    padding-top: 140px;
+  }
+
+  .hero__copy {
+    max-width: 760px;
+  }
+
+  /* Hero is one column here: center the assistant and cap its width so the
+     bubble does not stretch to tablet width. */
+  .hero__assistant {
+    width: min(620px, 100%);
+    margin-inline: auto;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .section-heading {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .section-heading p {
+    max-width: 520px;
+  }
+
+  .featured-project {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-project__visual {
+    min-height: 500px;
+  }
+
+  /* Stacked: the hatch becomes a single thin band under the copy rather
+     than a column on each side. The leading bar is dropped instead of
+     stacked above the heading, where it would push the content down behind
+     a strip of decoration. */
+  .skills-card {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .skills-card__edge--start {
+    display: none;
+  }
+
+  .skills-card__edge--end {
+    min-height: 56px;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .contact-block {
+    grid-template-columns: 1fr;
+    margin-bottom: 90px;
+  }
+
+  /* Stacked: the green block becomes a banner, labels side by side. */
+  .contact-block__bar {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 32px;
+  }
+}
+
+@media (max-width: 760px) {
+  .shell {
+    width: min(100% - 32px, 1180px);
+  }
+
+  .site-header {
+    padding-inline: 16px;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-block: 130px 90px;
+  }
+
+  .hero h1,
+  .hero__name {
+    font-size: clamp(39px, 11vw, 56px);
+  }
+
+  .clippy__lines {
+    min-height: 168px;
+  }
+
+  .clippy__reply {
+    padding: 10px 12px;
+    font-size: var(--fs-xs);
+  }
+
+  /* On a phone the figure sits further in from the bubble's left edge, with
+     the tail moved to meet it, so Clippy is not pinned to the gutter. */
+  .clippy__figure {
+    width: clamp(92px, 25vw, 120px);
+    margin-left: 14%;
+  }
+
+  .section {
+    padding-block: 90px;
+  }
+
+  .featured-project__copy,
+  .skills-card__copy {
+    padding: 32px 24px;
+    gap: 36px;
+  }
+
+  .featured-project__visual {
+    min-height: 420px;
+    padding: 35px 0 35px 24px;
+  }
+
+  .product-window {
+    min-height: 350px;
+    grid-template-columns: 44px 1fr;
+  }
+
+  .product-window__main {
+    padding: 20px 16px;
+  }
+
+  .capability-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .capability-card {
+    min-height: 280px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .about-copy {
+    padding-top: 0;
+  }
+
+  .credential-row {
+    grid-template-columns: 50px 1fr 20px;
+    gap: 14px;
+    padding-block: 18px;
+  }
+
+  .credential-row img {
+    width: 46px;
+    height: 46px;
+  }
+
+  .credential-row__meta {
+    display: none;
+  }
+
+  .contact-block__panel {
+    padding: 44px 24px;
+  }
+
+  .contact-block__bar {
+    padding: 20px 24px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .footer-bottom {
+    margin-top: 36px;
+  }
+
+  .project-card {
+    padding: 28px 22px;
+  }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Large-screen scaling
+ * ---------------------------------------------------------------------------
+ * The fluid type scale above caps around 19px for body copy, which reads as
+ * microscopic once the viewport passes ~1600px. These queries lift both the
+ * content measure (--shell-max) and the top of each clamp() together, so the
+ * page grows in proportion rather than becoming a narrow column of small text
+ * stranded between two huge margins.
+ *
+ * Only the clamp MAXIMUMS move; the minimums stay at the WCAG-safe floor.
+ */
+@media (min-width: 1600px) {
+  :root {
+    --shell-max: 1400px;
+
+    --fs-xs: clamp(0.9375rem, 0.85rem + 0.25vw, 1.125rem);   /* → 18px */
+    --fs-sm: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);           /* → 20px */
+    --fs-base: clamp(1.0625rem, 0.95rem + 0.35vw, 1.3125rem);/* → 21px */
+    --fs-md: clamp(1.125rem, 1rem + 0.4vw, 1.4375rem);       /* → 23px */
+    --fs-lg: clamp(1.25rem, 1.1rem + 0.5vw, 1.625rem);       /* → 26px */
+    --fs-xl: clamp(1.4375rem, 1.25rem + 0.6vw, 2rem);        /* → 32px */
+  }
+}
+
+@media (min-width: 2000px) {
+  :root {
+    --shell-max: 1600px;
+
+    --fs-xs: 1.1875rem;   /* 19px */
+    --fs-sm: 1.3125rem;   /* 21px */
+    --fs-base: 1.4375rem; /* 23px */
+    --fs-md: 1.5625rem;   /* 25px */
+    --fs-lg: 1.8125rem;   /* 29px */
+    --fs-xl: 2.25rem;     /* 36px */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Overflow guards
+ * ---------------------------------------------------------------------------
+ * Three recurring causes of a page that scrolls sideways or resizes itself
+ * more than once while loading, fixed here in one place rather than per
+ * component.
+ */
+
+/* 1. Media never exceeds its container, whatever its intrinsic size. */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+/* 2. Grid and flex children default to a minimum size of their content,
+      which is what lets a long string stretch a container past the screen.
+      These are the layout tracks where that actually bites. */
+.about-grid > *,
+.footer-grid > *,
+.project-cards > *,
+.capability-grid > *,
+.credentials-list > * {
+  min-width: 0;
+}
+
+/* 3. Long unbroken strings (URLs, package names) wrap instead of widening
+      the column they sit in. */
+.project-card p,
+.capability-card p,
+.featured-project__copy p,
+.skills-card__copy p,
+.about-copy p,
+.credential-row h3,
+.credential-row p {
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------------------
+ * Button colors — UNLAYERED ON PURPOSE.
+ *
+ * The shapes and the sweep animation for `.primary-action` /
+ * `.secondary-action` / `.sweep-button` are declared inside
+ * `@layer components` near the top of this file. Unlayered CSS always wins
+ * over layered CSS no matter the specificity, and this file has ~2000 lines
+ * of unlayered rules after the layer closes. Those were overriding the
+ * buttons' `color`, which broke two things:
+ *
+ *   1. Resting state: `.primary-action` sets a dark label on the green
+ *      fill, but the light `--text` leaked back in — white on green.
+ *   2. Hover/focus: the sweep paints the button near-white via the
+ *      `::before` fill (a pseudo-element background, so it kept working)
+ *      while the label stayed light — white on white, 1.04:1, invisible.
+ *
+ * Re-asserting the color pairs here puts them in the same cascade origin as
+ * the rules that were beating them, so the fill and the ink can no longer
+ * get out of sync. Keep each fill and its ink together: changing one
+ * without the other is what caused the contrast failure.
+ * ------------------------------------------------------------------------ */
+
+/* Resting state. Green fill takes dark ink; outlined button keeps the
+   light label on the dark surface. */
+.primary-action {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.secondary-action {
+  border: 1px solid var(--line-strong);
+  background: var(--ink);
+  color: var(--text);
+}
+
+/* The icons inherit, rather than resolving against a stale color. */
+.primary-action svg,
+.secondary-action svg {
+  stroke: currentColor;
+}
+
+/*
+ * Sweep hover/focus: `--sweep-fill` (#f4f7f5) demands `--sweep-ink`
+ * (#06100b) — 18.1:1. Hover and focus-visible are deliberately kept in one
+ * rule so a keyboard user can never get the fill without the inverted ink.
+ */
+.sweep-button:hover,
+.sweep-button:focus-visible {
+  color: var(--sweep-ink);
+  border-color: var(--sweep-fill);
+}
+
+/* Descendants (nested spans, icons) carry their own color or a stroke that
+   resolved pre-hover, so they have to be forced over to the inverted ink
+   too — otherwise light glyphs sit on the white fill. */
+.sweep-button:hover *,
+.sweep-button:focus-visible * {
+  color: var(--sweep-ink);
+}
+
+.sweep-button:hover svg,
+.sweep-button:focus-visible svg {
+  stroke: currentColor;
+  color: var(--sweep-ink);
+}
+
+/* The text variant has no sweep fill, so it must NOT invert — it would go
+   dark on the dark page background. */
+.link-action:hover,
+.link-action:focus-visible,
+.link-action.sweep-button:hover,
+.link-action.sweep-button:focus-visible {
+  color: var(--green);
+  border-color: transparent;
+}
+
+.link-action.sweep-button:hover *,
+.link-action.sweep-button:focus-visible * {
+  color: var(--green);
+}
+
+/* Focus ring sits on top of the near-white fill; a light ring on a light
+   fill is not a visible indicator. */
+.sweep-button:focus-visible {
+  outline: 2px solid var(--sweep-ink);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Sub-page shells — /projects and /projects/[slug]
+ *
+ * These two routes used to carry their own chrome: a full-bleed
+ * circuit-board banner with an IDE gutter heading, and section blocks
+ * labelled "01 / tech-stack". Both are replaced here by the landing page's
+ * language — `~/portfolio/` path labels, `.section-heading`, the project
+ * cards and the sweep buttons — so moving from the landing page to a
+ * project reads as one site.
+ *
+ * Unlayered to match the landing-page rules above (see the button-colors
+ * note): layered CSS would lose to them regardless of specificity.
+ * ------------------------------------------------------------------------ */
+
+/*
+ * Page banner. Clears the fixed 72px header itself, so a page can render it
+ * as its first element. The hatch is the same diagonal the skills card
+ * carries, faded out toward the bottom so it dissolves into the first
+ * section instead of ending on a hard edge.
+ */
+.page-banner {
+  position: relative;
+  overflow: hidden;
+  padding-block: 150px 70px;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+.page-banner__hatch {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 25%,
+      rgba(99, 214, 159, 0.03) 25% 50%,
+      transparent 50% 75%,
+      rgba(99, 214, 159, 0.03) 75%
+    );
+  background-size: 30px 30px;
+  /* Fades the pattern out downward. Both properties are needed: WebKit
+     still wants the prefixed one. */
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Sits above the hatch. */
+.page-banner__inner {
+  position: relative;
+}
+
+.page-banner__title {
+  margin: 0;
+  font-size: clamp(44px, 7vw, 86px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+}
+
+.page-banner__lede {
+  max-width: 62ch;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: var(--fs-md);
+  line-height: 1.7;
+}
+
+/* On a sub-page the action row is left-aligned under the lede, not centred
+   the way the old banner stacked it. */
+.page-banner .case-study-links {
+  justify-content: flex-start;
+  margin-top: 30px;
+}
+
+/*
+ * Projects index. The card grid is capped at three tracks so the featured
+ * row reads as three equal cards instead of stretching to fill a wide
+ * viewport — `auto-fit` alone gave four thin columns at 1440px+.
+ */
+.project-cards--page {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  margin-top: 0;
+}
+
+@media (min-width: 1024px) {
+  .project-cards--page {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The archive band, tinted to separate it from the featured row above. */
+.section--more-projects {
+  border-block: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+.projects-outro {
+  padding-top: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Case-study sections.
+ *
+ * The old `.case-study-section` was a fixed-width centred column with its
+ * own heading scale. It is now a full-width band (so alternating tints can
+ * run edge to edge) whose content uses the shared `.shell` width and the
+ * landing page's heading treatment.
+ * ------------------------------------------------------------------------ */
+.case-study-section {
+  width: auto;
+  margin: 0;
+  padding-block: 96px;
+}
+
+.case-study-section--alt {
+  border-block: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+/* Two consecutive tinted bands would otherwise show a doubled rule where
+   they meet. */
+.case-study-section--alt + .case-study-section--alt {
+  border-top: 0;
+}
+
+.case-study-section-inner {
+  display: block;
+}
+
+/*
+ * A case study's description is supporting text for the title rather than a
+ * second column of equal weight, so this variant narrows the right-hand
+ * track and tightens the gap compared with the landing page's version. With
+ * no description the title simply takes the full width.
+ */
+.section-heading--case-study {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: 48px;
+  margin-bottom: 44px;
+}
+
+.section-heading--case-study h2 {
+  font-size: clamp(32px, 4vw, 52px);
+}
+
+.case-study-section-body {
+  margin-top: 0;
+}
+
+/* Closing "view all projects" row. */
+.case-study-outro {
+  display: flex;
+  justify-content: center;
+  padding-block: 88px 120px;
+}
+
+@media (max-width: 860px) {
+  .page-banner {
+    padding-block: 120px 56px;
+  }
+
+  .case-study-section {
+    padding-block: 68px;
+  }
+
+  .section-heading--case-study {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .case-study-outro {
+    padding-block: 60px 84px;
+  }
+}
+
+/*
+ * Featured project panels on the /projects index. A wide bordered panel per
+ * project: copy on one side, its illustration on the other, with the sides
+ * swapping on alternate panels (`--flip`).
+ */
+.featured-panels {
+  display: grid;
+  gap: 28px;
+}
+
+.featured-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  transition: border-color 220ms ease;
+}
+
+.featured-panel:hover {
+  border-color: var(--green-dark);
+}
+
+/*
+ * Mirrored panel. The source order stays copy-then-visual (so the reading
+ * and tab order are consistent down the page) and only the painted columns
+ * swap.
+ */
+.featured-panel--flip .featured-panel__copy {
+  grid-column: 2;
+}
+
+.featured-panel--flip .featured-panel__visual {
+  grid-column: 1;
+  grid-row: 1;
+  border-right: 1px solid var(--line);
+  border-left: 0;
+}
+
+.featured-panel__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 44px;
+}
+
+.featured-panel__copy h3 {
+  margin: 18px 0 14px;
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.featured-panel__copy p {
+  margin: 0 0 24px;
+  max-width: 54ch;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+/* `margin-top: auto` pins the buttons to the bottom of the copy column so
+   they sit on one line with the visual's lower edge. */
+.featured-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+/*
+ * The visual frame. ProjectVisual's children (`.project-visual-img` /
+ * `.project-visual-art`) are absolutely positioned against their frame, so
+ * this must establish the containing block — without `position: relative`
+ * the artwork would escape to the page.
+ */
+.featured-panel__visual {
+  position: relative;
+  min-height: 330px;
+  overflow: hidden;
+  border-left: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+@media (max-width: 860px) {
+  /* Stacked: visual first on every panel, so the flip has nothing to do. */
+  .featured-panel,
+  .featured-panel--flip {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-panel--flip .featured-panel__copy,
+  .featured-panel--flip .featured-panel__visual {
+    grid-column: 1;
+  }
+
+  .featured-panel__visual,
+  .featured-panel--flip .featured-panel__visual {
+    grid-row: 1;
+    min-height: 240px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .featured-panel__copy {
+    grid-row: 2;
+    padding: 32px 24px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Architecture section (src/components/case-study/ArchitectureSection.tsx).
+ *
+ * One or two diagram frames. With two, they sit side by side with an arrow
+ * between them, reading "considered → shipped"; with one, the single frame
+ * takes the full width. Square corners and `--line` hairlines, matching
+ * every other bordered block on the site.
+ * ------------------------------------------------------------------------ */
+.architecture-intro {
+  margin: 0 0 32px;
+  max-width: 70ch;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+.architecture-stages {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* `auto` is the arrow's track. */
+@media (min-width: 900px) {
+  .architecture-stages--compare {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 20px;
+  }
+}
+
+.architecture-stage {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.architecture-stage-label {
+  margin: 0;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The shipped stage is the one that happened, so its label takes the
+   accent while the considered stage stays muted. */
+.architecture-stages--compare .architecture-stage:last-of-type
+  .architecture-stage-label {
+  color: var(--green);
+}
+
+.architecture-stage-title {
+  margin: 10px 0 20px;
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+
+.architecture-stage-media {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--ink-soft);
+}
+
+.architecture-stage-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Stands in for a diagram that has not been added yet, at the size the
+   image will occupy, so dropping the file in shifts nothing. */
+.architecture-stage-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 25%,
+      rgba(99, 214, 159, 0.03) 25% 50%,
+      transparent 50% 75%,
+      rgba(99, 214, 159, 0.03) 75%
+    );
+  background-size: 30px 30px;
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.architecture-stage-caption {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.architecture-stage-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.architecture-stage-services span {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+}
+
+.architecture-arrow {
+  display: grid;
+  place-items: center;
+  color: var(--green);
+}
+
+.architecture-arrow svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Stacked, the arrow points down the column rather than across it. */
+@media (max-width: 899px) {
+  .architecture-arrow svg {
+    transform: rotate(90deg);
+  }
+}
+
+.architecture-note {
+  margin: 28px 0 0;
+  max-width: 70ch;
+  padding-left: 18px;
+  border-left: 2px solid var(--green-dark);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+/* ---------------------------------------------------------------------------
+ * Playable demo call-out (src/components/case-study/PlayDemoSection.tsx).
+ *
+ * The banner's demo link scrolls away on a long page, so the demo also gets
+ * its own block: copy and the primary button on the left, the practical
+ * notes ruled off on the right.
+ * ------------------------------------------------------------------------ */
+.play-demo {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+@media (min-width: 860px) {
+  .play-demo {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+.play-demo__body {
+  padding: 32px;
+}
+
+.play-demo__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--green-dark);
+  color: var(--green);
+}
+
+.play-demo__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.play-demo__copy {
+  margin: 22px 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+.play-demo__action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+/* The notes column, ruled off from the copy. Stacked, that rule moves to
+   the top edge so it still separates the two. */
+.play-demo__notes {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  background: var(--line);
+}
+
+@media (min-width: 860px) {
+  .play-demo__notes {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+}
+
+.play-demo__notes > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  padding: 20px 28px;
+  background: var(--ink-soft);
+}
+
+.play-demo__notes dt {
+  color: var(--muted);
+  font: 400 var(--fs-xs)/1.5 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.play-demo__notes dd {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
 }

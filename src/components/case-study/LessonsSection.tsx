@@ -1,7 +1,8 @@
 /*
  * File: LessonsSection.tsx
  * Purpose: Final reflection block for a case study — a short list of
- *          takeaways rendered as monospace lines with scroll-in reveal.
+ *          takeaways in the page's body font, each led by an accented
+ *          number, with a scroll-in reveal.
  */
 
 'use client';
@@ -13,7 +14,7 @@ interface LessonsSectionProps {
 }
 
 /**
- * Reflection bullets rendered as monospace code comments.
+ * Reflection bullets, each led by an accented two-digit number.
  *
  * @param lessons - Takeaway strings
  * @returns List element
@@ -30,7 +31,7 @@ export function LessonsSection({ lessons }: LessonsSectionProps): React.ReactEle
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.4, delay: i * 0.08, ease: 'easeOut' }}
         >
-          <span className="lessons-item-marker">{`// 0${i + 1}`}</span>
+          <span className="lessons-item-marker">{`0${i + 1}`}</span>
           <span className="lessons-item-text">{lesson}</span>
         </motion.li>
       ))}

@@ -12,12 +12,19 @@
 
 import { useState } from 'react';
 
-/** The optional case-study sections an admin can toggle for a project. */
+/** The optional case-study sections an admin can toggle for a project.
+ *  Order mirrors the fixed render order in app/projects/[slug]/page.tsx. */
 const OPTIONAL_SECTIONS: Array<{ key: string; label: string; always?: boolean }> = [
   { key: 'tech-stack', label: 'Tech stack + languages bar', always: true },
+  { key: 'overview', label: 'At a glance (fact tiles)' },
   { key: 'why-built', label: 'Why I built it (before / after)' },
   { key: 'impact', label: 'Impact (stat tiles)' },
+  { key: 'team', label: 'The team (roles & credits)' },
+  { key: 'controls', label: 'Controls (key → action)' },
+  { key: 'showcase', label: 'Showcase (figure cards)' },
   { key: 'features', label: 'Key features' },
+  { key: 'document', label: 'Document (inline PDF preview)' },
+  { key: 'gallery', label: 'Gallery (captioned images)' },
   { key: 'lessons', label: 'Lessons learned' },
 ];
 
@@ -37,7 +44,7 @@ function slugify(title: string): string {
 
 const labelStyle: React.CSSProperties = {
   color: 'var(--muted)',
-  fontFamily: '"DM Mono", monospace',
+  fontFamily: 'var(--mono)',
   fontSize: '0.72rem',
 };
 
@@ -98,7 +105,7 @@ export function AdminProjectForm() {
           style={inputStyle}
         />
         {slug && (
-          <p className="mt-1.5" style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace', fontSize: '0.72rem' }}>
+          <p className="mt-1.5" style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.72rem' }}>
             /projects/{slug}
           </p>
         )}
@@ -141,7 +148,7 @@ export function AdminProjectForm() {
               />
               {section.label}
               {section.always && (
-                <span style={{ fontFamily: '"DM Mono", monospace', fontSize: '0.68rem', color: 'var(--muted)' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: '0.68rem', color: 'var(--muted)' }}>
                   (required)
                 </span>
               )}
@@ -165,7 +172,7 @@ export function AdminProjectForm() {
           {activeSections.map((section, i) => (
             <li
               key={section.key}
-              style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace', fontSize: '0.78rem' }}
+              style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.78rem' }}
             >
               {String(i + 1).padStart(2, '0')} / {section.key}
             </li>
@@ -187,7 +194,7 @@ export function AdminProjectForm() {
           style={{ color: 'var(--muted)', background: 'var(--ink-soft)', border: '1px solid var(--line)' }}
         >
           Saving isn&apos;t connected yet. Once storage is wired, this writes a case-study entry and{' '}
-          <span style={{ fontFamily: '"DM Mono", monospace', color: 'var(--text)' }}>/projects/{slug || 'your-slug'}</span>{' '}
+          <span style={{ fontFamily: 'var(--mono)', color: 'var(--text)' }}>/projects/{slug || 'your-slug'}</span>{' '}
           renders the sections above automatically.
         </p>
       )}

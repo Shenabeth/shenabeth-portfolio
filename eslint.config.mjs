@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // docs/Portfolio is a standalone reference prototype (Vite + React),
+    // not part of this Next.js app — it's read for its layout/CSS ideas,
+    // never imported, and isn't held to this app's lint rules.
+    "docs/**",
   ]),
 ]);
 

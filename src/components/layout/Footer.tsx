@@ -1,124 +1,67 @@
-'use client';
-
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
 /*
  * File: Footer.tsx
- * Purpose: Footer with brand block, quick-nav column, contact column,
- *          socials, and copyright. Uses the sticky "pull-to-reveal" scroll
- *          effect so the site sits above it and reveals as you scroll past.
+ * Purpose: Footer with brand block, explore column, contact column, links
+ *          column, and a copyright/admin row — the previous site's footer,
+ *          restored in place of the single-row reference footer.
+ *
+ *          Styling is class-based (`.site-footer--columns`, see
+ *          app/globals.css) rather than the inline styles the old version
+ *          used, so it reads against the same CSS variables as the rest of
+ *          the ported design.
  */
 
+import React from 'react';
 import Link from 'next/link';
 import { CONTACT_EMAIL, SOCIAL_LINKS, RESUME } from '@/config/constants';
 
-/**
- * Site footer with multi-column layout (brand, nav, contact), social
- * links, and a copyright/admin row. Fades in slightly as the viewer
- * scrolls past the main content to reveal it.
- */
+/** Site footer: brand, three link columns, copyright + admin row. */
 export function Footer() {
-  const footerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: footerRef,
-    offset: ['start end', 'start start'],
-  });
-  const opacity = useTransform(scrollYProgress, [0, 0.35], [0.85, 1], { clamp: true });
   const year = new Date().getFullYear();
 
   return (
-    <footer
-      ref={footerRef}
-      className="diagonal-texture sticky bottom-0 z-0 w-full"
-      style={{
-        background: 'var(--surface)',
-        borderTop: '1px solid var(--line)',
-      }}
-    >
-      <motion.div
-        style={{ opacity }}
-        className="w-[min(92vw,1320px)] mx-auto px-6 md:px-0 py-14"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_auto] gap-10 md:gap-8">
+    <footer className="site-footer--columns">
+      <div className="shell">
+        <div className="footer-grid">
           {/* Brand */}
-          <div className="flex flex-col gap-3">
-            <span
-              className="block font-semibold text-xl leading-tight"
-              style={{ letterSpacing: '-0.04em' }}
-            >
-              Shenabeth Jenkins
-            </span>
-            <p
-              className="uppercase tracking-widest font-medium"
-              style={{
-                color: 'var(--text)',
-                fontFamily: '"DM Mono", monospace',
-                fontSize: '0.78rem',
-              }}
-            >
-              Computer Science · Cloud Architect
-            </p>
+          <div className="footer-brand">
+            <span className="footer-brand__name">Shenabeth Jenkins</span>
+            <p className="footer-brand__role">Computer Science · Cloud Architect</p>
           </div>
 
-          {/* Explore nav */}
           <FooterColumn label="Explore">
-            <FooterLink href="/">Home</FooterLink>
-            <FooterLink href="/about">About</FooterLink>
-            <FooterLink href="/projects">Projects</FooterLink>
-            <FooterLink href="/about#certifications">Credentials</FooterLink>
+            <FooterLink href="/#home">Home</FooterLink>
+            <FooterLink href="/#projects">Projects</FooterLink>
+            <FooterLink href="/#about">About</FooterLink>
+            <FooterLink href="/#certifications">Certifications</FooterLink>
           </FooterColumn>
 
-          {/* Contact */}
           <FooterColumn label="Contact">
-            <FooterLink href="/#contact">Send a message</FooterLink>
             <FooterLink href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</FooterLink>
-            <FooterLink href={RESUME.url} download={RESUME.downloadName} target="_blank">Resume</FooterLink>
+            <FooterLink href={RESUME.url} download={RESUME.downloadName} target="_blank">
+              R&eacute;sum&eacute;
+            </FooterLink>
           </FooterColumn>
 
-          {/* Socials */}
           <FooterColumn label="Links">
-            <FooterLink href={SOCIAL_LINKS.github} target="_blank">GitHub</FooterLink>
-            <FooterLink href={SOCIAL_LINKS.linkedin} target="_blank">LinkedIn</FooterLink>
-            <FooterLink href={SOCIAL_LINKS.credly} target="_blank">Credly</FooterLink>
+            <FooterLink href={SOCIAL_LINKS.github} target="_blank">
+              GitHub
+            </FooterLink>
+            <FooterLink href={SOCIAL_LINKS.linkedin} target="_blank">
+              LinkedIn
+            </FooterLink>
+            <FooterLink href={SOCIAL_LINKS.credly} target="_blank">
+              Credly
+            </FooterLink>
           </FooterColumn>
         </div>
 
-        {/* Divider + bottom row */}
-        <div
-          className="mt-12 pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4"
-          style={{ borderTop: '1px solid var(--line)' }}
-        >
-          <p
-            style={{
-              color: 'var(--muted)',
-              fontFamily: '"DM Mono", monospace',
-              fontSize: '0.78rem',
-            }}
-          >
-            © {year} Shenabeth Jenkins. Hosted on AWS Amplify.
-          </p>
-          <Link
-            href="/admin/login"
-            className="text-xs uppercase tracking-widest transition-all"
-            style={{
-              color: 'var(--muted)',
-              opacity: 0.6,
-              fontFamily: '"DM Mono", monospace',
-              fontSize: '0.72rem',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--accent-bright)';
-              e.currentTarget.style.opacity = '1';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--muted)';
-              e.currentTarget.style.opacity = '0.6';
-            }}
-          >
+        <div className="footer-bottom">
+          <p>© {year} Shenabeth Jenkins. Hosted on AWS Amplify.</p>
+          <Link className="footer-admin" href="/admin/login">
             Admin
           </Link>
         </div>
-      </motion.div>
+      </div>
     </footer>
   );
 }
@@ -126,23 +69,14 @@ export function Footer() {
 /** Column heading + stacked link list used in each footer section. */
 function FooterColumn({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-3">
-      <p
-        className="uppercase tracking-widest font-medium"
-        style={{
-          color: 'var(--muted)',
-          fontFamily: '"DM Mono", monospace',
-          fontSize: '0.72rem',
-        }}
-      >
-        {label}
-      </p>
-      <div className="flex flex-col gap-2">{children}</div>
+    <div className="footer-column">
+      <p className="footer-column__label">{label}</p>
+      <div className="footer-column__links">{children}</div>
     </div>
   );
 }
 
-/** Single footer link styled to match the DM Mono column treatment. */
+/** Single footer link; `target` implies the usual noopener pairing. */
 function FooterLink({
   href,
   children,
@@ -161,21 +95,7 @@ function FooterLink({
     extraProps.rel = 'noopener noreferrer';
   }
   return (
-    <Link
-      href={href}
-      {...extraProps}
-      className="transition-colors"
-      style={{
-        color: 'var(--text)',
-        fontSize: '0.92rem',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent-bright)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text)';
-      }}
-    >
+    <Link href={href} {...extraProps}>
       {children}
     </Link>
   );

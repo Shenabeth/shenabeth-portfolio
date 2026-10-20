@@ -56,7 +56,7 @@ export function TechStackGrid() {
                 borderColor: isActive ? 'var(--accent)' : 'var(--line-strong)',
                 background: isActive ? 'var(--accent)' : 'var(--ink-soft)',
                 color: isActive ? 'var(--ink)' : 'var(--text)',
-                fontFamily: '"DM Mono", monospace',
+                fontFamily: 'var(--mono)',
                 fontSize: '0.85rem',
                 fontWeight: 500,
               }}
@@ -117,7 +117,7 @@ function SkillChip({ skill, Icon, color, interactive, isOpen, projects, onToggle
 
   const content = (
     <div
-      className="flex items-center gap-4 p-5 rounded-xl border"
+      className="flex items-center gap-4 p-5 border"
       style={{
         ...baseTileStyle,
         borderColor: isOpen ? 'rgba(84,213,170,0.4)' : baseTileStyle.borderColor,
@@ -127,7 +127,7 @@ function SkillChip({ skill, Icon, color, interactive, isOpen, projects, onToggle
       }}
     >
       <span
-        className="flex items-center justify-center shrink-0 rounded-lg"
+        className="flex items-center justify-center shrink-0"
         style={{
           width: '3.5rem',
           height: '3.5rem',
@@ -142,7 +142,7 @@ function SkillChip({ skill, Icon, color, interactive, isOpen, projects, onToggle
         className="whitespace-nowrap flex-1"
         style={{
           color: 'var(--text)',
-          fontFamily: '"DM Mono", monospace',
+          fontFamily: 'var(--mono)',
           fontSize: '1rem',
           fontWeight: 500,
         }}
@@ -222,7 +222,7 @@ function SkillChip({ skill, Icon, color, interactive, isOpen, projects, onToggle
                   className="px-3 py-2"
                   style={{
                     color: 'var(--muted)',
-                    fontFamily: '"DM Mono", monospace',
+                    fontFamily: 'var(--mono)',
                     fontSize: '0.85rem',
                   }}
                 >

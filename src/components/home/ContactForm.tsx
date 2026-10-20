@@ -64,7 +64,7 @@ export function ContactForm() {
             className="block mb-2 uppercase tracking-widest"
             style={{
               color: 'var(--muted)',
-              fontFamily: '"DM Mono", monospace',
+              fontFamily: 'var(--mono)',
               fontSize: '0.72rem',
             }}
           >
@@ -87,7 +87,7 @@ export function ContactForm() {
             className="block mb-2 uppercase tracking-widest"
             style={{
               color: 'var(--muted)',
-              fontFamily: '"DM Mono", monospace',
+              fontFamily: 'var(--mono)',
               fontSize: '0.72rem',
             }}
           >
@@ -111,7 +111,7 @@ export function ContactForm() {
           className="block mb-2 uppercase tracking-widest"
           style={{
             color: 'var(--muted)',
-            fontFamily: '"DM Mono", monospace',
+            fontFamily: 'var(--mono)',
             fontSize: '0.72rem',
           }}
         >

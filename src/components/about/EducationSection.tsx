@@ -34,7 +34,7 @@ export function EducationSection() {
           page container is 1320px wide, which makes a two-entry timeline
           look stretched and sparse. Cap at ~44rem and center. */}
       <div
-        className="relative rounded-2xl border p-6 md:p-9 mx-auto"
+        className="relative border p-6 md:p-9 mx-auto"
         style={{
           borderColor: 'var(--line)',
           background: 'var(--surface)',
@@ -46,7 +46,7 @@ export function EducationSection() {
             className="uppercase tracking-widest font-medium mb-3"
             style={{
               color: GOLD,
-              fontFamily: '"DM Mono", monospace',
+              fontFamily: 'var(--mono)',
               fontSize: '0.85rem',
             }}
           >
@@ -141,7 +141,7 @@ export function EducationSection() {
                     style={{
                       borderColor: GREEN_MUTED,
                       color: GREEN,
-                      fontFamily: '"DM Mono", monospace',
+                      fontFamily: 'var(--mono)',
                       fontSize: '0.8rem',
                       letterSpacing: '0.1em',
                       lineHeight: 1,
@@ -156,7 +156,7 @@ export function EducationSection() {
                   className="uppercase tracking-widest mb-1"
                   style={{
                     color: 'var(--muted)',
-                    fontFamily: '"DM Mono", monospace',
+                    fontFamily: 'var(--mono)',
                     fontSize: '0.8rem',
                     letterSpacing: '0.12em',
                   }}
@@ -215,7 +215,7 @@ export function EducationSection() {
           style={{
             borderTop: `1px dashed ${GOLD_MUTED}`,
             color: 'var(--muted)',
-            fontFamily: '"DM Mono", monospace',
+            fontFamily: 'var(--mono)',
             fontSize: '0.85rem',
             letterSpacing: '0.06em',
           }}

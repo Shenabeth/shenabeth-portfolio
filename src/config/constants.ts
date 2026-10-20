@@ -3,7 +3,14 @@
  * Purpose: Hardcoded constants, configuration values, and static data
  */
 
-import { Project, Certification, SkillCategory, Education } from '@/types';
+import {
+  Project,
+  Certification,
+  SkillCategory,
+  Education,
+  Capability,
+  ProjectCapability,
+} from '@/types';
 
 export const SOCIAL_LINKS = {
   github: 'https://github.com/Shenabeth',
@@ -38,6 +45,7 @@ export const FEATURED_PROJECTS: Project[] = [
       'A complete rebuild of my original HTML/CSS/Bootstrap portfolio into a modular Next.js application. Every section is a typed, reusable React component, and project pages are generated from a single case-study template. Deployed on AWS Amplify with continuous deployment from GitHub.',
     techStack: ['Next.js', 'TypeScript', 'AWS Amplify'],
     githubLink: 'https://github.com/Shenabeth/shenabeth-portfolio',
+    demoLink: '/',
     caseStudyLink: '/projects/portfolio-site',
     status: 'live',
     featured: true,
@@ -45,14 +53,15 @@ export const FEATURED_PROJECTS: Project[] = [
   {
     id: 'sai-system',
     title: 'SAI System',
-    category: 'AI Platform · Bring Your Own Key',
+    category: 'AI Platform · Specialized Agents',
     description:
-      'A bring-your-own-key AI platform where users connect their own LLM API key and work with custom agents in a secure, personalized environment.',
+      'Specialized AI agents that each stay in their lane. You bring your own LLM API key and work with specialists whose behavior is shaped by folders of Markdown instructions.',
     longDescription:
-      'A bring-your-own-key AI platform. Users sign in, add their own OpenAI, Anthropic, or other LLM API keys, and interact with custom AI agents. Includes user authentication, persisted chat history, and flexible per-user agent configuration.',
-    techStack: ['Next.js', 'TypeScript', 'Supabase'],
+      'SAI (Specialized Artificial Intelligence) is a bring-your-own-key AI platform. Users sign in, add their own LLM API key, and work with purpose-built specialist agents instead of one generalist chatbot. Each agent’s expertise comes from its own set of Markdown instructions — an experiment in how far instruction design can shape agent behavior. Auth runs on AWS Cognito; the app is hosted on Vercel.',
+    techStack: ['Next.js', 'TypeScript', 'AWS Cognito'],
+    demoLink: 'https://sai-system.vercel.app/',
     caseStudyLink: '/projects/sai-system',
-    status: 'coming-soon',
+    status: 'live',
     featured: true,
   },
   {
@@ -60,13 +69,47 @@ export const FEATURED_PROJECTS: Project[] = [
     title: 'Dog Game',
     category: 'Game Development · Tower Defense',
     description:
-      'An endless tower-defense game made in Unity, where players build a defense and protect their territory for as long as they can.',
+      'A 3D tower-defense game made in Unity where you play as Doge, defending the last skyscraper from waves of cats with turrets and traps. A five-person team project I led.',
     longDescription:
-      'A browser-playable endless tower-defense game built in Unity and exported to WebGL. The focus was tight, readable gameplay and a satisfying difficulty curve as waves escalate.',
+      'What’s the Dog Doing? is a 3D, open-world tower-defense game built in Unity and exported to WebGL. Players explore the map, collect bones, and place turrets and traps to survive escalating waves of cats. Built by a five-person team; I led it and handled sound, assets, UI, and Doge’s movement.',
     techStack: ['Unity', 'C#', 'WebGL'],
+    demoLink: 'https://dog-game-demo.vercel.app/',
     caseStudyLink: '/projects/dog-game',
     status: 'live',
     featured: true,
+  },
+];
+
+/**
+ * Secondary projects. These are NOT part of the featured carousel or the nav —
+ * they're listed only in the "More Projects" section on the projects page, each
+ * linking to its own case-study page. Keep featured work in FEATURED_PROJECTS;
+ * add smaller / course / research projects here.
+ */
+export const MORE_PROJECTS: Project[] = [
+  {
+    id: 'panoramic-stitching',
+    title: 'Panoramic Stitching',
+    category: 'Python · Image Processing · Feature Matching',
+    description:
+      'A computer-vision pipeline that transforms raw images into a unified panoramic scene.',
+    longDescription:
+      'A Python computer-vision pipeline that stitches a set of overlapping photos into a single panorama. It detects distinctive features in each image, matches the overlapping ones between neighbors, solves for the transform that aligns them, and warps the frames into one seamless wide shot.',
+    techStack: ['Python', 'OpenCV', 'NumPy'],
+    caseStudyLink: '/projects/panoramic-stitching',
+    status: 'live',
+  },
+  {
+    id: 'depth-contact-ai',
+    title: 'Depth and Contact Prediction AI',
+    category: 'Python · Haptics · Prediction Model',
+    description:
+      'AI that reconstructs contact and 3D shape from tactile sensor images.',
+    longDescription:
+      'A deep-learning model that reads the images produced by a soft tactile sensor and predicts two aligned outputs: the contact area (where the object actually touches) and a depth map that recovers the 3D geometry of what was pressed. It turns a picture of a touch into an understanding of the shape behind it.',
+    techStack: ['Python', 'Haptics', 'Deep Learning'],
+    caseStudyLink: '/projects/depth-contact-ai',
+    status: 'live',
   },
 ];
 
@@ -98,36 +141,14 @@ export const CERTIFICATIONS: Certification[] = [
     credlyUrl: 'https://www.credly.com/badges/b6841f36-764a-4f46-a5d1-7496c6ec889c',
     badgeUrl: '/certs/comptia-techplus.png',
   },
-];
-
-// Additional certifications shown only when the "view all credentials" toggle is expanded
-export const HIDDEN_CERTIFICATIONS: Certification[] = [
   {
     id: 'adobe-photoshop-associate',
-    name: 'Adobe Certified Associate in Visual Communication Using Adobe Photoshop CS6',
+    name: 'Adobe Certified Associate — Photoshop',
     code: 'PS',
     issuer: 'Adobe',
     dateEarned: 'June 12, 2017',
     credlyUrl: 'https://www.credly.com/badges/4e8208f9-ae4a-4c04-be03-a969b0dbd681',
     badgeUrl: '/certs/photoshop.png',
-  },
-  {
-    id: 'google-ux-design',
-    name: 'Google UX Design Professional Certificate',
-    code: 'UX',
-    issuer: 'Coursera',
-    dateEarned: 'February 2025',
-    credlyUrl: 'https://www.credly.com/badges/59280511-11e4-4f2f-8e50-83bf15dcb6ba',
-    badgeUrl: '/certs/google-ux.png',
-  },
-  {
-    id: 'microsoft-ux-design',
-    name: 'Microsoft UX Design Professional Certificate',
-    code: 'UX',
-    issuer: 'Coursera',
-    dateEarned: 'February 2025',
-    credlyUrl: 'https://www.credly.com/badges/15391522-233a-49a0-a45b-8ea3b00b48a5',
-    badgeUrl: '/certs/microsoft-ux.png',
   },
 ];
 
@@ -169,3 +190,107 @@ export const TECH_STACK: SkillCategory[] = [
 ];
 
 export const CONTACT_EMAIL = 'shenabeth@gmail.com';
+
+/**
+ * Abstract "capability" cards describing what I build, with `tags` pulled
+ * from TECH_STACK above so they never drift out of sync with the real skill
+ * data.
+ *
+ * Currently unrendered: the homepage row these fed was replaced by
+ * PROJECT_CAPABILITIES below, which makes each card a real project rather
+ * than a skill area. Kept because the data is still accurate and the
+ * planned admin panel is the natural place to decide whether a page wants
+ * capability cards framed as skills or as projects.
+ */
+export const CAPABILITIES: Capability[] = [
+  {
+    number: '01',
+    title: 'Cloud architecture',
+    copy: 'Secure, scalable AWS foundations designed around real operational needs — not diagram-driven complexity.',
+    tags: TECH_STACK.find((g) => g.category === 'AWS Services')?.skills.slice(0, 4) ?? [],
+  },
+  {
+    number: '02',
+    title: 'Full-stack products',
+    copy: 'Accessible interfaces and dependable application layers that make complex systems feel straightforward.',
+    tags: TECH_STACK.find((g) => g.category === 'Frontend & Backend')?.skills.slice(0, 4) ?? [],
+  },
+  {
+    number: '03',
+    title: 'Languages & tooling',
+    copy: 'Comfortable across the stack and the toolchain, from typed application code to systems-level work.',
+    tags: TECH_STACK.find((g) => g.category === 'Languages')?.skills.slice(0, 4) ?? [],
+  },
+];
+
+/**
+ * The capability row under "Featured work" on /projects. These were the
+ * landing page's three abstract skill cards (cloud architecture, full-stack
+ * products, AI systems); each now names the project that demonstrates the
+ * discipline, so the claim and the evidence are the same card. Text and
+ * tags only — these deliberately carry no imagery.
+ */
+export const PROJECT_CAPABILITIES: ProjectCapability[] = [
+  {
+    kicker: 'Cloud architecture',
+    title: 'Portfolio Site',
+    copy: 'Secure, scalable AWS foundations designed around real operational needs — not diagram-driven complexity. I costed a serverless design, rejected it for a static site, and shipped on Amplify with monitoring from day one.',
+    tags: ['AWS Amplify', 'Route 53', 'CloudWatch', 'Next.js'],
+    href: '/projects/portfolio-site',
+    demoLink: '/',
+  },
+  {
+    kicker: 'Full-stack products',
+    title: 'SAI System',
+    copy: 'Accessible interfaces and dependable application layers that make complex systems feel straightforward. Auth, key handling, and the agent workspace, built as one typed application.',
+    tags: ['Next.js', 'TypeScript', 'AWS Cognito', 'APIs'],
+    href: '/projects/sai-system',
+    demoLink: 'https://sai-system.vercel.app/',
+  },
+  {
+    kicker: 'AI systems',
+    title: 'Dog Game',
+    copy: 'Purpose-built behavior with clear boundaries, practical guardrails, and maintainable logic — here as the targeting, pathing, and wave systems driving a tower defense in Unity.',
+    tags: ['Unity', 'C#', 'Game AI', 'Systems'],
+    href: '/projects/dog-game',
+    demoLink: 'https://dog-game-demo.vercel.app/',
+  },
+];
+
+/**
+ * The same row repeated under "Also built" on /projects, for the two
+ * smaller course and research projects. Two cards, so the grid lays them
+ * out as halves rather than leaving a third slot empty.
+ */
+export const MORE_PROJECT_CAPABILITIES: ProjectCapability[] = [
+  {
+    kicker: 'Computer vision',
+    title: 'Panoramic Stitching',
+    copy: 'Feature detection, matching, and homography solving composed into a pipeline that turns a set of overlapping photos into one seamless wide shot.',
+    tags: ['Python', 'OpenCV', 'NumPy'],
+    href: '/projects/panoramic-stitching',
+  },
+  {
+    kicker: 'Applied machine learning',
+    title: 'Depth & Contact Prediction AI',
+    copy: 'A deep-learning model that reads soft tactile sensor images and predicts contact area and a depth map together — recovering 3D geometry from a picture of a touch.',
+    tags: ['Python', 'Deep Learning', 'Haptics'],
+    href: '/projects/depth-contact-ai',
+  },
+];
+
+/**
+ * Homepage About section copy. Kept here (not in component markup) per the
+ * project convention that content lives in config. The degree line is
+ * derived from EDUCATION at render time rather than restated here.
+ */
+export const ABOUT = {
+  heading: 'Engineering should reduce friction, not add to it.',
+  lead: 'I’m Shenabeth, a computer science professional who enjoys finding the clean path through complicated problems.',
+  body: 'My work spans cloud infrastructure, full-stack development, and applied AI. Across all three, I care about the same things: understandable systems, intentional interfaces, and details that hold up beyond the demo.',
+  principles: [
+    'Clarity over cleverness',
+    'Useful over impressive',
+    'Built to be maintained',
+  ],
+};

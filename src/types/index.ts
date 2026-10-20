@@ -52,3 +52,34 @@ export interface Education {
   tag: string;
   logoUrl?: string;
 }
+
+/**
+ * A "what I do" capability card on the homepage work section. `tags` are
+ * pulled from TECH_STACK so the cards stay in sync with the real skill data
+ * rather than duplicating it.
+ */
+export interface Capability {
+  number: string;
+  title: string;
+  copy: string;
+  tags: string[];
+}
+
+/**
+ * A capability card on the /projects index. Unlike `Capability` — which
+ * described an abstract skill area — each of these stands for one real
+ * project and links to its case study, so the card's kicker carries the
+ * discipline ("Cloud architecture") while the title names the project.
+ */
+export interface ProjectCapability {
+  /** The discipline the project demonstrates, e.g. "Cloud architecture". */
+  kicker: string;
+  /** The project's name. */
+  title: string;
+  copy: string;
+  tags: string[];
+  /** Case-study route for this project. */
+  href: string;
+  /** Live demo URL, when the project has one. Opens in a new tab. */
+  demoLink?: string;
+}

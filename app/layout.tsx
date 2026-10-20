@@ -1,46 +1,43 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Fonts (Space Grotesk for UI/headings, JetBrains Mono for the code voice)
+// load via the @import at the top of globals.css, and are exposed as the
+// --sans / --mono tokens rather than being named at each use site.
 
 export const metadata: Metadata = {
-  title: "Shenabeth Jenkins | Portfolio",
-  description: "Full-stack engineer building on AWS",
+  title: "Shenabeth Jenkins — Software Developer",
+  description:
+    "Shenabeth Jenkins — software developer and cloud architect building thoughtful, production-ready systems.",
+};
+
+// themeColor belongs in `viewport`, not `metadata`, in the App Router.
+// `width`/`initialScale` emit the device-width viewport meta; without it
+// phones lay the page out at a ~980px default and scale it down, which cuts
+// off the right edge of the hero.
+export const viewport: Viewport = {
+  themeColor: "#0b0d0c",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <div className="site-background" aria-hidden="true">
-          <div className="site-background-grid" />
-          <div className="site-background-glow-1" />
-          <div className="site-background-glow-2" />
-          <div className="site-background-fade" />
-        </div>
-        <a href="#main-content" className="skip-to-content">
-          Skip to main content
+    <html lang="en" className="dark">
+      <body>
+        <a className="skip-link" href="#main">
+          Skip to content
         </a>
+        {/* The reference's single background layer: one soft radial wash
+            plus faint horizontal rules. Replaces the previous site's
+            blurred glow stack. */}
+        <div className="ambient" aria-hidden="true" />
         <ScrollToTop />
         <NavBar />
-        <div className="relative z-10 flex-grow">
-          <main id="main-content" className="pt-24">{children}</main>
-        </div>
+        <main id="main">{children}</main>
         <Footer />
       </body>
     </html>

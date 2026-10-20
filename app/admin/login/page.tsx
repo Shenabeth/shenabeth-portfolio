@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
             className="uppercase tracking-widest mb-2"
             style={{
               color: 'var(--accent-secondary-bright)',
-              fontFamily: '"DM Mono", monospace',
+              fontFamily: 'var(--mono)',
               fontSize: '0.72rem',
             }}
           >
@@ -92,7 +92,7 @@ export default function AdminLoginPage() {
             <label
               htmlFor="admin-email"
               className="block mb-2 uppercase tracking-widest"
-              style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace', fontSize: '0.72rem' }}
+              style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.72rem' }}
             >
               Email
             </label>
@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
             <label
               htmlFor="admin-password"
               className="block mb-2 uppercase tracking-widest"
-              style={{ color: 'var(--muted)', fontFamily: '"DM Mono", monospace', fontSize: '0.72rem' }}
+              style={{ color: 'var(--muted)', fontFamily: 'var(--mono)', fontSize: '0.72rem' }}
             >
               Password
             </label>

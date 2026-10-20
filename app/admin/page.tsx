@@ -17,7 +17,7 @@ import { PageTitleBanner } from '@/components/shared/PageTitleBanner';
 export default function AdminDashboardPage() {
   return (
     <div className="pb-16">
-      <div className="w-[min(92vw,1320px)] mx-auto" style={{ marginBottom: '2rem' }}>
+      <div className="shell" style={{ marginBottom: '2rem' }}>
         <PageTitleBanner
           kicker="// admin"
           title="Dashboard"
@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="w-[min(92vw,1320px)] mx-auto grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-10">
+      <div className="shell grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-10">
         {/* Existing projects */}
         <section>
           <h2
@@ -48,7 +48,7 @@ export default function AdminDashboardPage() {
                   <p
                     style={{
                       color: 'var(--muted)',
-                      fontFamily: '"DM Mono", monospace',
+                      fontFamily: 'var(--mono)',
                       fontSize: '0.75rem',
                     }}
                   >
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
                     style={{
                       borderColor: 'var(--line-strong)',
                       color: project.status === 'live' ? 'var(--accent-bright)' : 'var(--muted)',
-                      fontFamily: '"DM Mono", monospace',
+                      fontFamily: 'var(--mono)',
                     }}
                   >
                     {project.status ?? 'draft'}
@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
                     className="text-sm transition-colors"
                     style={{ color: 'var(--muted)' }}
                   >
-                    View →
+                    View
                   </Link>
                 </div>
               </li>

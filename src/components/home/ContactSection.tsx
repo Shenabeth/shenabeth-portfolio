@@ -17,7 +17,7 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="w-[min(92vw,1320px)] mx-auto py-28"
+      className="shell py-28"
       style={{ scrollMarginTop: '7rem' }}
     >
       <SectionHeading
@@ -27,7 +27,7 @@ export function ContactSection() {
       />
 
       <div
-        className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-10 md:gap-14 rounded-2xl border p-6 md:p-10"
+        className="grid grid-cols-1 md:grid-cols-[0.85fr_1.15fr] gap-10 md:gap-14 border p-6 md:p-10"
         style={{
           borderColor: 'var(--line)',
           background: 'var(--surface)',
@@ -41,7 +41,7 @@ export function ContactSection() {
               className="uppercase tracking-widest font-medium mb-3"
               style={{
                 color: 'var(--accent-secondary-bright)',
-                fontFamily: '"DM Mono", monospace',
+                fontFamily: 'var(--mono)',
                 fontSize: '0.78rem',
               }}
             >
@@ -64,7 +64,7 @@ export function ContactSection() {
             className="inline-flex items-center gap-3 group self-start"
             style={{
               color: 'var(--text)',
-              fontFamily: '"DM Mono", monospace',
+              fontFamily: 'var(--mono)',
               fontSize: '1rem',
               paddingBottom: '0.4rem',
               borderBottom: '1px dashed var(--line-strong)',
@@ -79,7 +79,7 @@ export function ContactSection() {
               className="uppercase tracking-widest font-medium mb-3"
               style={{
                 color: 'var(--muted)',
-                fontFamily: '"DM Mono", monospace',
+                fontFamily: 'var(--mono)',
                 fontSize: '0.72rem',
               }}
             >

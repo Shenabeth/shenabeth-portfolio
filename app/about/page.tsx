@@ -13,7 +13,7 @@ export default function AboutPage() {
     <div>
       {/* Full-bleed title banner at the very top of the page (no outer
           container), matching the hero treatment. */}
-      <div className="w-[min(92vw,1320px)] mx-auto">
+      <div className="shell">
         <PageTitleBanner
           kicker="// about.json"
           title="About"
@@ -21,7 +21,7 @@ export default function AboutPage() {
         />
       </div>
 
-      <div className="w-[min(92vw,1320px)] mx-auto">
+      <div className="shell">
         <EducationSection />
         <CertificationsSection />
         <SkillsSection />
