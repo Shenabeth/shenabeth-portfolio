@@ -3,13 +3,16 @@
  * Purpose: A captioned image grid for a case study — process shots, wireframes,
  *          and other figures that document the work but don't each need a
  *          write-up. Images are optional so the layout is complete before
- *          screenshots are added; every tile shares one aspect ratio and
- *          cover-fit so the grid stays even.
+ *          screenshots are added; every tile shares one aspect ratio so the
+ *          grid stays even, and each image is contained inside it rather
+ *          than cropped, over the `.figure-plate` hatch.
  */
 
 'use client';
 
 import { motion } from 'framer-motion';
+
+import { splitFigureCaption } from '@/lib/figure-caption';
 
 export interface GalleryItem {
   /** Optional image URL (served from /public). When omitted, a frame shows. */
@@ -52,9 +55,11 @@ export function GallerySection({ items }: GallerySectionProps): React.ReactEleme
       viewport={{ once: true, margin: '-60px' }}
       variants={gridVariants}
     >
-      {items.map((item, i) => (
+      {items.map((item, i) => {
+        const { label, rest } = splitFigureCaption(item.caption);
+        return (
         <motion.figure key={item.caption + i} className="gallery-tile" variants={tileVariants}>
-          <div className="gallery-tile-media">
+          <div className="gallery-tile-media figure-plate">
             {item.image ? (
               /* eslint-disable-next-line @next/next/no-img-element -- static asset */
               <img src={item.image} alt={item.caption} className="gallery-tile-img" />
@@ -64,9 +69,13 @@ export function GallerySection({ items }: GallerySectionProps): React.ReactEleme
               </div>
             )}
           </div>
-          <figcaption className="gallery-tile-caption">{item.caption}</figcaption>
+          <figcaption className="gallery-tile-caption">
+            {label && <span className="figure-label">{label} </span>}
+            {rest}
+          </figcaption>
         </motion.figure>
-      ))}
+        );
+      })}
     </motion.div>
   );
 }

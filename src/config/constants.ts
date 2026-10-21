@@ -234,7 +234,7 @@ export const PROJECT_CAPABILITIES: ProjectCapability[] = [
   {
     kicker: 'Cloud architecture',
     title: 'Portfolio Site',
-    copy: 'Secure, scalable AWS foundations designed around real operational needs — not diagram-driven complexity. I costed a serverless design, rejected it for a static site, and shipped on Amplify with monitoring from day one.',
+    copy: 'Secure, scalable AWS foundations built around real operational needs, not diagram-driven complexity. A serverless design was costed out, dropped in favor of a static site, and shipped on Amplify with monitoring from day one.',
     tags: ['AWS Amplify', 'Route 53', 'CloudWatch', 'Next.js'],
     href: '/projects/portfolio-site',
     demoLink: '/',
@@ -250,7 +250,7 @@ export const PROJECT_CAPABILITIES: ProjectCapability[] = [
   {
     kicker: 'AI systems',
     title: 'Dog Game',
-    copy: 'Purpose-built behavior with clear boundaries, practical guardrails, and maintainable logic — here as the targeting, pathing, and wave systems driving a tower defense in Unity.',
+    copy: 'Purpose-built behavior with clear boundaries, practical guardrails, and maintainable logic, shown here as the targeting, pathing, and wave systems driving a tower defense in Unity.',
     tags: ['Unity', 'C#', 'Game AI', 'Systems'],
     href: '/projects/dog-game',
     demoLink: 'https://dog-game-demo.vercel.app/',
@@ -273,7 +273,7 @@ export const MORE_PROJECT_CAPABILITIES: ProjectCapability[] = [
   {
     kicker: 'Applied machine learning',
     title: 'Depth & Contact Prediction AI',
-    copy: 'A deep-learning model that reads soft tactile sensor images and predicts contact area and a depth map together — recovering 3D geometry from a picture of a touch.',
+    copy: 'A deep-learning model that reads soft tactile sensor images and predicts contact area and a depth map together, recovering 3D geometry from a picture of a touch.',
     tags: ['Python', 'Deep Learning', 'Haptics'],
     href: '/projects/depth-contact-ai',
   },

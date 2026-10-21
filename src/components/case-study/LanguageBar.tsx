@@ -47,12 +47,16 @@ export function LanguageBar({ languages }: LanguageBarProps): React.ReactElement
       <p className="language-bar-title">Languages</p>
 
       {/* Segmented bar. The track animates its width from 0 so the whole bar
-          "draws" in; each segment is a flex child sized by its percentage. */}
+          "draws" in; each segment is a flex child sized by its percentage.
+          This block sits at the top of the first section, so it animates on
+          mount rather than on scroll. whileInView was unreliable here: when
+          the bar is already on screen at load (common on smaller viewports),
+          the enter animation sometimes never fired, leaving the track stuck
+          at scaleX: 0 and invisible until a resize re-ran the measurement. */}
       <motion.div
         className="language-bar-track"
         initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, margin: '-60px' }}
+        animate={{ scaleX: 1 }}
         transition={{ duration: 0.7, ease: 'easeInOut' }}
         style={{ transformOrigin: 'left' }}
       >
@@ -70,8 +74,7 @@ export function LanguageBar({ languages }: LanguageBarProps): React.ReactElement
       <motion.ul
         className="language-bar-legend"
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
+        animate="visible"
         variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06, delayChildren: 0.3 } } }}
       >
         {languages.map((lang) => (

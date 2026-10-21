@@ -3,6 +3,7 @@ import "./globals.css";
 import { NavBar } from "@/components/layout/NavBar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { ClippyProvider, ClippyDock } from "@/components/home/ClippyAssistant";
 
 // Fonts (Space Grotesk for UI/headings, JetBrains Mono for the code voice)
 // load via the @import at the top of globals.css, and are exposed as the
@@ -36,9 +37,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             blurred glow stack. */}
         <div className="ambient" aria-hidden="true" />
         <ScrollToTop />
-        <NavBar />
-        <main id="main">{children}</main>
-        <Footer />
+        <ClippyProvider>
+          <NavBar />
+          <main id="main">{children}</main>
+          <Footer />
+          <ClippyDock />
+        </ClippyProvider>
       </body>
     </html>
   );

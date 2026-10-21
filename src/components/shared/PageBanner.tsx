@@ -21,10 +21,24 @@ interface PageBannerProps {
   /** Filename for the `~/portfolio/` path label. */
   file: string;
   title: string;
-  /** Optional lede under the title. */
+  /** Optional lede under the title. `**text**` renders bold. */
   lede?: string;
   /** Optional trailing content, e.g. a row of action buttons. */
   children?: React.ReactNode;
+}
+
+/**
+ * Split a lede on `**bold**` spans so a config string can emphasize a phrase
+ * (a product or game title, say) without the config holding markup.
+ *
+ * @param text - Lede text, optionally containing `**bold**` runs
+ * @returns Text and <strong> nodes in source order
+ */
+function renderEmphasis(text: string): React.ReactNode[] {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    /* Odd indices are the captured groups, i.e. the bolded runs. */
+    i % 2 === 1 ? <strong key={i}>{part}</strong> : part,
+  );
 }
 
 /**
@@ -53,7 +67,7 @@ export function PageBanner({ file, title, lede, children }: PageBannerProps) {
           <span className="section-label__path">~/portfolio/{file}</span>
         </div>
         <h1 className="page-banner__title">{title}</h1>
-        {lede && <p className="page-banner__lede">{lede}</p>}
+        {lede && <p className="page-banner__lede">{renderEmphasis(lede)}</p>}
         {children}
       </motion.div>
     </header>

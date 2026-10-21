@@ -20,7 +20,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Mail, Sparkles } from 'lucide-react';
 import { SocialLinks } from '@/components/shared/SocialLinks';
 import { SkillsCard } from '@/components/shared/SkillsCard';
-import { ClippyAssistant } from './ClippyAssistant';
+import { ScrambleText } from '@/components/shared/ScrambleText';
+import { ClippyHeroFigure } from './ClippyAssistant';
 import {
   CONTACT_EMAIL,
   FEATURED_PROJECTS,
@@ -93,9 +94,9 @@ const CREDENTIALS = [
 
 /** Intro sentences cycled by the hero typewriter. */
 const INTRO_LINES = [
-  'I turn complex technical requirements into considered, production-ready software — from cloud foundations to the interfaces people use every day.',
-  'I design and build cloud infrastructure and full-stack applications, turning hard requirements into scalable, maintainable systems.',
-  'I care about understandable systems, intentional interfaces, and details that hold up well beyond the demo.',
+  'I can adapt to whatever a project calls for, whether that means cloud architecture, full stack development, or building something from a blank page.',
+  'I can work comfortably across infrastructure, software, and design, picking up whatever a team needs without losing momentum.',
+  'I enjoy planning out how a system should be architected before a single line of code gets written.',
 ];
 
 /** The longest line, used to reserve the paragraph's height (see Typewriter). */
@@ -234,7 +235,9 @@ export function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="hero__name">Shenabeth Jenkins</h1>
+          <h1 className="hero__name">
+            <ScrambleText text="Shenabeth Jenkins" />
+          </h1>
           <p className="hero__role">Software Developer &amp; Cloud Architect</p>
           <Typewriter />
           <div className="hero__actions">
@@ -254,7 +257,7 @@ export function LandingPage() {
           animate={{ opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.75, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
         >
-          <ClippyAssistant />
+          <ClippyHeroFigure />
         </motion.div>
 
       </section>

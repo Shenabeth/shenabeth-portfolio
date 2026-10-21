@@ -33,7 +33,7 @@ export default function ProjectsPage() {
       <section className="section shell">
         <PathLabel>featured.tsx</PathLabel>
         <div className="section-heading">
-          <h2>Featured work</h2>
+          <h2>Featured Work</h2>
           <p>
             The three projects I would want to walk someone through: a rebuild, a
             platform, and a game that taught me more about scope than any of them.
@@ -53,7 +53,7 @@ export default function ProjectsPage() {
           <div className="shell">
             <PathLabel>archive.tsx</PathLabel>
             <div className="section-heading">
-              <h2>Also built</h2>
+              <h2>More Projects</h2>
               <p>
                 Coursework and research projects that are smaller in scope but were worth
                 writing up.

@@ -1,9 +1,10 @@
 /*
  * File: ProjectVisual.tsx
  * Purpose: The media that fills a featured-project card's visual panel. If the
- *          project supplies an `imageUrl`, that screenshot is shown (cover-fit,
- *          so every card's image occupies the same frame regardless of the
- *          source image's own dimensions). Otherwise a hand-built, on-brand
+ *          project supplies an `imageUrl`, that screenshot is shown contained
+ *          in the panel — the whole shot stays visible whatever its native
+ *          ratio, and the panel's hatch fills the margins. Otherwise a
+ *          hand-built, on-brand
  *          illustration is rendered as a finished stand-in — not a "replace me"
  *          placeholder. Each known project id has its own illustration so the
  *          panel always communicates what the project is.

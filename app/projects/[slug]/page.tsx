@@ -3,8 +3,9 @@
  * Purpose: Dynamic case study route /projects/[slug]. Looks up the slug
  *          in the case-studies config and composes the modular sections
  *          each project declares, in a fixed order (tech stack, overview,
- *          why-built, impact, team, controls, showcase, features, gallery,
- *          lessons). A project only renders the sections it provides, so a
+ *          play, controls, why-built, architecture, impact, team, showcase,
+ *          features, gallery, lessons). A project only renders the sections
+ *          it provides, so a
  *          code-heavy project and a game read very differently from the
  *          same template.
  *
@@ -31,12 +32,18 @@ import { PdfSection } from '@/components/case-study/PdfSection';
 import { LessonsSection } from '@/components/case-study/LessonsSection';
 import { ArchitectureSection } from '@/components/case-study/ArchitectureSection';
 import { PlayDemoSection } from '@/components/case-study/PlayDemoSection';
+import { ArrowUpRight } from 'lucide-react';
 import { PageBanner } from '@/components/shared/PageBanner';
 import { ActionLink } from '@/components/shared/ActionLink';
 import { getCaseStudy, getAllCaseStudySlugs } from '@/config/case-studies';
 
 interface CaseStudyPageProps {
   params: Promise<{ slug: string }>;
+}
+
+/** True for an off-site URL, so the link opens in a new tab. */
+function isExternal(href: string): boolean {
+  return /^https?:\/\//i.test(href);
 }
 
 /**
@@ -109,12 +116,22 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     });
   }
 
+  /* Directly under "Play It": a reader who just opened the build needs the
+     keys next, not after the whole write-up. */
+  if (study.controls && study.controls.length > 0) {
+    sections.push({
+      file: 'controls.md',
+      title: 'Controls',
+      body: <ControlsSection controls={study.controls} />,
+    });
+  }
+
   if (study.problem) {
     sections.push({
       file: 'why-built.md',
       title: 'Why I Built It',
       description:
-        'The old version was a hand-coded static site. This rebuild makes it modular and gives me a deploy pipeline I control.',
+        'The old version was a hand-coded static site. The rebuild makes it modular and runs on a deploy pipeline that is fully controlled.',
       body: (
         <ProblemSection before={study.problem.before} after={study.problem.after} />
       ),
@@ -128,7 +145,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       file: 'architecture.md',
       title: 'Architecture',
       description:
-        'What I planned to build on AWS, what I actually built, and why the two are different.',
+        'The AWS design that was planned, the one that shipped, and why they are different.',
       body: <ArchitectureSection content={study.architecture} />,
     });
   }
@@ -151,11 +168,11 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     });
   }
 
-  if (study.controls && study.controls.length > 0) {
+  if (study.features && study.features.length > 0) {
     sections.push({
-      file: 'controls.md',
-      title: 'Controls',
-      body: <ControlsSection controls={study.controls} />,
+      file: 'features.md',
+      title: 'Key Features',
+      body: <FeaturesSection features={study.features} />,
     });
   }
 
@@ -165,14 +182,6 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       title: study.showcase.title ?? 'Showcase',
       description: study.showcase.description,
       body: <ShowcaseSection items={study.showcase.items} />,
-    });
-  }
-
-  if (study.features && study.features.length > 0) {
-    sections.push({
-      file: 'features.md',
-      title: 'Key Features',
-      body: <FeaturesSection features={study.features} />,
     });
   }
 
@@ -202,6 +211,16 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     });
   }
 
+  /*
+   * The closing card offers a live-demo button, but only for projects that
+   * actually have a runnable build. A project's links can include a writeup
+   * ("View Project") that is not a demo, so match on the label: "demo" or
+   * "play" marks a real live/playable build. Each project keeps its own link.
+   */
+  const demoLink = study.links?.find((l) =>
+    /demo|play/i.test(l.label),
+  );
+
   return (
     <>
       <PageBanner file={`${slug}.md`} title={study.title} lede={study.summary}>
@@ -224,11 +243,31 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       ))}
 
       {/* Closes the page back out to the rest of the work rather than
-          ending on the last section's body. */}
+          ending on the last section's body. A small bordered card so the
+          links do not float alone in empty space. The live-demo button only
+          appears for projects that actually have a demo to view, and points
+          at that project's own demo. */}
       <section className="shell case-study-outro">
-        <ActionLink href="/projects" variant="secondary">
-          View All Projects
-        </ActionLink>
+        <div className="case-study-outro-card">
+          <h2 className="case-study-outro-title">
+            {demoLink ? 'Try It, Or Keep Exploring' : 'Keep Exploring'}
+          </h2>
+          <p className="case-study-outro-text">
+            {demoLink
+              ? 'Open the live build, or head back to the full list of work.'
+              : 'Head back to the full list of work.'}
+          </p>
+          <div className="case-study-outro-actions">
+            {demoLink && (
+              <ActionLink href={demoLink.href} external={isExternal(demoLink.href)}>
+                {demoLink.label} <ArrowUpRight />
+              </ActionLink>
+            )}
+            <ActionLink href="/projects" variant="secondary">
+              View All Projects
+            </ActionLink>
+          </div>
+        </div>
       </section>
     </>
   );

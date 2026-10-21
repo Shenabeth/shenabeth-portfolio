@@ -87,6 +87,10 @@ function ActiveUnderline() {
   );
 }
 
+/* Matches the `max-width: 980px` breakpoint in globals.css where the
+ * desktop link row gives way to the hamburger. */
+const HAMBURGER_BREAKPOINT = '(max-width: 980px)';
+
 export function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
@@ -94,6 +98,8 @@ export function NavBar() {
   const [activeSection, setActiveSection] = useState('home');
   const observerRef = useRef<IntersectionObserver | null>(null);
   const closeTimer = useRef<number | null>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const mobileNavRef = useRef<HTMLElement>(null);
   /*
    * While a click-initiated smooth scroll is in flight, this holds the id
    * the viewer asked for. The observer fires for every section the page
@@ -149,6 +155,41 @@ export function NavBar() {
     [],
   );
 
+  /** Close the hamburger menu and reset its Projects disclosure. */
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setMobileProjectsOpen(false);
+  };
+
+  // Collapse the hamburger menu the moment the viewer does anything other
+  // than use it: click outside it, start scrolling, or widen the window past
+  // the breakpoint where the full link row returns.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (headerRef.current?.contains(target)) return;
+      if (mobileNavRef.current?.contains(target)) return;
+      closeMenu();
+    };
+    const handleScroll = () => closeMenu();
+    const mediaQuery = window.matchMedia(HAMBURGER_BREAKPOINT);
+    const handleBreakpointChange = (event: MediaQueryListEvent) => {
+      if (!event.matches) closeMenu();
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    mediaQuery.addEventListener('change', handleBreakpointChange);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('scroll', handleScroll);
+      mediaQuery.removeEventListener('change', handleBreakpointChange);
+    };
+  }, [menuOpen]);
+
   /** On the homepage anchors work as-is; elsewhere they route home first. */
   const resolve = (href: string) => (onHome ? href : `/${href}`);
 
@@ -182,12 +223,6 @@ export function NavBar() {
     }, 1200);
   };
 
-  /** Close the hamburger menu and reset its Projects disclosure. */
-  const closeMenu = () => {
-    setMenuOpen(false);
-    setMobileProjectsOpen(false);
-  };
-
   /*
    * The submenu stays open while the pointer travels from the trigger to the
    * panel: closing is deferred briefly so the gap between them does not
@@ -205,7 +240,7 @@ export function NavBar() {
 
   return (
     <>
-      <header className="site-header">
+      <header className="site-header" ref={headerRef}>
         <a className="brand" href={resolve('#home')} aria-label="Shenabeth Jenkins, home">
           <span className="brand__mark">
             <BrandMark />
@@ -306,6 +341,7 @@ export function NavBar() {
           <motion.nav
             className="mobile-nav"
             aria-label="Mobile navigation"
+            ref={mobileNavRef}
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}

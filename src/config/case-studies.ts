@@ -79,7 +79,11 @@ const LANG_COLOR = {
   html: '#e34c26',
   plpgsql: '#336790',
   csharp: '#178600',
-  shaderlab: '#222c37',
+  /* GitHub's own ShaderLab color (#222c37) is a near-black slate that
+     disappears against this site's dark surfaces, so the bar segment and its
+     legend dot both read as empty. Lightened to a legible steel blue that
+     still stays in ShaderLab's hue family. */
+  shaderlab: '#6f8fae',
   hlsl: '#aace60',
 } as const;
 
@@ -88,39 +92,39 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
     slug: 'portfolio-site',
     title: 'Portfolio Site',
     summary:
-      'My first portfolio was a hand-coded HTML, CSS, and Bootstrap site hosted for free on GitHub Pages. It worked, but every page had its own copy of the same markup, so the smallest change meant editing the same thing in several files. I rebuilt it as a modular Next.js app on AWS Amplify — one set of reusable components, project pages generated from a single template, and a deploy pipeline I run and understand end to end.',
+      'The first version of this portfolio was a hand-coded HTML, CSS, and Bootstrap site hosted for free on GitHub Pages. It worked, but every page had its own copy of the same markup, so the smallest change meant editing the same thing in several files. The rebuild is a modular Next.js app on AWS Amplify: one set of reusable components, project pages generated from a single template, and a deploy pipeline that is fully understood end to end.',
     links: [
       { label: 'Live Demo', href: '/', primary: true },
       { label: 'View Source', href: 'https://github.com/Shenabeth/shenabeth-portfolio' },
     ],
     /*
-     * Architecture diagrams. Drop the images in
-     * /public/projects/portfolio-site/ as architecture-considered.png and
-     * architecture-shipped.png and set the `image` fields below — until
-     * then each frame renders a placeholder at the same size, so the
-     * section is complete and nothing shifts when the art arrives.
+     * Architecture diagrams live in /public/projects/portfolio-site/ as
+     * architecture-old.svg and architecture-new.svg. Clicking a frame opens
+     * a zoomable lightbox. The two stages render side by side with no arrow:
+     * the shipped stage carries a green border to mark it as the one that
+     * was used.
      */
     architecture: {
       intro:
-        'I planned this site as a serverless application before I built it as a static one. The first design put the pages in S3 behind CloudFront, with Lambda functions and a DynamoDB table standing behind an API Gateway for the contact form and project data. It would have worked, and it would have been a better portfolio piece on paper. It was also more AWS than the problem needed: a handful of Lambdas, a table, and an API to keep patched and monitored, for a site whose content changes when I edit a TypeScript file. I moved to Amplify instead — the cost and the operational surface both dropped to near nothing, and the deploy story got simpler without the site losing anything a visitor can see.',
+        'This site was first planned as a serverless backend: files in S3 behind CloudFront, with Lambda, API Gateway, and DynamoDB behind them for the contact form and project data. That design works, but it is a lot of separate pieces to set up and keep healthy. Amplify replaces all of it with one fully managed service that builds, deploys, and serves the site on its own, for the same result a visitor sees and far less to maintain.',
       stages: [
         {
           label: '// considered',
-          title: 'Serverless on S3, Lambda, and DynamoDB',
+          title: 'The Old Plan',
+          image: '/projects/portfolio-site/architecture-old.svg',
           caption:
-            'Static assets in S3 behind CloudFront, with API Gateway routing to Lambda functions and project content plus contact submissions in DynamoDB. Rejected before implementation: the per-service cost and the number of moving pieces to manage were not justified for a site with no real backend work to do.',
-          services: ['S3', 'CloudFront', 'API Gateway', 'Lambda', 'DynamoDB'],
+            'A serverless backend: static files in S3 behind CloudFront, with API Gateway routing to Lambda functions and both project content and contact submissions in DynamoDB. Every piece is set up and monitored separately, which is more than a site with no real backend work needs.',
         },
         {
           label: '// shipped',
-          title: 'Amplify hosting with Route 53',
+          title: 'The New Plan',
+          image: '/projects/portfolio-site/architecture-new.svg',
           caption:
-            'AWS Amplify builds and serves the Next.js app, pulling from GitHub on every push to main. Route 53 handles DNS for the custom domain, and an AWS Budget plus a CloudWatch billing alarm watch the spend. One service to manage, and hosting that lands around a few cents a month.',
-          services: ['AWS Amplify', 'Route 53', 'CloudWatch', 'GitHub CI'],
+            'One fully managed service. Amplify builds and serves the Next.js app, pulling from GitHub on every push to main. Route 53 handles DNS for the custom domain, and an AWS Budget plus a CloudWatch billing alarm watch the spend. Hosting lands around 60 cents a month.',
         },
       ],
       note:
-        'The tradeoff I would defend in an interview: the serverless design was the more impressive diagram, but there was no dynamic workload behind it. Choosing the simpler architecture cost nothing a user experiences and removed four services I would otherwise be responsible for keeping healthy.',
+        'The old plan needed five services wired together and watched (S3, CloudFront, API Gateway, Lambda, DynamoDB). The new plan runs on Amplify, one fully managed service that builds, deploys, and hosts the site, with Route 53 for the domain and Amazon CloudWatch keeping an eye on the bill. Same result for a visitor, far less to maintain.',
     },
     languages: [
       { name: 'TypeScript', percent: 96.8, color: LANG_COLOR.typescript },
@@ -138,11 +142,11 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       },
       {
         label: 'Hosting & Ops',
-        items: ['AWS Amplify', 'CloudWatch', 'Route 53'],
+        items: ['AWS Amplify', 'Amazon CloudWatch', 'Route 53', 'Ionos'],
       },
       {
         label: 'Tooling',
-        items: ['Git', 'GitHub', 'ESLint', 'Figma'],
+        items: ['Git', 'GitHub', 'Figma', 'Lucidchart'],
       },
     ],
     problem: {
@@ -151,8 +155,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         heading: 'A hand-coded static site',
         points: [
           'Plain HTML with CSS and Bootstrap, hosted free on GitHub Pages',
-          'No components — the nav, footer, and cards were copied into every page',
-          'Changing one shared element meant editing the same markup in several files',
+          'Nothing was reusable. The nav, footer, and cards were copied into every page, so one change meant editing the same markup in several files',
           'Styling was global and hard to keep consistent as pages were added',
         ],
       },
@@ -161,36 +164,36 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         heading: 'A modular Next.js app',
         points: [
           'Every section is a typed, reusable React component, so a change lands in one place',
-          'Project pages are generated from a single case-study template fed by a config file — adding a project is adding data, not building a page',
-          'A shared design-token layer keeps color, type, and spacing consistent across every page',
+          'Project pages are generated from a single template fed by a config file, so adding a project means adding content, not building a page',
+          'Colors, fonts, and spacing are defined once and reused everywhere, so the whole site stays consistent',
           'Deployed on AWS Amplify with automatic builds on each push to main, served on a custom domain through Route 53',
         ],
       },
     },
     impact: [
       {
-        value: '~$0.03',
+        value: '~$0.60',
         label: 'Projected hosting / month',
         description:
-          'Amplify hosting for a site this size lands around a few cents a month, tracked with an AWS Budget and a CloudWatch billing alarm.',
+          'Amplify hosting plus the Route 53 domain run about 60 cents a month, tracked with an AWS Budget and a billing alarm.',
       },
       {
-        value: '1 template',
-        label: 'Drives every project page',
+        value: '5 projects',
+        label: 'One template behind each',
         description:
-          'A single case-study template renders every project page from a config entry, so each new project is a data change instead of a new hand-built page.',
+          'Every project page on the site runs on the same template, so a new one is new content in a config file, not a new page to build.',
       },
       {
         value: '0 steps',
-        label: 'Manual deploy work',
+        label: 'No deploy work',
         description:
-          'Amplify builds and publishes automatically from GitHub on every push to main — no manual upload.',
+          'A push to GitHub triggers the full build and release on Amplify. The hosting takes no hands-on work after that.',
       },
     ],
     features: [
       {
         title: 'Template-driven project pages',
-        body: 'Each project page is composed from modular sections (tech stack, before/after, impact, features, lessons) keyed off a single config file. Adding a project means adding a config entry, not building a page.',
+        body: 'Every project page is built from the same set of section cards: tech stack, before and after, impact, features, and lessons. Adding a project today means writing its content in one config file instead of building a new page. A planned login through Amazon Cognito will take that one step further, so new project pages can be created right from the site without any code changes.',
       },
       {
         title: 'One component system',
@@ -198,18 +201,18 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       },
       {
         title: 'Continuous deployment on Amplify',
-        body: 'Pushing to main triggers an Amplify build that compiles the Next.js app and publishes it — the same model as the old GitHub Pages site, but with full control over the pipeline.',
+        body: 'A push to main triggers an Amplify build that compiles the Next.js app and publishes it. Same model as the old GitHub Pages site, with full control over the pipeline.',
       },
       {
         title: 'Cost monitoring from day one',
-        body: 'An AWS Budget and a CloudWatch billing alarm watch the account so there are no surprises — useful practice for the Solutions Architect work this project supports.',
+        body: 'An AWS Budget and a CloudWatch billing alarm watch the account so there are no surprises, which is useful practice for the Solutions Architect work this project supports.',
       },
     ],
     lessons: [
-      'Deciding component boundaries before writing JSX saved far more time than it cost.',
-      'A shared layout plus a config-driven page template turns "add a project" into a five-minute change.',
-      'Amplify made the deploy story simpler than the serverless stack I originally planned, with nothing lost for a static site.',
-      'Setting a budget and billing alarm early is the cheapest insurance in all of AWS.',
+      'Splitting the site into reusable section cards before building anything was what made every page fast and easy to put together.',
+      'Running all of the project pages off of one template means a new project is mostly just writing its content, instead of more code editing work in the codebase.',
+      'The fully-managed Amplify setup was easier than expected, so the larger serverless plan was not worth the extra pieces to maintain.',
+      'A budget and a billing alarm set up on day one are the cheapest way to avoid a surprise AWS charge.',
     ],
   },
 
@@ -303,7 +306,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
     slug: 'dog-game',
     title: 'Dog Game',
     summary:
-      'What’s the Dog Doing? is a 3D tower-defense game where you play as Doge, a post-apocalyptic dog defending the last skyscraper of his owner’s world from endless waves of cats. You explore the map, collect bones, and place turrets and traps to hold the line as each wave gets harder. It was a five-person team project, and I led it while handling our sound, assets, UI, and Doge’s movement. The game is unfinished, but there’s a playable WebGL build you can try in the browser.',
+      '**What’s the Dog Doing?** is a 3D tower-defense game where you play as Doge, a post-apocalyptic dog defending the last skyscraper of his owner’s world from endless waves of cats. You explore the map, collect bones, and place turrets and traps to hold the line as each wave gets harder.',
     links: [
       { label: 'Play The Game', href: 'https://dog-game-demo.vercel.app/', primary: true },
     ],
@@ -316,10 +319,12 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
     playable: {
       href: 'https://dog-game-demo.vercel.app/',
       label: 'Play The Demo',
-      copy: 'The WebGL build runs in the browser — no install, no Unity, no download. Use WASD to move Doge, collect bones, and place turrets before the next wave of cats arrives. The game is unfinished, so expect rough edges, but the core loop is all there and playable.',
+      copy: 'The WebGL build runs in the browser — no install, no Unity, no download. Move Doge around the map, collect bones, and place turrets before the next wave of cats arrives. The game is unfinished, so expect rough edges, but the core loop is all there and playable. The full control legend is right below this block.',
+      /* No "Controls" row here: the Controls section now sits directly under
+         this block, so these notes cover what the legend doesn't. */
       notes: [
         { label: 'Platform', value: 'Browser (WebGL) — desktop recommended' },
-        { label: 'Controls', value: 'WASD to move, mouse to place and aim' },
+        { label: 'Built with', value: 'Unity · C# · Blender' },
         { label: 'Build state', value: 'Playable prototype, not a finished game' },
       ],
     },
@@ -369,8 +374,9 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         contribution: 'Designed the map, textures, and environment assets.',
       },
       {
-        role: 'Upgrades & Abilities Programmer',
-        contribution: 'Created the skill trees, abilities, and power-up mechanics.',
+        role: 'Version Control & Floating Support',
+        contribution:
+          'Owned the Git repository — branches, merges, and resolving the conflicts that came with five people working in one Unity project. Floated between the other roles as needed, picking up whatever was behind and helping each of us land our systems in the build.',
       },
     ],
     controls: [
@@ -449,11 +455,11 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         'Concepting, wireframes, and the systems we built along the way. I handled much of the UI and asset work on the team.',
       items: [
         {
-          image: '/projects/dog-game/turret-test.png',
+          image: '/projects/dog-game/turret-test.gif',
           caption: 'Figure 7. Testing turret placement and damage.',
         },
         {
-          image: '/projects/dog-game/spike-trap-test.png',
+          image: '/projects/dog-game/spike-trap-test.gif',
           caption: 'Figure 8. Testing the spike trap on enemies.',
         },
         {
@@ -461,42 +467,38 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
           caption: 'Figure 9. The team’s first cannon wireframe.',
         },
         {
-          image: '/projects/dog-game/cannon-test.png',
+          image: '/projects/dog-game/cannon-test.gif',
           caption: 'Figure 10. Testing a turret, spike trap, and finally the cannon.',
         },
         {
-          image: '/projects/dog-game/pea-shooter-test.png',
+          image: '/projects/dog-game/pea-shooter-test.gif',
           caption: 'Figure 11. Early testing of the pea shooter.',
         },
         {
-          image: '/projects/dog-game/bomb.png',
+          image: '/projects/dog-game/bomb.gif',
           caption: 'Figure 12. Early testing of the bomb.',
         },
         {
-          image: '/projects/dog-game/enemy-kill-test.png',
-          caption: 'Figure 13. Killing enemies to collect bones.',
+          image: '/projects/dog-game/enemy-waves-test.gif',
+          caption: 'Figure 13. Testing how enemy waves play out.',
         },
         {
-          image: '/projects/dog-game/ui-wireframe.png',
-          caption: 'Figure 14. Our first in-game UI wireframe.',
-        },
-        {
-          image: '/projects/dog-game/inventory.png',
-          caption: 'Figure 15. The inventory system, built first.',
-        },
-        {
-          image: '/projects/dog-game/shop.png',
-          caption: 'Figure 16. The shop, for buying defense items.',
+          image: '/projects/dog-game/shop.gif',
+          caption: 'Figure 14. The shop, for buying defense items.',
         },
         {
           image: '/projects/dog-game/bullets.png',
-          caption: 'Figure 17. Custom bullets with Doge-face detailing.',
+          caption: 'Figure 15. Custom bullets with Doge-face detailing.',
+        },
+        {
+          image: '/projects/dog-game/mvp.png',
+          caption: 'Figure 16. The final prototype MVP, with the wave counter, bone count, and item bar.',
         },
       ],
     },
     lessons: [
-      'Leading a five-person team meant the design only stayed coherent when assignments and the shared aesthetic were clear up front.',
-      'Readable feedback on placement, targeting, and damage mattered as much as the mechanics themselves — players need to see what’s happening.',
+      'Version control held the project together. Five people building separate systems in one Unity project broke the main build often, and careful branching and merging was what kept the pieces fitting.',
+      'The economy started out of balance. Cats killed the player faster than bones came in, so the difficulty had to drop a lot before anyone could afford a defense. The demo is still too hard, and easing it further is the first fix.',
       'Iterative playtesting is what tuned wave pacing and difficulty into a curve that challenges without frustrating.',
       'Small touches like custom Doge-face bullets are invisible in motion, but they’re the polish that makes a game feel cared for.',
     ],

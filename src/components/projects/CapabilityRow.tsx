@@ -7,8 +7,8 @@
  *          an abstract skill area.
  *
  *          Rendered twice on that page with different data: a three-card
- *          row under "Featured work" and a two-card row under "Also
- *          built". The grid takes its column count from the number of
+ *          row under "Featured Work" and a two-card row under "More
+ *          Projects". The grid takes its column count from the number of
  *          cards, so a two-card row fills the width as two halves instead
  *          of leaving a gap where a third card used to be.
  *

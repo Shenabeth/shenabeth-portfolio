@@ -6,12 +6,17 @@
  *          type in a game, or each surface of an app). Images are optional: a
  *          card with no `image` shows a captioned frame instead, so the page is
  *          complete before screenshots are dropped in. Every figure uses the
- *          same fixed aspect ratio and cover-fit, so cards stay uniform.
+ *          same fixed aspect ratio so cards stay uniform, with the image
+ *          contained inside it (never cropped) over the `.figure-plate`
+ *          hatch, so the full design is visible and the letterbox margins
+ *          carry the page banner's pattern.
  */
 
 'use client';
 
 import { motion } from 'framer-motion';
+
+import { splitFigureCaption } from '@/lib/figure-caption';
 
 export interface ShowcaseItem {
   /** Card heading, e.g. "Turrets". */
@@ -60,7 +65,7 @@ export function ShowcaseSection({ items }: ShowcaseSectionProps): React.ReactEle
     >
       {items.map((item) => (
         <motion.figure key={item.title} className="showcase-card" variants={cardVariants}>
-          <div className="showcase-card-media">
+          <div className="showcase-card-media figure-plate">
             {item.image ? (
               /* eslint-disable-next-line @next/next/no-img-element -- static
                  asset; the site uses plain <img> throughout for the Amplify
@@ -75,7 +80,14 @@ export function ShowcaseSection({ items }: ShowcaseSectionProps): React.ReactEle
           <figcaption className="showcase-card-body">
             <h3 className="showcase-card-title">{item.title}</h3>
             <p className="showcase-card-text">{item.body}</p>
-            {item.caption && <p className="showcase-card-caption">{item.caption}</p>}
+            {item.caption && (
+              <p className="showcase-card-caption">
+                {splitFigureCaption(item.caption).label && (
+                  <span className="figure-label">{splitFigureCaption(item.caption).label} </span>
+                )}
+                {splitFigureCaption(item.caption).rest}
+              </p>
+            )}
           </figcaption>
         </motion.figure>
       ))}

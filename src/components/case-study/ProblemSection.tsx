@@ -47,30 +47,16 @@ export function ProblemSection({ before, after }: ProblemSectionProps): React.Re
         viewport={{ once: true, margin: '-60px' }}
         variants={colVariants}
       >
-        <p className="problem-col-label">{before.label}</p>
-        <h3 className="problem-col-heading">{before.heading}</h3>
+        <div className="problem-col-head">
+          <p className="problem-col-label">{before.label}</p>
+          <h3 className="problem-col-heading">{before.heading}</h3>
+        </div>
         <ul className="problem-col-points">
           {before.points.map((p) => (
             <li key={p}>{p}</li>
           ))}
         </ul>
       </motion.div>
-
-      <div className="problem-arrow" aria-hidden="true">
-        <svg viewBox="0 0 48 24" fill="none">
-          <motion.path
-            d="M2 12 H44 M36 4 L44 12 L36 20"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            initial={{ pathLength: 0 }}
-            whileInView={{ pathLength: 1 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 1, ease: 'easeInOut' }}
-          />
-        </svg>
-      </div>
 
       <motion.div
         className="problem-col problem-col--after"
@@ -80,8 +66,10 @@ export function ProblemSection({ before, after }: ProblemSectionProps): React.Re
         viewport={{ once: true, margin: '-60px' }}
         variants={colVariants}
       >
-        <p className="problem-col-label">{after.label}</p>
-        <h3 className="problem-col-heading">{after.heading}</h3>
+        <div className="problem-col-head">
+          <p className="problem-col-label">{after.label}</p>
+          <h3 className="problem-col-heading">{after.heading}</h3>
+        </div>
         <ul className="problem-col-points">
           {after.points.map((p) => (
             <li key={p}>{p}</li>

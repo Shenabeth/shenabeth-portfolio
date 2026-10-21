@@ -38,6 +38,29 @@ const listVariants = {
 };
 
 /**
+ * Render a role heading, accenting the leading name on the author's own row.
+ *
+ * Entries are written as "Name — Title" when there's a name to show, so the
+ * part before the em dash is the name: it gets the accent color so the
+ * author's row is identifiable at a glance, while the title stays neutral.
+ *
+ * @param role - The row's heading text
+ * @param isMe - True for the author's own row
+ * @returns The heading's contents
+ */
+function renderRoleName(role: string, isMe?: boolean): React.ReactNode {
+  const split = role.indexOf('—');
+  if (!isMe || split === -1) return role;
+
+  return (
+    <>
+      <span className="roles-row-me-name">{role.slice(0, split).trim()}</span>
+      {` ${role.slice(split)}`}
+    </>
+  );
+}
+
+/**
  * Render a team's roles and contributions as a list.
  *
  * @param roles - Role entries; one may be flagged `isMe`
@@ -59,8 +82,10 @@ export function RolesSection({ roles }: RolesSectionProps): React.ReactElement {
           variants={rowVariants}
         >
           <div className="roles-row-head">
-            <span className="roles-row-name">{role.role}</span>
-            {role.isMe && <span className="mono-tag">that&apos;s me</span>}
+            <span className="roles-row-name">
+              {renderRoleName(role.role, role.isMe)}
+            </span>
+            {role.isMe && <span className="mono-tag roles-row-tag">That&apos;s Me</span>}
           </div>
           <p className="roles-row-contribution">{role.contribution}</p>
         </motion.li>
