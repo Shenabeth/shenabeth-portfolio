@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
 const INSTANT_DURATION = 350;
 const REVEAL_DURATION = 1400;
+const SCRAMBLE_INTERVAL = 50;
 
 /**
  * @param instant - When true, every character scrambles together for a
@@ -16,6 +17,7 @@ export function ScrambleText({ text, instant = false }: { text: string; instant?
 
   useEffect(() => {
     let startTime: number;
+    let lastScrambleTime = 0;
     const duration = instant ? INSTANT_DURATION : REVEAL_DURATION;
 
     const animate = (currentTime: number) => {
@@ -28,21 +30,25 @@ export function ScrambleText({ text, instant = false }: { text: string; instant?
         return;
       }
 
-      const newText = text
-        .split('')
-        .map((char, index) => {
-          if (instant) {
-            return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
-          }
-          const charDelay = (index / text.length) * duration;
-          if (elapsed < charDelay) {
-            return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
-          }
-          return char;
-        })
-        .join('');
+      if (currentTime - lastScrambleTime >= SCRAMBLE_INTERVAL) {
+        lastScrambleTime = currentTime;
+        const newText = text
+          .split('')
+          .map((char, index) => {
+            if (instant) {
+              return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+            }
+            const charDelay = (index / text.length) * duration;
+            if (elapsed < charDelay) {
+              return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+            }
+            return char;
+          })
+          .join('');
 
-      setDisplayText(newText);
+        setDisplayText(newText);
+      }
+
       requestAnimationFrame(animate);
     };
 
