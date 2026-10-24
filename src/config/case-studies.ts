@@ -220,7 +220,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
     slug: 'sai-system',
     title: 'SAI System',
     summary:
-      'SAI stands for Specialized Artificial Intelligence. Instead of one assistant that tries to do everything, SAI is a set of agents that each stay in their own lane. You sign in, bring your own LLM API key, and talk to a specialist. What makes each one a specialist isn’t a different model — it’s a folder of Markdown instructions that shapes how that agent thinks, acts, and responds. I built it to explore how far you can push an agent’s behavior with instruction design alone before you ever touch the model itself.',
+      'SAI System combines AI-powered learning with a playable dungeon-crawler RPG. Users bring their own AI service credentials, pick from a roster of specialized AI assistants, and chat — or they can enter a 3D dungeon that the game builds fresh every time, where every puzzle they solve to progress is a real computer science concept in disguise. The project started as a DIY home-improvement chatbot and evolved into an ambitious learning platform that proves AI doesn\'t have to be a passive text box — it can be a world you explore.',
     links: [
       { label: 'Live Demo', href: 'https://sai-system.vercel.app/', primary: true },
     ],
@@ -230,19 +230,27 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       { name: 'JavaScript', percent: 1.5, color: LANG_COLOR.javascript },
     ],
     overview: [
-      { label: 'Type', value: 'Bring-your-own-key AI platform' },
-      { label: 'Focus', value: 'Agent behavior via instruction design' },
-      { label: 'Hosting', value: 'Vercel' },
-      { label: 'Status', value: 'Ongoing — live demo up' },
+      { label: 'Type', value: 'AI learning platform + dungeon-crawler RPG' },
+      { label: 'Focus', value: 'Interactive CS education through gamification' },
+      { label: 'Hosting', value: 'Vercel (frontend), AWS (backend)' },
+      { label: 'Status', value: 'Active development — dungeon playable, AWS migration in progress' },
     ],
     techStack: [
       {
         label: 'Framework',
-        items: ['Next.js', 'React', 'TypeScript'],
+        items: ['Next.js 15', 'React 19', 'TypeScript'],
       },
       {
-        label: 'Auth & Hosting',
-        items: ['AWS Cognito', 'Vercel'],
+        label: 'Styling & Motion',
+        items: ['Tailwind CSS', 'Framer Motion', 'WCAG AA+ accessible'],
+      },
+      {
+        label: '3D Game Engine',
+        items: ['React Three Fiber', 'Three.js', 'Zustand'],
+      },
+      {
+        label: 'Backend & Security',
+        items: ['AWS Cognito', 'DynamoDB', 'Web Crypto API', 'Vercel'],
       },
       {
         label: 'AI',
@@ -250,51 +258,51 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       },
     ],
     showcase: {
-      title: 'The Agents',
+      title: 'Core Systems',
       description:
-        'Each agent is defined by its own set of Markdown instructions. One is live to try now; the rest are in progress.',
+        'The platform is built around four interlocking systems — a procedural dungeon, a living hub world, a specialized agent roster, and a bring-your-own-key model that keeps AI costs at zero.',
       items: [
         {
-          title: 'Forge — live',
-          body: 'A hands-on build assistant for indoor and outdoor DIY projects. It gives materials, shopping lists, and an honest call on when a job is worth hiring out.',
+          title: 'Procedural 3D Dungeon',
+          body: 'Every expedition generates a completely new layout from a random seed. The generator carves rooms, connects them with corridors, and places enemies, items, and objectives — then automatically verifies the floor is completable. Five floors of increasing difficulty, each tied to a real CS topic dressed up in sci-fi framing. Fog of war, tile-based movement, and turn-based combat play out in a fully rendered 3D scene.',
         },
         {
-          title: 'Challenger — in progress',
-          body: 'A decision partner built to pressure-test choices and lay out the tradeoffs instead of just agreeing with you.',
+          title: 'The Hub World',
+          body: 'Between dungeon runs, players explore a 3D town plaza with free-roam movement. A market, quest board, schoolhouse, player home, and expedition gate each open a different game panel. Resident NPCs, animated scenery, and a day/night cycle make the space feel lived-in.',
         },
         {
-          title: 'Scout — in progress',
-          body: 'A research agent focused on finding, comparing, and citing sources rather than answering from memory.',
+          title: 'Specialized Agent Roster',
+          body: 'Nine agents — Structural, Materials, Outdoor, Indoor, Safety & Code, Research, Strategist, Devil\'s Advocate, and a General fallback — each defined by Markdown instructions. The system scans each message for signal words and routes it to the best match. Strategist and Devil\'s Advocate serve as "council anchors" that can join any conversation.',
         },
         {
-          title: 'Pathfinder — in progress',
-          body: 'A planning agent for career and learning roadmaps, mapping a goal into concrete next steps.',
+          title: 'AI-Generated Challenges',
+          body: 'In assisted mode, the player\'s own AI generates brand-new puzzles for each floor. The AI writes the content; grading is always handled by the app\'s own code. If the AI fails entirely, a pre-written puzzle swaps in seamlessly so the run is never interrupted — infinite variety with zero risk to fairness.',
         },
       ],
     },
     features: [
       {
         title: 'Bring your own key',
-        body: 'You connect your own LLM API key, so you stay in control of which provider you use and of your own usage and billing. Keys are encrypted at rest.',
+        body: 'Users plug in their own API key from any supported provider (OpenAI, Gemini, etc.). Zero platform cost, full user control over provider and spending, and keys are encrypted on the user\'s device with Web Crypto (PBKDF2 + AES-GCM) before they\'re ever stored.',
       },
       {
-        title: 'Specialists, not a generalist',
-        body: 'Picking the right agent for the task gives sharper answers than one do-everything chatbot. You can choose a specialist directly or take a short quiz to be matched to one.',
+        title: 'Backend-agnostic architecture',
+        body: 'The UI talks to a generic backend contract — "sign in," "save a key," "load conversations" — not to any specific service. Behind it, adapters translate to whichever backend is configured. A local adapter handles guest mode, an AWS adapter handles production, and the app picks which to use on startup.',
       },
       {
-        title: 'Instruction-defined behavior',
-        body: 'Each agent’s personality and expertise come from a folder of Markdown instructions, so tuning an agent means editing prose, not retraining a model.',
+        title: 'Guest mode',
+        body: 'When no cloud backend is detected, the app automatically opens a local guest session so every page is fully browsable. Reviewers and visitors can explore the entire app without creating an account.',
       },
       {
-        title: 'Accounts and saved chats',
-        body: 'Sign-in runs on AWS Cognito and conversations are saved to your account, so you can pick a thread back up later.',
+        title: 'Tech Chef Academy',
+        body: 'A recipe-themed mini-game inside the dashboard: match tech terms to definitions, then order steps or sort items into categories. Completed recipes earn stars, XP, and rank-ups — a lighter, more structured learning path outside the dungeon.',
       },
     ],
     lessons: [
-      'Feeding an agent Markdown instructions shapes its behavior, but it isn’t fine-tuning — it’s prompt and context engineering, and it has real limits.',
-      'The honest next step is fine-tuning on actual datasets; that’s where this project is headed as it keeps evolving.',
-      'A single all-purpose chatbot felt like a copy of what already exists, so the more interesting direction is narrow, opinionated specialists.',
-      'Next up is a game mode: instead of just chatting, you’d use the agents to work through simulated real-world problems.',
+      'Starting with a backend contract instead of an implementation meant the entire frontend could be built, tested, and deployed using browser storage. When it came time to wire up the real cloud services, the work was filling in pre-defined operations, not rearchitecting the app.',
+      'The AI challenge system is designed around the assumption that the AI will sometimes break — wrong format, slow response, nonsense output. Every failure mode has a fallback, and the AI is treated as a content generator rather than a game engine: it makes things fresh, but it\'s never load-bearing.',
+      'All game rules — movement, combat, puzzles, turn order — live in one central store. The 3D scene only reads that store and draws what it says. The entire game could be built and tested without rendering a single 3D frame, and a visual bug can never corrupt the player\'s save.',
+      'Wrapping CS concepts in flashcards gets boring fast. Building a dungeon with real combat, inventory, quests, and progression — where solving a puzzle is the only way to advance — made the learning feel like part of the adventure rather than an interruption of it.',
     ],
   },
 
@@ -306,7 +314,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
     slug: 'dog-game',
     title: 'Dog Game',
     summary:
-      '**What’s the Dog Doing?** is a 3D tower-defense game where you play as Doge, a post-apocalyptic dog defending the last skyscraper of his owner’s world from endless waves of cats. You explore the map, collect bones, and place turrets and traps to hold the line as each wave gets harder.',
+      '**What\'s the Dog Doing?** is a 3D tower-defense game where you play as Doge, a post-apocalyptic dog defending the last skyscraper of his owner\'s world from endless waves of cats. You explore the map, collect bones, and place turrets and traps to hold the line as each wave gets harder.',
     links: [
       { label: 'Play The Game', href: 'https://dog-game-demo.vercel.app/', primary: true },
     ],
@@ -314,14 +322,14 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
      * The demo also gets its own block partway down the page. The banner
      * button above is the first thing on the page, but it scrolls out of
      * reach immediately on a write-up this long, and a reader who decides
-     * to try the game after reading about it shouldn't have to scroll back.
+     * to try the game after reading about it shouldn\'t have to scroll back.
      */
     playable: {
       href: 'https://dog-game-demo.vercel.app/',
       label: 'Play The Demo',
       copy: 'The WebGL build runs in the browser — no install, no Unity, no download. Move Doge around the map, collect bones, and place turrets before the next wave of cats arrives. The game is unfinished, so expect rough edges, but the core loop is all there and playable. The full control legend is right below this block.',
       /* No "Controls" row here: the Controls section now sits directly under
-         this block, so these notes cover what the legend doesn't. */
+         this block, so these notes cover what the legend doesn\'t. */
       notes: [
         { label: 'Platform', value: 'Browser (WebGL) — desktop recommended' },
         { label: 'Built with', value: 'Unity · C# · Blender' },
@@ -358,12 +366,12 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       {
         role: 'Shenabeth — Team Leader, Sound, Asset & UX Design',
         contribution:
-          'Coordinated assignments and built front-end systems: Doge’s movement, player interactions, UI, and sound. Created sounds, assets, and UI elements, and helped guide the team’s design choices and overall aesthetic.',
+          'Coordinated assignments and built front-end systems: Doge\'s movement, player interactions, UI, and sound. Created sounds, assets, and UI elements, and helped guide the team\'s design choices and overall aesthetic.',
         isMe: true,
       },
       {
         role: 'Combat System Designer',
-        contribution: 'Implemented enemy waves, AI behavior, and the player’s weapons.',
+        contribution: 'Implemented enemy waves, AI behavior, and the player\'s weapons.',
       },
       {
         role: 'Inventory Mechanics',
@@ -413,7 +421,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         },
         {
           title: 'Pea Shooter',
-          body: 'A lightweight, rapid-fire unit for swarms. Cheap and fast, it’s ideal for early-game defense and keeping steady pressure across waves.',
+          body: 'A lightweight, rapid-fire unit for swarms. Cheap and fast, it\'s ideal for early-game defense and keeping steady pressure across waves.',
           image: '/projects/dog-game/pea-shooter.png',
           caption: 'Figure 4. The pea shooter model.',
         },
@@ -442,7 +450,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       },
       {
         title: 'Bark crowd control',
-        body: 'Doge’s bark temporarily disables nearby enemies, giving players an active ability to buy time in a tight spot.',
+        body: 'Doge\'s bark temporarily disables nearby enemies, giving players an active ability to buy time in a tight spot.',
       },
       {
         title: 'Interactive shop & inventory',
@@ -464,7 +472,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         },
         {
           image: '/projects/dog-game/cannon-wireframe.png',
-          caption: 'Figure 9. The team’s first cannon wireframe.',
+          caption: 'Figure 9. The team\'s first cannon wireframe.',
         },
         {
           image: '/projects/dog-game/cannon-test.gif',
@@ -500,7 +508,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
       'Version control held the project together. Five people building separate systems in one Unity project broke the main build often, and careful branching and merging was what kept the pieces fitting.',
       'The economy started out of balance. Cats killed the player faster than bones came in, so the difficulty had to drop a lot before anyone could afford a defense. The demo is still too hard, and easing it further is the first fix.',
       'Iterative playtesting is what tuned wave pacing and difficulty into a curve that challenges without frustrating.',
-      'Small touches like custom Doge-face bullets are invisible in motion, but they’re the polish that makes a game feel cared for.',
+      'Small touches like custom Doge-face bullets are invisible in motion, but they\'re the polish that makes a game feel cared for.',
     ],
   },
 
@@ -580,7 +588,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
 
   // Depth and Contact Prediction AI — the report PDF goes in
   // /public/projects/depth-contact-ai/ as report.pdf (see `document` below).
-  // Image assets, if added, go in the same folder; each showcase/gallery item's
+  // Image assets, if added, go in the same folder; each showcase/gallery item\'s
   // optional `image` field points at one. The page is complete without them.
   'depth-contact-ai': {
     slug: 'depth-contact-ai',
@@ -629,7 +637,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         },
         {
           title: 'Depth & 3D shape',
-          body: 'A depth map that recovers the geometry of what was pressed — effectively reconstructing the 3D shape of the object’s surface from a single touch.',
+          body: 'A depth map that recovers the geometry of what was pressed — effectively reconstructing the 3D shape of the object\'s surface from a single touch.',
           caption: 'Figure 2. Predicted depth / height map.',
         },
       ],
@@ -641,7 +649,7 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         'The full write-up — approach, model, and results. Open it in a new tab or download it above, or read it inline.',
     },
     lessons: [
-      'Tactile images look nothing like camera images, so the hard part is learning what the sensor’s deformation patterns actually mean.',
+      'Tactile images look nothing like camera images, so the hard part is learning what the sensor\'s deformation patterns actually mean.',
       'Predicting contact and depth together is more honest than either alone — knowing where something touches is what makes the recovered shape trustworthy.',
       'Framing a haptics problem as image-to-map prediction let familiar computer-vision tools do work they were never obviously meant for.',
     ],
@@ -659,7 +667,7 @@ export function getCaseStudy(slug: string): CaseStudy | undefined {
 }
 
 /**
- * Return every known case study slug — used by Next's generateStaticParams.
+ * Return every known case study slug — used by Next\'s generateStaticParams.
  *
  * @returns Array of slug strings
  */

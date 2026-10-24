@@ -21,7 +21,7 @@ export const SOCIAL_LINKS = {
 
 /**
  * Resume PDF asset. The canonical file lives in the repo ROOT as
- * `Shenabeth_Jenkins_Software_Engineer_Resume.pdf` so it's easy to drop in
+ * `Shenabeth_Jenkins_Software_Engineer_Resume.pdf` so it\'s easy to drop in
  * a new version. A `prebuild` npm script copies it into `public/` (which is
  * git-ignored) before every build, so Next serves it from the site root at
  * the URL below. `downloadName` is the filename the browser suggests on save.
@@ -53,12 +53,12 @@ export const FEATURED_PROJECTS: Project[] = [
   {
     id: 'sai-system',
     title: 'SAI System',
-    category: 'AI Platform · Specialized Agents',
+    category: 'AI Learning Platform · Dungeon RPG',
     description:
-      'Specialized AI agents that each stay in their lane. You bring your own LLM API key and work with specialists whose behavior is shaped by folders of Markdown instructions.',
+      'An AI-powered learning platform with a playable 3D dungeon-crawler where every puzzle is a real CS concept in disguise. Bring your own API key, chat with specialized agents, or explore procedurally generated floors.',
     longDescription:
-      'SAI (Specialized Artificial Intelligence) is a bring-your-own-key AI platform. Users sign in, add their own LLM API key, and work with purpose-built specialist agents instead of one generalist chatbot. Each agent’s expertise comes from its own set of Markdown instructions — an experiment in how far instruction design can shape agent behavior. Auth runs on AWS Cognito; the app is hosted on Vercel.',
-    techStack: ['Next.js', 'TypeScript', 'AWS Cognito'],
+      'SAI System combines AI-powered learning with a browser-native 3D dungeon-crawler RPG. Users bring their own API key, pick from nine specialized AI assistants, and chat — or enter a procedurally generated dungeon where every puzzle is a real computer science concept. Built with React Three Fiber for in-browser 3D, a backend-agnostic adapter layer, and client-side encryption for API keys.',
+    techStack: ['Next.js', 'React Three Fiber', 'AWS Cognito'],
     demoLink: 'https://sai-system.vercel.app/',
     caseStudyLink: '/projects/sai-system',
     status: 'live',
@@ -71,7 +71,7 @@ export const FEATURED_PROJECTS: Project[] = [
     description:
       'A 3D tower-defense game made in Unity where you play as Doge, defending the last skyscraper from waves of cats with turrets and traps. A five-person team project I led.',
     longDescription:
-      'What’s the Dog Doing? is a 3D, open-world tower-defense game built in Unity and exported to WebGL. Players explore the map, collect bones, and place turrets and traps to survive escalating waves of cats. Built by a five-person team; I led it and handled sound, assets, UI, and Doge’s movement.',
+      'What\'s the Dog Doing? is a 3D, open-world tower-defense game built in Unity and exported to WebGL. Players explore the map, collect bones, and place turrets and traps to survive escalating waves of cats. Built by a five-person team; I led it and handled sound, assets, UI, and Doge\'s movement.',
     techStack: ['Unity', 'C#', 'WebGL'],
     demoLink: 'https://dog-game-demo.vercel.app/',
     caseStudyLink: '/projects/dog-game',
@@ -82,7 +82,7 @@ export const FEATURED_PROJECTS: Project[] = [
 
 /**
  * Secondary projects. These are NOT part of the featured carousel or the nav —
- * they're listed only in the "More Projects" section on the projects page, each
+ * they\'re listed only in the "More Projects" section on the projects page, each
  * linking to its own case-study page. Keep featured work in FEATURED_PROJECTS;
  * add smaller / course / research projects here.
  */
@@ -225,7 +225,7 @@ export const CAPABILITIES: Capability[] = [
 
 /**
  * The capability row under "Featured work" on /projects. These were the
- * landing page's three abstract skill cards (cloud architecture, full-stack
+ * landing page\'s three abstract skill cards (cloud architecture, full-stack
  * products, AI systems); each now names the project that demonstrates the
  * discipline, so the claim and the evidence are the same card. Text and
  * tags only — these deliberately carry no imagery.
@@ -242,8 +242,8 @@ export const PROJECT_CAPABILITIES: ProjectCapability[] = [
   {
     kicker: 'Full-stack products',
     title: 'SAI System',
-    copy: 'Accessible interfaces and dependable application layers that make complex systems feel straightforward. Auth, key handling, and the agent workspace, built as one typed application.',
-    tags: ['Next.js', 'TypeScript', 'AWS Cognito', 'APIs'],
+    copy: 'A learning platform and 3D dungeon RPG running entirely in the browser — procedural generation, nine AI agents, client-side encryption, and a backend-agnostic adapter layer, built as one typed application.',
+    tags: ['Next.js', 'React Three Fiber', 'AWS Cognito', 'Three.js'],
     href: '/projects/sai-system',
     demoLink: 'https://sai-system.vercel.app/',
   },
@@ -286,7 +286,7 @@ export const MORE_PROJECT_CAPABILITIES: ProjectCapability[] = [
  */
 export const ABOUT = {
   heading: 'Engineering should reduce friction, not add to it.',
-  lead: 'I’m Shenabeth, a computer science professional who enjoys finding the clean path through complicated problems.',
+  lead: 'I\'m Shenabeth, a computer science professional who enjoys finding the clean path through complicated problems.',
   body: 'My work spans cloud infrastructure, full-stack development, and applied AI. Across all three, I care about the same things: understandable systems, intentional interfaces, and details that hold up beyond the demo.',
   principles: [
     'Clarity over cleverness',
